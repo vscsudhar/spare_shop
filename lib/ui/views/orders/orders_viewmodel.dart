@@ -1,0 +1,85 @@
+import 'package:spare_shop/app/app.dialogs.dart';
+import 'package:spare_shop/app/app.locator.dart';
+import 'package:spare_shop/core/mixins/navigation_mixin.dart';
+import 'package:spare_shop/core/services/order_service.dart';
+import 'package:spare_shop/ui/common/shop_models.dart';
+import 'package:spare_shop/ui/common/voltspare_models.dart';
+import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
+
+class OrdersViewModel extends FutureViewModel<void> with NavigationMixin {
+  final _dialogService = locator<DialogService>();
+  final _orderService = locator<OrderService>();
+
+  List<ShopOrder> _orders = [];
+  OrderStatusFilter _selectedStatus = OrderStatusFilter.all;
+
+  AppTab get currentTab => AppTab.orders;
+  OrderStatusFilter get selectedStatus => _selectedStatus;
+
+  List<ShopOrder> get filteredOrders {
+    if (_selectedStatus == OrderStatusFilter.all) {
+      return List.unmodifiable(_orders);
+    }
+
+    return _orders
+        .where((order) => order.status == _selectedStatus)
+        .toList(growable: false);
+  }
+
+  @override
+  Future<void> futureToRun() async {
+    await loadOrders();
+  }
+
+  Future<void> loadOrders() async {
+    try {
+      final list = await _orderService.getMyOrders();
+      _orders = list.map((order) {
+        OrderStatusFilter filterStatus = OrderStatusFilter.processing;
+        if (order.status == OrderStatus.shipped) {
+          filterStatus = OrderStatusFilter.shipped;
+        } else if (order.status == OrderStatus.delivered) {
+          filterStatus = OrderStatusFilter.delivered;
+        }
+
+        final date = order.date;
+        final dateStr = '${date.day}/${date.month}/${date.year}';
+        final itemsCount =
+            order.items.fold<int>(0, (sum, i) => sum + i.quantity);
+
+        return ShopOrder(
+          id: order.id,
+          orderNumber: order.orderNumber,
+          dateLabel: dateStr,
+          itemCountLabel: '$itemsCount item${itemsCount > 1 ? 's' : ''}',
+          total: order.total,
+          status: filterStatus,
+        );
+      }).toList();
+      rebuildUi();
+    } catch (_) {}
+  }
+
+  void selectStatus(OrderStatusFilter status) {
+    _selectedStatus = status;
+    rebuildUi();
+  }
+
+  Future<void> viewOrderDetails(ShopOrder order) async {
+    await _dialogService.showCustomDialog(
+      variant: DialogType.infoAlert,
+      title: 'Order ${order.orderNumber}',
+      description:
+          'This order has ${order.itemCountLabel} with total amount of ₹${order.total.toStringAsFixed(2)}. Order date: ${order.dateLabel}.',
+    );
+  }
+
+  Future<void> onTabSelected(AppTab tab) async {
+    int index = 0;
+    if (tab == AppTab.wishlist) index = 1;
+    if (tab == AppTab.cart) index = 3;
+    if (tab == AppTab.profile) index = 4;
+    await navigateToTab(index, currentIndex: 2);
+  }
+}
