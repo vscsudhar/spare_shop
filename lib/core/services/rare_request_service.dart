@@ -10,6 +10,8 @@ class RareRequestService {
   RareRequestService({ApiClient? apiClient})
       : _apiClient = apiClient ?? locator<ApiClient>();
 
+  final Map<String, Future<dynamic>> _inFlightRequests = {};
+
   // --- Customer Sourcing ---
 
   Future<RareProductRequestModel> createRequest({
@@ -50,7 +52,18 @@ class RareRequestService {
     return RareProductRequestModelExtension.fromJson(data);
   }
 
-  Future<List<RareProductRequestModel>> getMyRequests() async {
+  Future<List<RareProductRequestModel>> getMyRequests() {
+    const key = 'getMyRequests';
+    if (_inFlightRequests.containsKey(key)) {
+      return _inFlightRequests[key]! as Future<List<RareProductRequestModel>>;
+    }
+
+    final future = _getMyRequestsInternal();
+    _inFlightRequests[key] = future;
+    return future.whenComplete(() => _inFlightRequests.remove(key));
+  }
+
+  Future<List<RareProductRequestModel>> _getMyRequestsInternal() async {
     final response = await _apiClient.get('${ApiEndpoints.rareRequests}/my');
     final List<dynamic> list = response.data['data'] ?? [];
     return list
@@ -58,13 +71,35 @@ class RareRequestService {
         .toList();
   }
 
-  Future<RareProductRequestModel> getRequestById(String id) async {
+  Future<RareProductRequestModel> getRequestById(String id) {
+    final key = 'getRequestById_$id';
+    if (_inFlightRequests.containsKey(key)) {
+      return _inFlightRequests[key]! as Future<RareProductRequestModel>;
+    }
+
+    final future = _getRequestByIdInternal(id);
+    _inFlightRequests[key] = future;
+    return future.whenComplete(() => _inFlightRequests.remove(key));
+  }
+
+  Future<RareProductRequestModel> _getRequestByIdInternal(String id) async {
     final response = await _apiClient.get('${ApiEndpoints.rareRequests}/$id');
     final data = response.data['data'] ?? {};
     return RareProductRequestModelExtension.fromJson(data);
   }
 
-  Future<List<RareChatMessageModel>> getChatMessages(String id) async {
+  Future<List<RareChatMessageModel>> getChatMessages(String id) {
+    final key = 'getChatMessages_$id';
+    if (_inFlightRequests.containsKey(key)) {
+      return _inFlightRequests[key]! as Future<List<RareChatMessageModel>>;
+    }
+
+    final future = _getChatMessagesInternal(id);
+    _inFlightRequests[key] = future;
+    return future.whenComplete(() => _inFlightRequests.remove(key));
+  }
+
+  Future<List<RareChatMessageModel>> _getChatMessagesInternal(String id) async {
     final response =
         await _apiClient.get('${ApiEndpoints.rareRequests}/$id/messages');
     final List<dynamic> list = response.data['data'] ?? [];
@@ -73,7 +108,8 @@ class RareRequestService {
         .toList();
   }
 
-  Future<RareChatMessageModel> sendChatMessage(String id, String text, {List<String>? images}) async {
+  Future<RareChatMessageModel> sendChatMessage(String id, String text,
+      {List<String>? images}) async {
     final response = await _apiClient.post(
       '${ApiEndpoints.rareRequests}/$id/messages',
       data: {

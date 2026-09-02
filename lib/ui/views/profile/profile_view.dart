@@ -25,7 +25,13 @@ class ProfileView extends StackedView<ProfileViewModel> {
             children: [
               SizedBox(
                 width: 320,
-                child: _ProfileHeroCard(viewModel: viewModel),
+                child: Column(
+                  children: [
+                    _ProfileHeroCard(viewModel: viewModel),
+                    const SizedBox(height: 16),
+                    _WishlistProfileCard(viewModel: viewModel),
+                  ],
+                ),
               ),
               const SizedBox(width: 24),
               Expanded(
@@ -53,7 +59,8 @@ class ProfileView extends StackedView<ProfileViewModel> {
                             return ProfileMenuTile(
                               title: item.title,
                               icon: item.icon,
-                              onTap: () => viewModel.handleMenuTap(item.title),
+                              onTap: () =>
+                                  viewModel.handleMenuTap(item.title, context),
                             );
                           },
                           separatorBuilder: (_, __) => const Divider(height: 1),
@@ -73,7 +80,11 @@ class ProfileView extends StackedView<ProfileViewModel> {
           child: Column(
             children: [
               _ProfileHeroCard(viewModel: viewModel),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
+              _WishlistProfileCard(viewModel: viewModel),
+              const SizedBox(height: 14),
+              _SupportTicketsProfileCard(viewModel: viewModel),
+              const SizedBox(height: 16),
               SurfaceCard(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
@@ -86,7 +97,8 @@ class ProfileView extends StackedView<ProfileViewModel> {
                     return ProfileMenuTile(
                       title: item.title,
                       icon: item.icon,
-                      onTap: () => viewModel.handleMenuTap(item.title),
+                      onTap: () =>
+                          viewModel.handleMenuTap(item.title, context),
                     );
                   },
                   separatorBuilder: (_, __) => const Divider(height: 1),
@@ -144,7 +156,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
 
   @override
   void onViewModelReady(ProfileViewModel viewModel) {
-    viewModel.init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => viewModel.init());
     super.onViewModelReady(viewModel);
   }
 }
@@ -174,15 +186,20 @@ class _ProfileHeroCard extends StatelessWidget {
                   backgroundColor: Colors.white24,
                   backgroundImage: viewModel.user.imageUrl != null
                       ? (viewModel.user.imageUrl!.startsWith('http')
-                          ? NetworkImage(viewModel.user.imageUrl!)
-                          : FileImage(File(viewModel.user.imageUrl!))) as ImageProvider?
+                              ? NetworkImage(viewModel.user.imageUrl!)
+                              : FileImage(File(viewModel.user.imageUrl!)))
+                          as ImageProvider?
                       : null,
                   child: viewModel.user.imageUrl == null
                       ? Text(
                           viewModel.user.name.isNotEmpty
-                              ? viewModel.user.name.characters.first.toUpperCase()
+                              ? viewModel.user.name.characters.first
+                                  .toUpperCase()
                               : 'U',
-                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .displaySmall
+                              ?.copyWith(
                                 color: Colors.white,
                               ),
                         )
@@ -231,7 +248,8 @@ class _ProfileHeroCard extends StatelessWidget {
             top: 16,
             right: 16,
             child: IconButton(
-              icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
+              icon:
+                  const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
               onPressed: () => viewModel.editProfile(context),
               style: IconButton.styleFrom(
                 backgroundColor: Colors.white24,
@@ -240,6 +258,205 @@ class _ProfileHeroCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _WishlistProfileCard extends StatelessWidget {
+  const _WishlistProfileCard({required this.viewModel});
+
+  final ProfileViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final count = viewModel.wishlistCount;
+    final String countLabel =
+        count == 1 ? '1 saved item' : '$count saved items';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => viewModel.openWishlist(context),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: const Color(0xFFFF5277).withValues(alpha: 0.18),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFF5277).withValues(alpha: 0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFF5277), Color(0xFFFF758C)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFFF5277).withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.favorite_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Wishlist',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: kcVoltSpareDark,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    const Text(
+                      'View your saved products',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: kcVoltSpareTextSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      countLabel,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFFF5277),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 26,
+                color: kcVoltSpareDark,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SupportTicketsProfileCard extends StatelessWidget {
+  const _SupportTicketsProfileCard({required this.viewModel});
+
+  final ProfileViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => viewModel.openSupportTickets(context),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: const Color(0xFF0070F3).withValues(alpha: 0.18),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0070F3).withValues(alpha: 0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0070F3), Color(0xFF00C6FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0070F3).withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.support_agent_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Support Tickets',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: kcVoltSpareDark,
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Get help or chat with our team',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: kcVoltSpareTextSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 26,
+                color: kcVoltSpareDark,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/product_service.dart';
+import 'package:spare_shop/core/services/wishlist_service.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
 import 'package:stacked/stacked.dart';
 
-class SearchFiltersViewModel extends FutureViewModel<void> with NavigationMixin {
+class SearchFiltersViewModel extends FutureViewModel<void>
+    with NavigationMixin {
   final _productService = locator<ProductService>();
 
   int get currentTabIndex => 1;
@@ -90,28 +92,40 @@ class SearchFiltersViewModel extends FutureViewModel<void> with NavigationMixin 
     // 4. Keyword search fallback check
     final nameLower = product.name.toLowerCase();
     final descLower = product.description.toLowerCase();
-    if (nameLower.contains(selectedBrand) || descLower.contains(selectedBrand)) {
+    if (nameLower.contains(selectedBrand) ||
+        descLower.contains(selectedBrand)) {
       return true;
     }
 
     return false;
   }
 
+  final _wishlistService = locator<WishlistService>();
+
+  void _onWishlistChanged() {
+    final wishlistedIds = _wishlistService.wishlistedProductIds;
+    _allProducts = _allProducts
+        .map((p) => p.copyWith(isWishlist: wishlistedIds.contains(p.id)))
+        .toList();
+    rebuildUi();
+  }
+
   @override
   Future<void> futureToRun() async {
+    _wishlistService.wishlistedProductIdsNotifier
+        .removeListener(_onWishlistChanged);
+    _wishlistService.wishlistedProductIdsNotifier
+        .addListener(_onWishlistChanged);
     await loadData();
   }
 
   Future<void> loadData() async {
-    setBusy(true);
     try {
       _categories = await _productService.getCategories();
       _allProducts = await _productService.getProducts();
       _allVehicles = await _productService.getVehicleModels();
     } catch (e) {
       print('Error loading search data: $e');
-    } finally {
-      setBusy(false);
     }
   }
 
@@ -142,6 +156,20 @@ class SearchFiltersViewModel extends FutureViewModel<void> with NavigationMixin 
     notifyListeners();
   }
 
+  bool isWishlistLoading(String id) => _wishlistService.isProductLoading(id);
+
+  Future<void> toggleWishlist(ProductModel product,
+      [BuildContext? context]) async {
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Wishlist');
+      if (!isAuth) return;
+    }
+    try {
+      await _wishlistService.toggleWishlist(product.id);
+    } catch (_) {}
+  }
+
   void openProductDetails(ProductModel product) {
     goToProductDetails(product: product);
   }
@@ -157,6 +185,8 @@ class SearchFiltersViewModel extends FutureViewModel<void> with NavigationMixin 
 
   @override
   void dispose() {
+    _wishlistService.wishlistedProductIdsNotifier
+        .removeListener(_onWishlistChanged);
     searchController.dispose();
     super.dispose();
   }

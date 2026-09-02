@@ -52,12 +52,21 @@ class ProductModel {
   final double rating;
   final String description;
   final String categoryId;
-  final bool isFavorite;
+  final bool isWishlist;
+  bool get isFavorite => isWishlist;
+  bool get isLike => isWishlist;
+  bool get isLiked => isWishlist;
   final bool isFeatured;
   final List<String> compatibleVehicleIds;
   final String? fitmentBadge; // e.g. "Direct Fit", "Compatible"
   final String? imageAsset;
-  final int stockCount;
+  final int? stockCount;
+  final bool stockManaged;
+
+  int? get stockQuantity => stockCount;
+  bool get isStockManaged => stockManaged;
+  bool get isInStock =>
+      stockManaged ? (stockCount != null && stockCount! > 0) : true;
 
   const ProductModel({
     required this.id,
@@ -67,13 +76,17 @@ class ProductModel {
     required this.rating,
     required this.description,
     required this.categoryId,
-    this.isFavorite = false,
+    bool isFavorite = false,
+    bool isLike = false,
+    bool isLiked = false,
+    bool isWishlist = false,
     this.isFeatured = false,
     this.compatibleVehicleIds = const [],
     this.fitmentBadge,
     this.imageAsset,
     this.stockCount = 10,
-  });
+    this.stockManaged = true,
+  }) : isWishlist = isWishlist || isFavorite || isLike || isLiked;
 
   ProductModel copyWith({
     String? id,
@@ -83,12 +96,16 @@ class ProductModel {
     double? rating,
     String? description,
     String? categoryId,
+    bool? isWishlist,
     bool? isFavorite,
+    bool? isLike,
+    bool? isLiked,
     bool? isFeatured,
     List<String>? compatibleVehicleIds,
     String? fitmentBadge,
     String? imageAsset,
     int? stockCount,
+    bool? stockManaged,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -98,12 +115,13 @@ class ProductModel {
       rating: rating ?? this.rating,
       description: description ?? this.description,
       categoryId: categoryId ?? this.categoryId,
-      isFavorite: isFavorite ?? this.isFavorite,
+      isWishlist: isWishlist ?? isLike ?? isLiked ?? isFavorite ?? this.isWishlist,
       isFeatured: isFeatured ?? this.isFeatured,
       compatibleVehicleIds: compatibleVehicleIds ?? this.compatibleVehicleIds,
       fitmentBadge: fitmentBadge ?? this.fitmentBadge,
       imageAsset: imageAsset ?? this.imageAsset,
       stockCount: stockCount ?? this.stockCount,
+      stockManaged: stockManaged ?? this.stockManaged,
     );
   }
 }

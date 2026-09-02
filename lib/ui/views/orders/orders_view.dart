@@ -47,17 +47,43 @@ class OrdersView extends StackedView<OrdersViewModel> {
             ),
             const SizedBox(height: 18),
             Expanded(
-              child: ListView.separated(
-                itemBuilder: (context, index) => OrderCard(
-                  order: viewModel.filteredOrders[index],
-                  desktopLayout: sizingInformation.isDesktop,
-                  onViewDetails: () => viewModel.viewOrderDetails(
-                    viewModel.filteredOrders[index],
-                  ),
-                ),
-                separatorBuilder: (_, __) => const SizedBox(height: 16),
-                itemCount: viewModel.filteredOrders.length,
-              ),
+              child: viewModel.filteredOrders.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.receipt_long_outlined,
+                              size: 64, color: Colors.grey[400]),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No orders found',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'You have not placed any orders in this category.',
+                            style: TextStyle(color: Colors.grey[500]),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      itemBuilder: (context, index) => OrderCard(
+                        order: viewModel.filteredOrders[index],
+                        desktopLayout: sizingInformation.isDesktop,
+                        onViewDetails: () => viewModel.viewOrderDetails(
+                          viewModel.filteredOrders[index],
+                        ),
+                      ),
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      itemCount: viewModel.filteredOrders.length,
+                    ),
             ),
           ],
         );

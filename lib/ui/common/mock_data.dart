@@ -135,9 +135,10 @@ const mockUserProfile = UserProfileData(
 );
 
 const profileMenuItems = <ProfileMenuItemData>[
-  ProfileMenuItemData(title: 'My Orders', icon: Icons.receipt_long_rounded),
-  ProfileMenuItemData(title: 'Wishlist', icon: Icons.favorite_border_rounded),
-  ProfileMenuItemData(title: 'Addresses', icon: Icons.location_on_outlined),
+  ProfileMenuItemData(title: 'My Addresses', icon: Icons.location_on_outlined),
+  ProfileMenuItemData(title: 'Order History', icon: Icons.receipt_long_rounded),
+  ProfileMenuItemData(
+      title: 'My Rare Requests', icon: Icons.build_circle_outlined),
   ProfileMenuItemData(
     title: 'Payment Methods',
     icon: Icons.credit_card_rounded,

@@ -308,8 +308,9 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
 
                   // Submit Button
                   ElevatedButton(
-                    onPressed:
-                        viewModel.canSubmit ? viewModel.submitRequest : null,
+                    onPressed: viewModel.canSubmit
+                        ? () => viewModel.submitRequest(context)
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kcVoltSpareDark,
                       foregroundColor: Colors.white,

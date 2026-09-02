@@ -41,13 +41,21 @@ class SocketService {
   }
 
   void joinRequestRoom(String requestId) {
-    if (_socket == null) return;
-    _socket!.emit('room:join', {'roomId': 'rare-request:$requestId'});
+    joinRoom('rare-request:$requestId');
   }
 
   void leaveRequestRoom(String requestId) {
+    leaveRoom('rare-request:$requestId');
+  }
+
+  void joinRoom(String room) {
     if (_socket == null) return;
-    _socket!.emit('room:leave', {'roomId': 'rare-request:$requestId'});
+    _socket!.emit('room:join', {'roomId': room});
+  }
+
+  void leaveRoom(String room) {
+    if (_socket == null) return;
+    _socket!.emit('room:leave', {'roomId': room});
   }
 
   void emit(String event, dynamic data) {
@@ -58,8 +66,12 @@ class SocketService {
     _socket?.on(event, callback);
   }
 
-  void off(String event) {
-    _socket?.off(event);
+  void off(String event, [Function(dynamic)? handler]) {
+    if (handler != null) {
+      _socket?.off(event, handler);
+    } else {
+      _socket?.off(event);
+    }
   }
 
   void disconnect() {

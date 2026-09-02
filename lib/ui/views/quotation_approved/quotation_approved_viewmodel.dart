@@ -7,19 +7,33 @@ import 'package:stacked/stacked.dart';
 
 class QuotationApprovedViewModel extends BaseViewModel with NavigationMixin {
   final _rareRequestService = locator<RareRequestService>();
+  String? _loadedRequestId;
+  bool _isInitialLoading = false;
+  bool _initialDataLoaded = false;
+
   late String _requestId;
 
   RareProductRequestModel? _request;
   RareProductRequestModel? get request => _request;
 
   void init(String reqId) async {
+    if (_isInitialLoading ||
+        (_loadedRequestId == reqId && _initialDataLoaded)) {
+      return;
+    }
+
+    _isInitialLoading = true;
+    _loadedRequestId = reqId;
     _requestId = reqId;
+
     setBusy(true);
     try {
       _request = await _rareRequestService.getRequestById(_requestId);
+      _initialDataLoaded = true;
       rebuildUi();
     } catch (_) {
     } finally {
+      _isInitialLoading = false;
       setBusy(false);
     }
   }

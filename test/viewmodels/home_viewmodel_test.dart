@@ -14,8 +14,9 @@ void main() {
     group('initialState -', () {
       test(
           'When initialized, categories and featuredProducts should not be empty',
-          () {
+          () async {
         final model = getModel();
+        await model.loadData();
         expect(model.categories.isNotEmpty, true);
         expect(model.featuredProducts.isNotEmpty, true);
       });

@@ -14,12 +14,18 @@ class RareRequestDetailView extends StackedView<RareRequestDetailViewModel> {
   }) : super(key: key);
 
   @override
+  void onViewModelReady(RareRequestDetailViewModel viewModel) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => viewModel.init(requestId));
+    super.onViewModelReady(viewModel);
+  }
+
+  @override
   Widget builder(
     BuildContext context,
     RareRequestDetailViewModel viewModel,
     Widget? child,
   ) {
-    viewModel.init(requestId);
     final req = viewModel.request;
 
     if (req == null) {

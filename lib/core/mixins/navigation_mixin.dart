@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/app/app.router.dart';
+import 'package:spare_shop/core/services/token_service.dart';
+import 'package:spare_shop/ui/common/support_ticket_models.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
+import 'package:spare_shop/ui/widgets/common/auth_prompt_dialog.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 mixin NavigationMixin {
@@ -194,6 +198,47 @@ mixin NavigationMixin {
       Routes.addAddressView,
       arguments: AddAddressViewArguments(address: address),
     );
+  }
+
+  Future<dynamic>? goToSupportTickets() {
+    return navigationService.navigateTo(Routes.supportTicketsView);
+  }
+
+  Future<dynamic>? goToCreateTicket() {
+    return navigationService.navigateTo(Routes.createTicketView);
+  }
+
+  Future<dynamic>? goToTicketChat({required SupportTicketModel ticket}) {
+    return navigationService.navigateTo(
+      Routes.ticketChatView,
+      arguments: TicketChatViewArguments(ticket: ticket),
+    );
+  }
+
+  /// Check if user is in guest mode and show auth dialog if needed.
+  /// Returns true if authenticated, false if guest (and prompts dialog).
+  Future<bool> ensureAuthenticated(
+    BuildContext context, {
+    String? title,
+    String? message,
+    String? featureName,
+  }) async {
+    final tokenService = locator<TokenService>();
+    final isGuest = await tokenService.isGuestMode();
+    final token = await tokenService.getAccessToken();
+
+    if (isGuest || token == null || token.isEmpty) {
+      if (context.mounted) {
+        await AuthPromptDialog.show(
+          context,
+          title: title,
+          message: message,
+          featureName: featureName,
+        );
+      }
+      return false;
+    }
+    return true;
   }
 
   Future<dynamic> navigateToTab(

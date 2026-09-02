@@ -13,12 +13,18 @@ class QuotationApprovedView extends StackedView<QuotationApprovedViewModel> {
   }) : super(key: key);
 
   @override
+  void onViewModelReady(QuotationApprovedViewModel viewModel) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => viewModel.init(requestId));
+    super.onViewModelReady(viewModel);
+  }
+
+  @override
   Widget builder(
     BuildContext context,
     QuotationApprovedViewModel viewModel,
     Widget? child,
   ) {
-    viewModel.init(requestId);
     final req = viewModel.request;
     final q = req?.quotation;
 

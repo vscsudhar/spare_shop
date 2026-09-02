@@ -82,7 +82,8 @@ class MyRareRequestsView extends StackedView<MyRareRequestsViewModel> {
                         ? const Center(
                             child: Text(
                               'No rare requests found matching this status.',
-                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 13),
                             ),
                           )
                         : ListView.separated(
@@ -102,7 +103,7 @@ class MyRareRequestsView extends StackedView<MyRareRequestsViewModel> {
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => viewModel.goToCreateRequest(),
+          onPressed: () => viewModel.goToCreateRequest(context),
           backgroundColor: kcVoltSpareDark,
           icon: const Icon(Icons.add_rounded, color: Colors.white),
           label: const Text(
@@ -130,13 +131,18 @@ class MyRareRequestsView extends StackedView<MyRareRequestsViewModel> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'REF: #${r.id}',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: Colors.grey),
+                Expanded(
+                  child: Text(
+                    'REF: #${r.id}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.grey),
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -145,7 +151,7 @@ class MyRareRequestsView extends StackedView<MyRareRequestsViewModel> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    r.status.name.toUpperCase(),
+                    _getStatusBadgeLabel(r.status),
                     style: TextStyle(
                       color: _getStatusColor(r.status),
                       fontWeight: FontWeight.bold,
@@ -214,6 +220,27 @@ class MyRareRequestsView extends StackedView<MyRareRequestsViewModel> {
         return Colors.green;
       case RareRequestStatus.cancelled:
         return Colors.red;
+    }
+  }
+
+  String _getStatusBadgeLabel(RareRequestStatus status) {
+    switch (status) {
+      case RareRequestStatus.submitted:
+        return 'SUBMITTED';
+      case RareRequestStatus.searching:
+        return 'SEARCHING';
+      case RareRequestStatus.found:
+        return 'FOUND';
+      case RareRequestStatus.quotationSent:
+        return 'QUOTE RECEIVED';
+      case RareRequestStatus.negotiation:
+        return 'NEGOTIATING';
+      case RareRequestStatus.approved:
+        return 'APPROVED';
+      case RareRequestStatus.convertedToOrder:
+        return 'ORDER CREATED';
+      case RareRequestStatus.cancelled:
+        return 'CANCELLED';
     }
   }
 

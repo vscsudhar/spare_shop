@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/app/app.router.dart';
+import 'package:spare_shop/core/services/wishlist_service.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/responsive.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
@@ -305,8 +306,6 @@ class VoltSpareBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const bool hideAccount = false;
-
     return Container(
       decoration: BoxDecoration(
         color: kcVoltSpareWhite,
@@ -319,10 +318,7 @@ class VoltSpareBottomNavigation extends StatelessWidget {
       ),
       child: BottomNavigationBar(
         currentIndex: selectedIndex,
-        onTap: (index) {
-          if (hideAccount && index == 4) return;
-          onTap(index);
-        },
+        onTap: onTap,
         type: BottomNavigationBarType.fixed,
         backgroundColor: kcVoltSpareWhite,
         selectedItemColor: kcVoltSpareEVGreen,
@@ -352,12 +348,9 @@ class VoltSpareBottomNavigation extends StatelessWidget {
             label: 'Cart',
           ),
           BottomNavigationBarItem(
-            icon: hideAccount
-                ? SizedBox.shrink()
-                : Icon(Icons.person_outline_rounded),
-            activeIcon:
-                hideAccount ? SizedBox.shrink() : Icon(Icons.person_rounded),
-            label: hideAccount ? '' : 'Account',
+            icon: Icon(Icons.person_outline_rounded),
+            activeIcon: Icon(Icons.person_rounded),
+            label: 'Account',
           ),
         ],
       ),
@@ -768,16 +761,53 @@ class ProductCard extends StatelessWidget {
   final ProductModel product;
   final VoidCallback onTap;
   final VoidCallback onAddToCart;
+  final VoidCallback? onFavoriteToggle;
+  final bool showFavorite;
+  final bool isWishlistPage;
+  final bool isLoadingFavorite;
+  final bool showWishlistButton;
 
   const ProductCard({
     super.key,
     required this.product,
     required this.onTap,
     required this.onAddToCart,
+    this.onFavoriteToggle,
+    this.showFavorite = true,
+    this.isWishlistPage = false,
+    this.isLoadingFavorite = false,
+    this.showWishlistButton = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool shouldShowFav = showFavorite ||
+        showWishlistButton ||
+        isWishlistPage ||
+        onFavoriteToggle != null;
+    final bool isWishlisted = isWishlistPage ||
+        product.isWishlist ||
+        locator<WishlistService>().isProductWishlisted(product.id);
+    final int? discountPercent = (product.originalPrice != null &&
+            product.originalPrice! > product.price &&
+            product.originalPrice! > 0)
+        ? (((product.originalPrice! - product.price) / product.originalPrice!) *
+                100)
+            .round()
+        : null;
+    final bool isStockManaged = product.stockManaged;
+    final bool isOutOfStock =
+        isStockManaged && (product.stockCount == null || product.stockCount! <= 0);
+    final bool isOnDemand = !isStockManaged;
+
+    final String availabilityLabel = isOutOfStock
+        ? 'Out of Stock'
+        : (isOnDemand ? 'Available on Order' : 'In Stock');
+
+    final Color badgeColor = isOutOfStock
+        ? Colors.red
+        : (isOnDemand ? const Color(0xFF0284C7) : const Color(0xFF10B981));
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -786,23 +816,103 @@ class ProductCard extends StatelessWidget {
           color: kcVoltSpareWhite,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: kcVoltSpareBorder.withValues(alpha: 0.8)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Placeholder/Asset
+            // Image Placeholder/Asset with optional Favorite button and Discount badge
             Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: kcSurfaceVariantColor,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.settings_suggest_rounded,
-                  size: 40,
-                  color: kcVoltSpareDark.withValues(alpha: 0.3),
-                ),
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: kcSurfaceVariantColor,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    alignment: Alignment.center,
+                    child: product.imageAsset != null &&
+                            product.imageAsset!.startsWith('http')
+                        ? Image.network(
+                            product.imageAsset!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.settings_suggest_rounded,
+                              size: 40,
+                              color: kcVoltSpareDark.withValues(alpha: 0.3),
+                            ),
+                          )
+                        : Icon(
+                            Icons.settings_suggest_rounded,
+                            size: 40,
+                            color: kcVoltSpareDark.withValues(alpha: 0.3),
+                          ),
+                  ),
+                  if (discountPercent != null && discountPercent > 0)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: kcVoltSpareEVGreen,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '$discountPercent% OFF',
+                          style: const TextStyle(
+                            color: kcVoltSpareDark,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (shouldShowFav)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Material(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        shape: const CircleBorder(),
+                        elevation: 2,
+                        child: InkWell(
+                          onTap: isLoadingFavorite ? null : onFavoriteToggle,
+                          customBorder: const CircleBorder(),
+                          child: Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: isLoadingFavorite
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.red,
+                                    ),
+                                  )
+                                : Icon(
+                                    isWishlisted
+                                        ? Icons.favorite_rounded
+                                        : Icons.favorite_border_rounded,
+                                    size: 16,
+                                    color: isWishlisted
+                                        ? Colors.red
+                                        : kcVoltSpareTextSecondary,
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             Padding(
@@ -812,7 +922,7 @@ class ProductCard extends StatelessWidget {
                 children: [
                   if (product.fitmentBadge != null) ...[
                     ProductFitmentBadge(text: product.fitmentBadge!),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                   ],
                   Text(
                     product.name,
@@ -825,18 +935,36 @@ class ProductCard extends StatelessWidget {
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: badgeColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        availabilityLabel,
+                        style: TextStyle(
+                          color: badgeColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                        ),
+                      ),
+                      const Spacer(),
                       const Icon(Icons.star_rounded,
                           color: kcStarColor, size: 14),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 2),
                       Text(
                         product.rating.toString(),
                         style: const TextStyle(
                           color: kcVoltSpareTextPrimary,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
                     ],
@@ -845,22 +973,28 @@ class ProductCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ProductPriceWidget(
-                          price: product.price,
-                          originalPrice: product.originalPrice,
-                          fontSize: 14),
+                      Flexible(
+                        child: ProductPriceWidget(
+                            price: product.price,
+                            originalPrice: product.originalPrice,
+                            fontSize: 14),
+                      ),
                       InkWell(
-                        onTap: onAddToCart,
+                        onTap: isOutOfStock ? null : onAddToCart,
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: kcVoltSpareDark,
+                            color: isOutOfStock
+                                ? Colors.grey.shade300
+                                : kcVoltSpareDark,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.add_shopping_cart_rounded,
-                            color: kcVoltSpareEVGreen,
+                            color: isOutOfStock
+                                ? Colors.grey.shade500
+                                : kcVoltSpareEVGreen,
                             size: 16,
                           ),
                         ),
@@ -873,6 +1007,37 @@ class ProductCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// 12b. Wishlist Product Card (Reusable wrapper)
+class WishlistProductCard extends StatelessWidget {
+  final ProductModel product;
+  final bool isLoading;
+  final VoidCallback onTap;
+  final VoidCallback onWishlistTap;
+  final VoidCallback? onAddToCart;
+
+  const WishlistProductCard({
+    super.key,
+    required this.product,
+    this.isLoading = false,
+    required this.onTap,
+    required this.onWishlistTap,
+    this.onAddToCart,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ProductCard(
+      product: product,
+      onTap: onTap,
+      onAddToCart: onAddToCart ?? () {},
+      onFavoriteToggle: onWishlistTap,
+      showFavorite: true,
+      isWishlistPage: true,
+      isLoadingFavorite: isLoading,
     );
   }
 }

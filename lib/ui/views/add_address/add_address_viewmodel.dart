@@ -21,7 +21,7 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
   // Location Coordinate Picked from Map
   double _latitude = 11.0123; // Default Coimbatore Lat
   double _longitude = 76.9567; // Default Coimbatore Lng
-  
+
   double get latitude => _latitude;
   double get longitude => _longitude;
 
@@ -32,10 +32,10 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
     if (addressToEdit != null) {
       labelController.text = addressToEdit!.name;
       phoneController.text = addressToEdit!.phone;
-      
+
       // Parse addressLine
       final addressLine = addressToEdit!.addressLine;
-      
+
       // Parse coordinates from string if present, e.g., (Lat: 11.0123, Lng: 76.9567)
       final coordRegex = RegExp(r'\(Lat:\s*([0-9.-]+),\s*Lng:\s*([0-9.-]+)\)');
       final match = coordRegex.firstMatch(addressLine);
@@ -48,11 +48,11 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
         _latitude = addressToEdit!.latitude ?? 11.0123;
         _longitude = addressToEdit!.longitude ?? 76.9567;
       }
-      
+
       // Remove coordinates string for form parsing
       final cleanAddressLine = addressLine.replaceAll(coordRegex, '').trim();
       final parts = cleanAddressLine.split(',').map((e) => e.trim()).toList();
-      
+
       if (parts.isNotEmpty) {
         doorNoController.text = parts[0];
       }
@@ -93,7 +93,12 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
     final district = districtController.text.trim();
     final state = stateController.text.trim();
 
-    if (label.isEmpty || phone.isEmpty || doorNo.isEmpty || taluk.isEmpty || district.isEmpty || state.isEmpty) {
+    if (label.isEmpty ||
+        phone.isEmpty ||
+        doorNo.isEmpty ||
+        taluk.isEmpty ||
+        district.isEmpty ||
+        state.isEmpty) {
       // Handled by UI validation
       return;
     }
@@ -101,7 +106,8 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
     setBusy(true);
 
     // Format address line: Door No & Street, Taluk, District, State (Lat: XX.XXXX, Lng: YY.YYYY)
-    final addressLineText = '$doorNo, $taluk, $district, $state (Lat: ${latitude.toStringAsFixed(4)}, Lng: ${longitude.toStringAsFixed(4)})';
+    final addressLineText =
+        '$doorNo, $taluk, $district, $state (Lat: ${latitude.toStringAsFixed(4)}, Lng: ${longitude.toStringAsFixed(4)})';
 
     final addressModel = AddressModel(
       id: addressToEdit?.id ?? '',
@@ -120,7 +126,8 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
         await _addressService.updateAddress(addressToEdit!.id, addressModel);
       }
       setBusy(false);
-      navigationService.back(result: true); // Return true to indicate address saved
+      navigationService.back(
+          result: true); // Return true to indicate address saved
     } catch (e) {
       setBusy(false);
       // Let UI show error or print for debugging

@@ -82,6 +82,26 @@ class LoginView extends StackedView<LoginViewModel> {
           ),
           onPressed: () {},
         ),
+        const SizedBox(height: 14),
+        Center(
+          child: TextButton.icon(
+            onPressed: viewModel.continueAsGuest,
+            icon: const Icon(
+              Icons.explore_outlined,
+              color: kcVoltSpareDark,
+              size: 18,
+            ),
+            label: const Text(
+              'Explore as Guest User',
+              style: TextStyle(
+                color: kcVoltSpareDark,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

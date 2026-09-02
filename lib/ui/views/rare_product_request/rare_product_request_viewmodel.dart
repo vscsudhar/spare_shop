@@ -76,8 +76,13 @@ class RareProductRequestViewModel extends BaseViewModel with NavigationMixin {
     return hasDesc || hasImage;
   }
 
-  Future<void> submitRequest() async {
+  Future<void> submitRequest([BuildContext? context]) async {
     if (!canSubmit) return;
+    if (context != null) {
+      final isAuth = await ensureAuthenticated(context,
+          featureName: 'Rare Product Requests');
+      if (!isAuth) return;
+    }
 
     setBusy(true);
     try {

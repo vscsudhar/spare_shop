@@ -6,7 +6,7 @@ enum ProductCategory { electronics, fashion, beauty, home, food }
 
 enum ProductVisual { headphones, watch, sneakers, camera, backpack, sunglasses }
 
-enum OrderStatusFilter { all, processing, shipped, delivered }
+enum OrderStatusFilter { all, processing, shipped, delivered, cancelled }
 
 enum PaymentMethod { upi, card, cashOnDelivery }
 

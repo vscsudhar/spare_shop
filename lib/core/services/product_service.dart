@@ -40,7 +40,7 @@ class ProductService {
       final response =
           await _apiClient.get(ApiEndpoints.products, queryParameters: query);
       final List<dynamic> list = response.data['data'] ?? [];
-      
+
       if (list.isEmpty) {
         return _getMockProductsFiltered(
           categoryId: categoryId,
@@ -48,7 +48,7 @@ class ProductService {
           search: search,
         );
       }
-      
+
       return list.map((item) => ProductModelExtension.fromJson(item)).toList();
     } catch (_) {
       return _getMockProductsFiltered(

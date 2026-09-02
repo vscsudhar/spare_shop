@@ -8,12 +8,43 @@ class TokenService {
   static const String _userPermissionsKey = 'user_permissions';
   static const String _userEmailKey = 'user_email';
   static const String _userNameKey = 'user_name';
+  static const String _isGuestKey = 'is_guest_mode';
+  static const String _guestDeviceIdKey = 'guest_device_id';
 
   Future<void> saveTokens(
       {required String accessToken, required String refreshToken}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_accessTokenKey, accessToken);
     await prefs.setString(_refreshTokenKey, refreshToken);
+    await prefs.setBool(_isGuestKey, false);
+  }
+
+  Future<void> setGuestMode(bool isGuest) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_isGuestKey, isGuest);
+  }
+
+  Future<bool> isGuestMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isGuest = prefs.getBool(_isGuestKey) ?? false;
+    final token = prefs.getString(_accessTokenKey);
+    // If there's a valid access token, not in guest mode
+    if (token != null && token.isNotEmpty) {
+      return false;
+    }
+    return isGuest;
+  }
+
+  Future<String> getOrCreateGuestDeviceId() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? id = prefs.getString(_guestDeviceIdKey);
+    if (id == null || id.isEmpty) {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final rand = (100000 + (DateTime.now().microsecond % 900000));
+      id = 'guest_dev_${timestamp}_$rand';
+      await prefs.setString(_guestDeviceIdKey, id);
+    }
+    return id;
   }
 
   Future<String?> getAccessToken() async {
@@ -34,6 +65,7 @@ class TokenService {
     await prefs.remove(_userPermissionsKey);
     await prefs.remove(_userEmailKey);
     await prefs.remove(_userNameKey);
+    await prefs.setBool(_isGuestKey, false);
   }
 
   Future<void> saveUserName(String name) async {
@@ -82,8 +114,8 @@ class TokenService {
     await prefs.setString('sel_veh_brand_$email', vehicle.brand);
     await prefs.setString('sel_veh_name_$email', vehicle.name);
     await prefs.setString('sel_veh_year_$email', vehicle.year);
-    await prefs.setString(
-        'sel_veh_type_$email', vehicle.type == VehicleType.ev ? 'ev' : 'petrol');
+    await prefs.setString('sel_veh_type_$email',
+        vehicle.type == VehicleType.ev ? 'ev' : 'petrol');
     await prefs.setBool('has_selected_vehicle_$email', true);
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
+import 'package:spare_shop/ui/common/delivery_estimator.dart';
 import 'package:spare_shop/ui/common/responsive.dart';
 import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
@@ -13,13 +14,18 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
   const ProductDetailsView({Key? key, required this.product}) : super(key: key);
 
   @override
+  void onViewModelReady(ProductDetailsViewModel viewModel) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => viewModel.init(product));
+    super.onViewModelReady(viewModel);
+  }
+
+  @override
   Widget builder(
     BuildContext context,
     ProductDetailsViewModel viewModel,
     Widget? child,
   ) {
-    viewModel.setProduct(product);
-
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         final isDesktop = sizingInformation.isDesktop;
@@ -32,13 +38,25 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
             onBackPressed: viewModel.goBack,
             actions: [
               IconButton(
-                icon: Icon(
-                  viewModel.isFavorite
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_border_rounded,
-                  color: viewModel.isFavorite ? Colors.red : kcVoltSpareDark,
-                ),
-                onPressed: viewModel.toggleFavorite,
+                icon: viewModel.isWishlistLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: kcVoltSpareDark,
+                        ),
+                      )
+                    : Icon(
+                        viewModel.isFavorite
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        color:
+                            viewModel.isFavorite ? Colors.red : kcVoltSpareDark,
+                      ),
+                onPressed: viewModel.isWishlistLoading
+                    ? null
+                    : () => viewModel.toggleFavorite(context),
               ),
             ],
           ),
@@ -82,14 +100,14 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
                                     _buildProductInfo(
                                         context, viewModel, viewModel.product),
                                     const SizedBox(height: 32),
-                                    _buildPurchaseCard(viewModel),
+                                    _buildPurchaseCard(context, viewModel),
                                   ],
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 48),
-                          _buildSuggestionsSection(viewModel),
+                          _buildSuggestionsSection(context, viewModel),
                         ],
                       ),
                     )
@@ -117,12 +135,12 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
                               _buildProductInfo(
                                   context, viewModel, viewModel.product),
                               const SizedBox(height: 32),
-                              _buildSuggestionsSection(viewModel),
+                              _buildSuggestionsSection(context, viewModel),
                             ],
                           ),
                         ),
                         // Mobile bottom buy bar
-                        _buildMobilePurchaseBar(viewModel),
+                        _buildMobilePurchaseBar(context, viewModel),
                       ],
                     ),
             ),
@@ -312,44 +330,152 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
         ),
         const SizedBox(height: 24),
 
-        // Delivery timeline
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: kcVoltSpareWhite,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: kcVoltSpareBorder),
-          ),
-          child: const Row(
+        // Dynamic Delivery info
+        _buildDeliveryInfo(context, viewModel),
+      ],
+    );
+  }
+
+  Widget _buildDeliveryInfo(
+      BuildContext context, ProductDetailsViewModel viewModel) {
+    final estimate = viewModel.deliveryEstimate;
+    final isOutOfStock = estimate.type == DeliveryType.outOfStock;
+    final isOnDemand = estimate.type == DeliveryType.twoDays;
+
+    final Color statusBg = isOutOfStock
+        ? Colors.red.withValues(alpha: 0.1)
+        : (isOnDemand
+            ? Colors.blue.withValues(alpha: 0.1)
+            : kcVoltSpareEVGreen.withValues(alpha: 0.12));
+    final Color statusColor = isOutOfStock
+        ? Colors.red
+        : (isOnDemand ? Colors.blue.shade700 : kcVoltSpareEVGreen);
+
+    IconData deliveryIcon = Icons.bolt_rounded;
+    if (estimate.type == DeliveryType.twoDays) {
+      deliveryIcon = Icons.schedule_rounded;
+    } else if (estimate.type == DeliveryType.nextDay) {
+      deliveryIcon = Icons.local_shipping_outlined;
+    } else if (isOutOfStock) {
+      deliveryIcon = Icons.block_rounded;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: kcVoltSpareWhite,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isOutOfStock
+              ? Colors.red.withValues(alpha: 0.3)
+              : kcVoltSpareBorder,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Icon(Icons.local_shipping_rounded, color: kcVoltSpareEVGreen),
-              SizedBox(width: 12),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusBg,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!isOutOfStock) ...[
+                      Icon(Icons.check_rounded, size: 14, color: statusColor),
+                      const SizedBox(width: 4),
+                    ],
+                    Text(
+                      estimate.availabilityStatus,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (viewModel.product.stockManaged &&
+                  viewModel.product.stockCount != null &&
+                  viewModel.product.stockCount! > 0) ...[
+                const SizedBox(width: 8),
+                Text(
+                  '(${viewModel.product.stockCount} units available)',
+                  style: const TextStyle(
+                    color: kcVoltSpareTextSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(
+                deliveryIcon,
+                color: isOutOfStock ? Colors.red : kcVoltSpareEVGreen,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Free Shipping',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Delivered in 3-5 working days',
+                      estimate.title,
                       style: TextStyle(
-                          color: kcVoltSpareTextSecondary, fontSize: 12),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: isOutOfStock
+                            ? Colors.red
+                            : kcVoltSpareTextPrimary,
+                      ),
                     ),
+                    if (estimate.cutoffNote != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        estimate.cutoffNote!,
+                        style: TextStyle(
+                          color: estimate.type == DeliveryType.sameDay
+                              ? kcVoltSpareEVGreen
+                              : kcVoltSpareTextSecondary,
+                          fontSize: 12,
+                          fontWeight: estimate.type == DeliveryType.sameDay
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ] else if (estimate.type == DeliveryType.twoDays) ...[
+                      const SizedBox(height: 2),
+                      const Text(
+                        'Direct from manufacturer/supplier',
+                        style: TextStyle(
+                          color: kcVoltSpareTextSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-              )
+              ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildPurchaseCard(ProductDetailsViewModel viewModel) {
+  Widget _buildPurchaseCard(
+      BuildContext context, ProductDetailsViewModel viewModel) {
+    final canAdd = viewModel.canAddToCart;
+
     return Card(
       color: kcVoltSpareWhite,
       elevation: 0,
@@ -374,7 +500,11 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    _quantityButton(Icons.remove, viewModel.decreaseQuantity),
+                    _quantityButton(
+                      Icons.remove,
+                      viewModel.decreaseQuantity,
+                      enabled: viewModel.quantity > 1 && canAdd,
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
@@ -383,7 +513,11 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    _quantityButton(Icons.add, viewModel.increaseQuantity),
+                    _quantityButton(
+                      Icons.add,
+                      viewModel.increaseQuantity,
+                      enabled: viewModel.canIncreaseQuantity && canAdd,
+                    ),
                   ],
                 )
               ],
@@ -391,8 +525,8 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
             const SizedBox(width: 40),
             Expanded(
               child: PrimaryActionButton(
-                label: 'Add to Cart',
-                onPressed: viewModel.addToCart,
+                label: canAdd ? 'Add to Cart' : 'Out of Stock',
+                onPressed: canAdd ? () => viewModel.addToCart(context) : null,
               ),
             ),
           ],
@@ -401,7 +535,10 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
     );
   }
 
-  Widget _buildMobilePurchaseBar(ProductDetailsViewModel viewModel) {
+  Widget _buildMobilePurchaseBar(
+      BuildContext context, ProductDetailsViewModel viewModel) {
+    final canAdd = viewModel.canAddToCart;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: const BoxDecoration(
@@ -412,7 +549,11 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
         children: [
           Row(
             children: [
-              _quantityButton(Icons.remove, viewModel.decreaseQuantity),
+              _quantityButton(
+                Icons.remove,
+                viewModel.decreaseQuantity,
+                enabled: viewModel.quantity > 1 && canAdd,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
@@ -421,14 +562,18 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              _quantityButton(Icons.add, viewModel.increaseQuantity),
+              _quantityButton(
+                Icons.add,
+                viewModel.increaseQuantity,
+                enabled: viewModel.canIncreaseQuantity && canAdd,
+              ),
             ],
           ),
           const SizedBox(width: 20),
           Expanded(
             child: PrimaryActionButton(
-              label: 'Add to Cart',
-              onPressed: viewModel.addToCart,
+              label: canAdd ? 'Add to Cart' : 'Out of Stock',
+              onPressed: canAdd ? () => viewModel.addToCart(context) : null,
             ),
           ),
         ],
@@ -436,24 +581,32 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
     );
   }
 
-  Widget _quantityButton(IconData icon, VoidCallback onPressed) {
+  Widget _quantityButton(IconData icon, VoidCallback onPressed,
+      {bool enabled = true}) {
     return Container(
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: kcVoltSpareOffWhite,
+        color: enabled ? kcVoltSpareOffWhite : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: kcVoltSpareBorder),
+        border: Border.all(
+          color: enabled ? kcVoltSpareBorder : Colors.grey.shade300,
+        ),
       ),
       child: IconButton(
-        icon: Icon(icon, size: 16, color: kcVoltSpareDark),
+        icon: Icon(
+          icon,
+          size: 16,
+          color: enabled ? kcVoltSpareDark : Colors.grey.shade400,
+        ),
         padding: EdgeInsets.zero,
-        onPressed: onPressed,
+        onPressed: enabled ? onPressed : null,
       ),
     );
   }
 
-  Widget _buildSuggestionsSection(ProductDetailsViewModel viewModel) {
+  Widget _buildSuggestionsSection(
+      BuildContext context, ProductDetailsViewModel viewModel) {
     final suggestions = viewModel.suggestions;
     if (suggestions.isEmpty) return const SizedBox.shrink();
 
@@ -496,8 +649,14 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
                 final suggestion = suggestions[index];
                 return ProductCard(
                   product: suggestion,
+                  showFavorite: true,
+                  onFavoriteToggle: () => viewModel
+                      .toggleWishlistForProduct(suggestion, context),
+                  isLoadingFavorite:
+                      viewModel.isProductLoading(suggestion.id),
                   onTap: () => viewModel.selectProduct(suggestion),
-                  onAddToCart: () => viewModel.addToCartForProduct(suggestion),
+                  onAddToCart: () =>
+                      viewModel.addToCartForProduct(suggestion, context),
                 );
               },
             );

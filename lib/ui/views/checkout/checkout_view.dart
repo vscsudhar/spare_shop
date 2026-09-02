@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
+import 'package:spare_shop/ui/common/delivery_estimator.dart';
 import 'package:spare_shop/ui/common/responsive.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:spare_shop/ui/widgets/common/voltspare_widgets.dart';
@@ -118,19 +119,55 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                     const Divider(color: kcVoltSpareBorder, height: 20),
                 itemBuilder: (context, index) {
                   final item = viewModel.items[index];
+                  final estimate = DeliveryEstimator.getEstimate(item.product);
                   return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(
-                          item.product.name,
-                          style: const TextStyle(
-                              fontSize: 13, color: kcVoltSpareTextPrimary),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.product.name,
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: kcVoltSpareTextPrimary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 3),
+                            Row(
+                              children: [
+                                Icon(
+                                  estimate.type == DeliveryType.twoDays
+                                      ? Icons.schedule_rounded
+                                      : (estimate.type == DeliveryType.sameDay
+                                          ? Icons.bolt_rounded
+                                          : Icons.local_shipping_outlined),
+                                  size: 12,
+                                  color: estimate.type == DeliveryType.twoDays
+                                      ? Colors.blue.shade700
+                                      : kcVoltSpareEVGreen,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  estimate.title,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: estimate.type == DeliveryType.twoDays
+                                        ? Colors.blue.shade700
+                                        : kcVoltSpareEVGreen,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       Text(
                         'x${item.quantity}',
                         style: const TextStyle(
@@ -181,6 +218,30 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                       : '₹${viewModel.deliveryFee.toInt()}',
                   isGreen: viewModel.deliveryFee == 0,
                 ),
+                const SizedBox(height: 10),
+                _billingRow(
+                  'Delivery Estimate',
+                  DeliveryEstimator.getCartDeliverySummary(viewModel.items)
+                      .summaryLabel,
+                  isGreen: DeliveryEstimator.getCartDeliverySummary(
+                              viewModel.items)
+                          .slowestDeliveryType ==
+                      DeliveryType.sameDay,
+                ),
+                if (DeliveryEstimator.getCartDeliverySummary(viewModel.items)
+                        .secondaryNote !=
+                    null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    DeliveryEstimator.getCartDeliverySummary(viewModel.items)
+                        .secondaryNote!,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: kcVoltSpareTextSecondary,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 const Divider(color: kcVoltSpareBorder),
                 const SizedBox(height: 16),

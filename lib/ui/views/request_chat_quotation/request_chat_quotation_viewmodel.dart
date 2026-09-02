@@ -15,6 +15,13 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
   final _socketService = locator<SocketService>();
   final _uploadService = locator<UploadService>();
   final TextEditingController messageController = TextEditingController();
+
+  String? _loadedRequestId;
+  bool _isInitialLoading = false;
+  bool _initialDataLoaded = false;
+  bool _isSendingMessage = false;
+  bool _isUploadingImage = false;
+
   late String _requestId;
   String get requestId => _requestId;
 
@@ -25,18 +32,41 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
   List<RareChatMessageModel> get messages => _messages;
 
   void init(String id) async {
+    if (_isInitialLoading || (_loadedRequestId == id && _initialDataLoaded)) {
+      return;
+    }
+
+    _isInitialLoading = true;
+    _loadedRequestId = id;
     _requestId = id;
     setBusy(true);
 
     try {
-      _request = await _rareRequestService.getRequestById(id);
-      _messages = await _rareRequestService.getChatMessages(id);
+      final results = await Future.wait([
+        _rareRequestService.getRequestById(id),
+        _rareRequestService.getChatMessages(id),
+      ]);
+
+      _request = results[0] as RareProductRequestModel;
+      _messages = results[1] as List<RareChatMessageModel>;
+      _initialDataLoaded = true;
       rebuildUi();
     } catch (e) {
       print('Error loading chat init data: $e');
     } finally {
+      _isInitialLoading = false;
       setBusy(false);
     }
+
+    _setupSocketListeners(id);
+  }
+
+  void _setupSocketListeners(String id) {
+    // Unsubscribe from any previous listeners first to prevent duplicates
+    _socketService.off('rare_chat:message');
+    _socketService.off('rare_chat:read');
+    _socketService.off('rare_chat:received');
+    _socketService.off('rare_request:updated');
 
     // Connect real-time socket listeners
     _socketService.connect();
@@ -46,6 +76,7 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
     _socketService.emit('rare_chat:read', {'requestId': id});
 
     _socketService.on('rare_chat:message', (data) {
+      if (disposed) return;
       if (data != null) {
         try {
           final newMsg = RareChatMessageModelExtension.fromJson(
@@ -63,6 +94,7 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
     });
 
     _socketService.on('rare_chat:read', (data) {
+      if (disposed) return;
       if (data != null) {
         try {
           final map = Map<String, dynamic>.from(data);
@@ -82,6 +114,7 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
     });
 
     _socketService.on('rare_chat:received', (data) {
+      if (disposed) return;
       if (data != null) {
         try {
           final map = Map<String, dynamic>.from(data);
@@ -102,6 +135,7 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
     });
 
     _socketService.on('rare_request:updated', (data) {
+      if (disposed) return;
       if (data != null) {
         try {
           _request = RareProductRequestModelExtension.fromJson(
@@ -113,8 +147,12 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
   }
 
   Future<void> sendMessage() async {
+    if (_isSendingMessage) return;
+
     final text = messageController.text.trim();
     if (text.isEmpty) return;
+
+    _isSendingMessage = true;
 
     final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
     final tempMsg = RareChatMessageModel(
@@ -145,13 +183,19 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
     } catch (_) {
       _messages.removeWhere((m) => m.id == tempId);
       rebuildUi();
+    } finally {
+      _isSendingMessage = false;
     }
   }
 
   Future<void> uploadChatImage() async {
+    if (_isUploadingImage) return;
+
     final ImagePicker picker = ImagePicker();
     final XFile? file = await picker.pickImage(source: ImageSource.gallery);
     if (file == null) return;
+
+    _isUploadingImage = true;
 
     final tempId = 'temp_upload_${DateTime.now().millisecondsSinceEpoch}';
     final tempMsg = RareChatMessageModel(
@@ -187,25 +231,68 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
       _messages.removeWhere((m) => m.id == tempId);
       rebuildUi();
       print('Error uploading chat image: $e');
+    } finally {
+      _isUploadingImage = false;
     }
   }
 
-  void approveQuotation() {
-    final q = _request?.quotation;
+  Future<void> approveQuotation() async {
+    final q = _request?.quotation ??
+        _messages
+            .firstWhere((m) => m.quotation != null,
+                orElse: () => null as dynamic)
+            .quotation;
     if (q == null) return;
 
-    // Auto-approve and navigate to success state
-    navigationService.navigateTo(
-      Routes.quotationApprovedView,
-      arguments: QuotationApprovedViewArguments(requestId: _requestId),
-    );
+    setBusy(true);
+    try {
+      String addressId = 'default';
+      final addresses =
+          await locator<RareRequestService>().getMyRequests(); // dummy fallback
+      await _rareRequestService.customerApproveQuotation(
+          _requestId, q.id, addressId);
+
+      _request = await _rareRequestService.getRequestById(_requestId);
+      _messages = await _rareRequestService.getChatMessages(_requestId);
+      rebuildUi();
+
+      navigationService.navigateTo(
+        Routes.quotationApprovedView,
+        arguments: QuotationApprovedViewArguments(requestId: _requestId),
+      );
+    } catch (e) {
+      print('Error approving quotation: $e');
+    } finally {
+      setBusy(false);
+    }
   }
 
-  void cancelQuotation() {
-    navigationService.navigateTo(
-      Routes.requestCancelledView,
-      arguments: RequestCancelledViewArguments(requestId: _requestId),
-    );
+  Future<void> cancelQuotation() async {
+    final q = _request?.quotation ??
+        _messages
+            .firstWhere((m) => m.quotation != null,
+                orElse: () => null as dynamic)
+            .quotation;
+    if (q == null) return;
+
+    setBusy(true);
+    try {
+      await _rareRequestService.customerDeclineQuotation(
+          _requestId, q.id, 'Quotation rejected by customer');
+
+      _request = await _rareRequestService.getRequestById(_requestId);
+      _messages = await _rareRequestService.getChatMessages(_requestId);
+      rebuildUi();
+
+      navigationService.navigateTo(
+        Routes.requestCancelledView,
+        arguments: RequestCancelledViewArguments(requestId: _requestId),
+      );
+    } catch (e) {
+      print('Error declining quotation: $e');
+    } finally {
+      setBusy(false);
+    }
   }
 
   void goToQuotationDetail() {

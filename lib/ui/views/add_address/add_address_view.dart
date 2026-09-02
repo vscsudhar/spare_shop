@@ -153,7 +153,7 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: kcVoltSpareEVGreen.withOpacity(0.1),
+                            color: kcVoltSpareEVGreen.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Row(
@@ -182,7 +182,7 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                       border: Border.all(color: kcVoltSpareBorder, width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: kcVoltSpareDark.withOpacity(0.04),
+                          color: kcVoltSpareDark.withValues(alpha: 0.04),
                           blurRadius: 16,
                           offset: const Offset(0, 8),
                         ),
@@ -653,7 +653,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -697,7 +697,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: kcVoltSpareDark.withOpacity(0.85),
+                  color: kcVoltSpareDark.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -709,7 +709,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                       child: Text(
                         'Lat: ${_currentLat.toStringAsFixed(5)}, Lng: ${_currentLng.toStringAsFixed(5)}',
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 10,
                             fontFamily: 'Courier',
                             fontWeight: FontWeight.bold),
@@ -741,7 +741,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Colors.black.withValues(alpha: 0.15),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -802,7 +802,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                         decoration: BoxDecoration(
                           boxShadow: [
                             BoxShadow(
-                              color: kcVoltSpareDark.withOpacity(0.35),
+                              color: kcVoltSpareDark.withValues(alpha: 0.35),
                               blurRadius: 4,
                               spreadRadius: 2,
                             ),
@@ -852,7 +852,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
+                  color: Colors.black.withValues(alpha: 0.12),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
@@ -931,7 +931,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.85),
+                  color: Colors.white.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -989,10 +989,10 @@ class StylizedMapPainter extends CustomPainter {
     paint.color = const Color(0xFFD4ECD5); // lush green
     paint.style = PaintingStyle.fill;
     final parks = [
-      Offset(100, -80),
-      Offset(-300, 200),
-      Offset(400, 300),
-      Offset(-200, -400),
+      const Offset(100, -80),
+      const Offset(-300, 200),
+      const Offset(400, 300),
+      const Offset(-200, -400),
     ];
     for (var park in parks) {
       final rect = Rect.fromLTWH(
@@ -1032,15 +1032,15 @@ class StylizedMapPainter extends CustomPainter {
     paint.style = PaintingStyle.fill;
     paint.color = const Color(0xFFE5E2DB); // building fill grey
     final buildings = [
-      Offset(120, 100),
-      Offset(150, 110),
-      Offset(130, 150),
-      Offset(-120, -50),
-      Offset(-180, -90),
-      Offset(-140, -130),
-      Offset(50, -220),
-      Offset(-50, 240),
-      Offset(-90, 260),
+      const Offset(120, 100),
+      const Offset(150, 110),
+      const Offset(130, 150),
+      const Offset(-120, -50),
+      const Offset(-180, -90),
+      const Offset(-140, -130),
+      const Offset(50, -220),
+      const Offset(-50, 240),
+      const Offset(-90, 260),
     ];
     for (var b in buildings) {
       final rect = Rect.fromLTWH(
@@ -1208,7 +1208,7 @@ class StylizedMapPainter extends CustomPainter {
 
     // Draw shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.06)
+      ..color = Colors.black.withValues(alpha: 0.06)
       ..style = PaintingStyle.fill;
     canvas.drawRRect(
         RRect.fromRectAndRadius(
@@ -1270,7 +1270,7 @@ class StylizedMapPainter extends CustomPainter {
 
     // Draw bubble background
     final bubblePaint = Paint()
-      ..color = Colors.white.withOpacity(0.92)
+      ..color = Colors.white.withValues(alpha: 0.92)
       ..style = PaintingStyle.fill;
     final bubbleBorderPaint = Paint()
       ..color = const Color(0xFFD1D5DB)
@@ -1279,7 +1279,7 @@ class StylizedMapPainter extends CustomPainter {
 
     // Draw bubble drop shadow
     final bubbleShadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.04)
+      ..color = Colors.black.withValues(alpha: 0.04)
       ..style = PaintingStyle.fill;
     canvas.drawRRect(
         RRect.fromRectAndRadius(

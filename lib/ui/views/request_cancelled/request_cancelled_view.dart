@@ -13,12 +13,18 @@ class RequestCancelledView extends StackedView<RequestCancelledViewModel> {
   }) : super(key: key);
 
   @override
+  void onViewModelReady(RequestCancelledViewModel viewModel) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => viewModel.init(requestId));
+    super.onViewModelReady(viewModel);
+  }
+
+  @override
   Widget builder(
     BuildContext context,
     RequestCancelledViewModel viewModel,
     Widget? child,
   ) {
-    viewModel.init(requestId);
     final req = viewModel.request;
 
     return Scaffold(

@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/cart_service.dart';
+import 'package:spare_shop/ui/common/delivery_estimator.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
 
@@ -11,6 +13,9 @@ class CartViewModel extends FutureViewModel<void> with NavigationMixin {
 
   List<CartItemModel> _items = [];
   List<CartItemModel> get items => _items;
+
+  CartDeliverySummary get deliverySummary =>
+      DeliveryEstimator.getCartDeliverySummary(_items);
 
   double get subtotal => _items.fold(
         0,
@@ -33,11 +38,25 @@ class CartViewModel extends FutureViewModel<void> with NavigationMixin {
     } catch (_) {}
   }
 
+  bool canIncreaseItemQuantity(CartItemModel item) {
+    if (!item.product.stockManaged || item.product.stockCount == null) {
+      return true;
+    }
+    return item.quantity < item.product.stockCount!;
+  }
+
   Future<void> increaseQuantity(String id) async {
     final itemIndex = _items.indexWhere((element) => element.id == id);
     if (itemIndex == -1) return;
 
     final item = _items[itemIndex];
+    if (item.product.stockManaged && item.product.stockCount != null) {
+      if (item.quantity >= item.product.stockCount!) {
+        // Stock quantity limit reached for stock-managed item
+        return;
+      }
+    }
+
     try {
       _items = await _cartService.updateCartItem(id, item.quantity + 1);
       rebuildUi();
@@ -66,8 +85,13 @@ class CartViewModel extends FutureViewModel<void> with NavigationMixin {
     } catch (_) {}
   }
 
-  void proceedToCheckout() {
+  Future<void> proceedToCheckout([BuildContext? context]) async {
     if (_items.isEmpty) return;
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Checkout & Payment');
+      if (!isAuth) return;
+    }
     goToCheckout();
   }
 

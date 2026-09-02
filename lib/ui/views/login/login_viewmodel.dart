@@ -66,6 +66,16 @@ class LoginViewModel extends BaseViewModel with NavigationMixin {
     await goToCreateAccount();
   }
 
+  Future<void> continueAsGuest() async {
+    setBusy(true);
+    try {
+      await _authService.enterGuestMode();
+      await replaceWithHome();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   bool _validate() {
     _emailError = null;
     _passwordError = null;

@@ -14,7 +14,7 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
 
   @override
   void onViewModelReady(AccountVehiclesViewModel viewModel) {
-    viewModel.init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => viewModel.init());
     super.onViewModelReady(viewModel);
   }
 
@@ -47,8 +47,9 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                     backgroundColor: kcVoltSpareEVGreen.withValues(alpha: 0.12),
                     backgroundImage: viewModel.userImageUrl != null
                         ? (viewModel.userImageUrl!.startsWith('http')
-                            ? NetworkImage(viewModel.userImageUrl!)
-                            : FileImage(File(viewModel.userImageUrl!))) as ImageProvider?
+                                ? NetworkImage(viewModel.userImageUrl!)
+                                : FileImage(File(viewModel.userImageUrl!)))
+                            as ImageProvider?
                         : null,
                     child: viewModel.userImageUrl == null
                         ? const Icon(Icons.person_rounded,
@@ -77,7 +78,8 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.edit_rounded, color: kcVoltSpareTextPrimary),
+                    icon: const Icon(Icons.edit_rounded,
+                        color: kcVoltSpareTextPrimary),
                     tooltip: 'Edit Profile',
                     onPressed: () => viewModel.editProfile(context),
                   ),
@@ -100,8 +102,12 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                 Row(
                   children: [
                     TextButton.icon(
-                      icon: const Icon(Icons.add, size: 16, color: kcVoltSpareEVGreen),
-                      label: const Text('Add', style: TextStyle(color: kcVoltSpareEVGreen, fontWeight: FontWeight.bold)),
+                      icon: const Icon(Icons.add,
+                          size: 16, color: kcVoltSpareEVGreen),
+                      label: const Text('Add',
+                          style: TextStyle(
+                              color: kcVoltSpareEVGreen,
+                              fontWeight: FontWeight.bold)),
                       onPressed: () => _showVehicleDialog(context, viewModel),
                     ),
                     TextButton(
@@ -159,7 +165,8 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                             Text(
                               '${v.year} · ${isEv ? 'Electric' : 'Petrol'}',
                               style: const TextStyle(
-                                  color: kcVoltSpareTextSecondary, fontSize: 11),
+                                  color: kcVoltSpareTextSecondary,
+                                  fontSize: 11),
                             ),
                           ],
                         ),
@@ -183,14 +190,17 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                         const SizedBox(width: 8),
                       ],
                       IconButton(
-                        icon: const Icon(Icons.edit_outlined, size: 16, color: kcVoltSpareTextSecondary),
+                        icon: const Icon(Icons.edit_outlined,
+                            size: 16, color: kcVoltSpareTextSecondary),
                         constraints: const BoxConstraints(),
                         padding: EdgeInsets.zero,
-                        onPressed: () => _showVehicleDialog(context, viewModel, v),
+                        onPressed: () =>
+                            _showVehicleDialog(context, viewModel, v),
                       ),
                       const SizedBox(width: 8),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, size: 16, color: Colors.redAccent),
+                        icon: const Icon(Icons.delete_outline_rounded,
+                            size: 16, color: Colors.redAccent),
                         constraints: const BoxConstraints(),
                         padding: EdgeInsets.zero,
                         onPressed: () => viewModel.deleteVehicle(v.id),
@@ -217,8 +227,12 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                       fontSize: 16),
                 ),
                 TextButton.icon(
-                  icon: const Icon(Icons.add, size: 16, color: kcVoltSpareEVGreen),
-                  label: const Text('Add', style: TextStyle(color: kcVoltSpareEVGreen, fontWeight: FontWeight.bold)),
+                  icon: const Icon(Icons.add,
+                      size: 16, color: kcVoltSpareEVGreen),
+                  label: const Text('Add',
+                      style: TextStyle(
+                          color: kcVoltSpareEVGreen,
+                          fontWeight: FontWeight.bold)),
                   onPressed: () => viewModel.navigateToAddAddress(),
                 ),
               ],
@@ -249,17 +263,22 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                             Row(
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.edit_outlined, size: 16, color: kcVoltSpareTextSecondary),
+                                  icon: const Icon(Icons.edit_outlined,
+                                      size: 16,
+                                      color: kcVoltSpareTextSecondary),
                                   constraints: const BoxConstraints(),
                                   padding: EdgeInsets.zero,
-                                  onPressed: () => viewModel.navigateToAddAddress(address: addr),
+                                  onPressed: () => viewModel
+                                      .navigateToAddAddress(address: addr),
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
-                                  icon: const Icon(Icons.delete_outline_rounded, size: 16, color: Colors.redAccent),
+                                  icon: const Icon(Icons.delete_outline_rounded,
+                                      size: 16, color: Colors.redAccent),
                                   constraints: const BoxConstraints(),
                                   padding: EdgeInsets.zero,
-                                  onPressed: () => viewModel.deleteAddress(addr.id),
+                                  onPressed: () =>
+                                      viewModel.deleteAddress(addr.id),
                                 ),
                               ],
                             )
@@ -269,8 +288,7 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                         Text(
                           addr.phone,
                           style: const TextStyle(
-                              color: kcVoltSpareTextSecondary,
-                              fontSize: 11),
+                              color: kcVoltSpareTextSecondary, fontSize: 11),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -283,6 +301,193 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                       ],
                     ),
                   )),
+
+            const SizedBox(height: 24),
+
+            // Wishlist Card
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => viewModel.openWishlist(context),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  decoration: BoxDecoration(
+                    color: kcVoltSpareWhite,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFFFF5277).withValues(alpha: 0.18),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF5277).withValues(alpha: 0.06),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFF5277), Color(0xFFFF758C)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFF5277).withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.favorite_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Wishlist',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: kcVoltSpareDark,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            const Text(
+                              'View your saved products',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: kcVoltSpareTextSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              viewModel.wishlistCount == 1
+                                  ? '1 saved item'
+                                  : '${viewModel.wishlistCount} saved items',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFFF5277),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        size: 26,
+                        color: kcVoltSpareDark,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            // Support Tickets Card
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => viewModel.openSupportTickets(context),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  decoration: BoxDecoration(
+                    color: kcVoltSpareWhite,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFF0070F3).withValues(alpha: 0.18),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0070F3).withValues(alpha: 0.06),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF0070F3), Color(0xFF00C6FF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0070F3)
+                                  .withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.support_agent_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Support Tickets',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: kcVoltSpareDark,
+                              ),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              'Need help? Chat with our support team',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: kcVoltSpareTextSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        size: 26,
+                        color: kcVoltSpareDark,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 24),
 
@@ -386,15 +591,19 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
             showBackButton: false,
             actions: [
               IconButton(
-                icon: const Icon(Icons.logout_rounded, color: kcVoltSpareTextPrimary),
+                icon: const Icon(Icons.logout_rounded,
+                    color: kcVoltSpareTextPrimary),
                 tooltip: 'Logout',
                 onPressed: viewModel.logout,
               ),
             ],
           ),
           body: SafeArea(
-            child: viewModel.isBusy && viewModel.vehicles.isEmpty && viewModel.addresses.isEmpty
-                ? const Center(child: CircularProgressIndicator(color: kcVoltSpareEVGreen))
+            child: viewModel.isBusy &&
+                    viewModel.vehicles.isEmpty &&
+                    viewModel.addresses.isEmpty
+                ? const Center(
+                    child: CircularProgressIndicator(color: kcVoltSpareEVGreen))
                 : MaxContentWidth(
                     maxWidth: 1200,
                     child: Padding(
@@ -405,11 +614,13 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                               children: [
                                 Expanded(
                                     flex: 5,
-                                    child: SingleChildScrollView(child: leftSide)),
+                                    child:
+                                        SingleChildScrollView(child: leftSide)),
                                 const SizedBox(width: 24),
                                 Expanded(
                                     flex: 7,
-                                    child: SingleChildScrollView(child: rightSide)),
+                                    child: SingleChildScrollView(
+                                        child: rightSide)),
                               ],
                             )
                           : ListView(
@@ -434,7 +645,9 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
     );
   }
 
-  void _showVehicleDialog(BuildContext context, AccountVehiclesViewModel viewModel, [VehicleModel? vehicle]) {
+  void _showVehicleDialog(
+      BuildContext context, AccountVehiclesViewModel viewModel,
+      [VehicleModel? vehicle]) {
     final brandController = TextEditingController(text: vehicle?.brand ?? '');
     final nameController = TextEditingController(text: vehicle?.name ?? '');
     final yearController = TextEditingController(text: vehicle?.year ?? '');
@@ -446,7 +659,8 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               title: Text(vehicle == null ? 'Add Vehicle' : 'Edit Vehicle',
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
@@ -456,13 +670,15 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                     TextField(
                       controller: brandController,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(labelText: 'Brand Name'),
+                      decoration:
+                          const InputDecoration(labelText: 'Brand Name'),
                     ),
                     const SizedBox(height: 10),
                     TextField(
                       controller: nameController,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(labelText: 'Model Name'),
+                      decoration:
+                          const InputDecoration(labelText: 'Model Name'),
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -498,12 +714,14 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel', style: TextStyle(color: kcVoltSpareTextSecondary)),
+                  child: const Text('Cancel',
+                      style: TextStyle(color: kcVoltSpareTextSecondary)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kcVoltSpareEVGreen,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: () {
                     if (brandController.text.trim().isEmpty ||
@@ -521,11 +739,13 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                     if (vehicle == null) {
                       viewModel.addVehicleDetails(updatedVehicle);
                     } else {
-                      viewModel.updateVehicleDetails(vehicle.id, updatedVehicle);
+                      viewModel.updateVehicleDetails(
+                          vehicle.id, updatedVehicle);
                     }
                     Navigator.pop(context);
                   },
-                  child: Text(vehicle == null ? 'Add' : 'Save', style: const TextStyle(color: Colors.white)),
+                  child: Text(vehicle == null ? 'Add' : 'Save',
+                      style: const TextStyle(color: Colors.white)),
                 ),
               ],
             );

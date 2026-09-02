@@ -16,12 +16,18 @@ class CustomerQuotationView extends StackedView<CustomerQuotationViewModel> {
   }) : super(key: key);
 
   @override
+  void onViewModelReady(CustomerQuotationViewModel viewModel) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => viewModel.init(requestId, quotationId));
+    super.onViewModelReady(viewModel);
+  }
+
+  @override
   Widget builder(
     BuildContext context,
     CustomerQuotationViewModel viewModel,
     Widget? child,
   ) {
-    viewModel.init(requestId, quotationId);
     final q = viewModel.quotation;
 
     if (q == null) {

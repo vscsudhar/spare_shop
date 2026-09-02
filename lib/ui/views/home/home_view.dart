@@ -67,7 +67,7 @@ class HomeView extends StackedView<HomeViewModel> {
                       onTap: viewModel.openSearch,
                       child: AbsorbPointer(
                         child: AppSearchField(
-                          controller: TextEditingController(),
+                          controller: viewModel.searchController,
                           hintText: 'Search matching spare parts...',
                         ),
                       ),
@@ -143,9 +143,15 @@ class HomeView extends StackedView<HomeViewModel> {
                                     viewModel.compatibleProducts[index];
                                 return ProductCard(
                                   product: product,
+                                  showFavorite: true,
+                                  onFavoriteToggle: () =>
+                                      viewModel.toggleWishlist(product, context),
+                                  isLoadingFavorite: viewModel
+                                      .isWishlistLoading(product.id),
                                   onTap: () =>
                                       viewModel.openProductDetails(product),
-                                  onAddToCart: viewModel.openCartView,
+                                  onAddToCart: () =>
+                                      viewModel.addToCart(product, context),
                                 );
                               },
                             ),
@@ -176,8 +182,14 @@ class HomeView extends StackedView<HomeViewModel> {
                         final product = viewModel.featuredProducts[index];
                         return ProductCard(
                           product: product,
+                          showFavorite: true,
+                          onFavoriteToggle: () =>
+                              viewModel.toggleWishlist(product, context),
+                          isLoadingFavorite:
+                              viewModel.isWishlistLoading(product.id),
                           onTap: () => viewModel.openProductDetails(product),
-                          onAddToCart: viewModel.openCartView,
+                          onAddToCart: () =>
+                              viewModel.addToCart(product, context),
                         );
                       },
                     ),
@@ -191,7 +203,7 @@ class HomeView extends StackedView<HomeViewModel> {
               ? null
               : VoltSpareBottomNavigation(
                   selectedIndex: viewModel.currentTabIndex,
-                  onTap: viewModel.onTabSelected,
+                  onTap: (index) => viewModel.onTabSelected(index, context),
                 ),
         );
       },
@@ -230,7 +242,7 @@ class HomeView extends StackedView<HomeViewModel> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: viewModel.openRareRequest,
+                  onPressed: () => viewModel.openRareRequest(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kcVoltSpareEVGreen,
                     foregroundColor: kcVoltSpareDark,
@@ -260,7 +272,4 @@ class HomeView extends StackedView<HomeViewModel> {
 
   @override
   HomeViewModel viewModelBuilder(BuildContext context) => HomeViewModel();
-
-  @override
-  void onViewModelReady(HomeViewModel viewModel) => viewModel.refresh();
 }

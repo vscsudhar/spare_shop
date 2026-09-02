@@ -2,6 +2,9 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:spare_shop/core/services/api_client.dart';
+import 'package:spare_shop/core/services/token_service.dart';
+import 'package:spare_shop/core/services/product_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -19,7 +22,31 @@ void registerServices() {
   getAndRegisterNavigationService();
   getAndRegisterBottomSheetService();
   getAndRegisterDialogService();
+  getAndRegisterTokenService();
+  getAndRegisterApiClient();
+  getAndRegisterProductService();
   // @stacked-mock-register
+}
+
+TokenService getAndRegisterTokenService() {
+  _removeRegistrationIfExists<TokenService>();
+  final service = TokenService();
+  locator.registerSingleton<TokenService>(service);
+  return service;
+}
+
+ApiClient getAndRegisterApiClient() {
+  _removeRegistrationIfExists<ApiClient>();
+  final service = ApiClient(tokenService: locator<TokenService>());
+  locator.registerSingleton<ApiClient>(service);
+  return service;
+}
+
+ProductService getAndRegisterProductService() {
+  _removeRegistrationIfExists<ProductService>();
+  final service = ProductService(apiClient: locator<ApiClient>());
+  locator.registerSingleton<ProductService>(service);
+  return service;
 }
 
 MockNavigationService getAndRegisterNavigationService() {

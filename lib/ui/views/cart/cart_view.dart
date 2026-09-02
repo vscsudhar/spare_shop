@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
+import 'package:spare_shop/ui/common/delivery_estimator.dart';
 import 'package:spare_shop/ui/common/responsive.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:spare_shop/ui/widgets/common/voltspare_widgets.dart';
@@ -50,7 +51,7 @@ class CartView extends StackedView<CartViewModel> {
                                 // Right Side: Summary
                                 SizedBox(
                                   width: 380,
-                                  child: _buildSummaryCard(viewModel),
+                                  child: _buildSummaryCard(context, viewModel),
                                 ),
                               ],
                             )
@@ -60,7 +61,7 @@ class CartView extends StackedView<CartViewModel> {
                                 Expanded(child: _buildCartItemsList(viewModel)),
                                 const SizedBox(height: 16),
                                 // Bottom Summary
-                                _buildSummaryCard(viewModel),
+                                _buildSummaryCard(context, viewModel),
                               ],
                             ),
                     ),
@@ -138,6 +139,9 @@ class CartView extends StackedView<CartViewModel> {
   }
 
   Widget _buildCartItemCard(CartViewModel viewModel, CartItemModel item) {
+    final estimate = DeliveryEstimator.getEstimate(item.product);
+    final canIncrease = viewModel.canIncreaseItemQuantity(item);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -183,6 +187,33 @@ class CartView extends StackedView<CartViewModel> {
                     fontSize: 12,
                   ),
                 ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(
+                      estimate.type == DeliveryType.twoDays
+                          ? Icons.schedule_rounded
+                          : (estimate.type == DeliveryType.sameDay
+                              ? Icons.bolt_rounded
+                              : Icons.local_shipping_outlined),
+                      size: 13,
+                      color: estimate.type == DeliveryType.twoDays
+                          ? Colors.blue.shade700
+                          : kcVoltSpareEVGreen,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      estimate.title,
+                      style: TextStyle(
+                        color: estimate.type == DeliveryType.twoDays
+                            ? Colors.blue.shade700
+                            : kcVoltSpareEVGreen,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -202,7 +233,9 @@ class CartView extends StackedView<CartViewModel> {
               Row(
                 children: [
                   _quantityButton(
-                      Icons.remove, () => viewModel.decreaseQuantity(item.id)),
+                    Icons.remove,
+                    () => viewModel.decreaseQuantity(item.id),
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Text(
@@ -212,7 +245,10 @@ class CartView extends StackedView<CartViewModel> {
                     ),
                   ),
                   _quantityButton(
-                      Icons.add, () => viewModel.increaseQuantity(item.id)),
+                    Icons.add,
+                    () => viewModel.increaseQuantity(item.id),
+                    enabled: canIncrease,
+                  ),
                 ],
               ),
             ],
@@ -222,24 +258,32 @@ class CartView extends StackedView<CartViewModel> {
     );
   }
 
-  Widget _quantityButton(IconData icon, VoidCallback onPressed) {
+  Widget _quantityButton(IconData icon, VoidCallback onPressed,
+      {bool enabled = true}) {
     return Container(
       width: 28,
       height: 28,
       decoration: BoxDecoration(
-        color: kcVoltSpareOffWhite,
+        color: enabled ? kcVoltSpareOffWhite : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: kcVoltSpareBorder),
+        border: Border.all(
+          color: enabled ? kcVoltSpareBorder : Colors.grey.shade300,
+        ),
       ),
       child: IconButton(
-        icon: Icon(icon, size: 12, color: kcVoltSpareDark),
+        icon: Icon(
+          icon,
+          size: 12,
+          color: enabled ? kcVoltSpareDark : Colors.grey.shade400,
+        ),
         padding: EdgeInsets.zero,
-        onPressed: onPressed,
+        onPressed: enabled ? onPressed : null,
       ),
     );
   }
 
-  Widget _buildSummaryCard(CartViewModel viewModel) {
+  Widget _buildSummaryCard(
+      BuildContext context, CartViewModel viewModel) {
     return Card(
       color: kcVoltSpareWhite,
       elevation: 0,
@@ -271,6 +315,24 @@ class CartView extends StackedView<CartViewModel> {
                   : '₹${viewModel.deliveryFee.toInt()}',
               isGreen: viewModel.deliveryFee == 0,
             ),
+            const SizedBox(height: 10),
+            _summaryRow(
+              'Delivery Estimate',
+              viewModel.deliverySummary.summaryLabel,
+              isGreen: viewModel.deliverySummary.slowestDeliveryType ==
+                  DeliveryType.sameDay,
+            ),
+            if (viewModel.deliverySummary.secondaryNote != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                viewModel.deliverySummary.secondaryNote!,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: kcVoltSpareTextSecondary,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             const Divider(color: kcVoltSpareBorder),
             const SizedBox(height: 16),
@@ -294,7 +356,7 @@ class CartView extends StackedView<CartViewModel> {
             PrimaryActionButton(
               label: 'Proceed to Checkout',
               onPressed: viewModel.items.isNotEmpty
-                  ? viewModel.proceedToCheckout
+                  ? () => viewModel.proceedToCheckout(context)
                   : null,
             ),
           ],

@@ -47,6 +47,10 @@ import 'package:spare_shop/core/services/rare_request_service.dart';
 import 'package:spare_shop/core/services/admin_dashboard_service.dart';
 import 'package:spare_shop/core/services/admin_supplier_service.dart';
 import 'package:spare_shop/core/services/admin_purchase_service.dart';
+import 'package:spare_shop/ui/views/support_tickets/support_tickets_view.dart';
+import 'package:spare_shop/ui/views/create_ticket/create_ticket_view.dart';
+import 'package:spare_shop/ui/views/ticket_chat/ticket_chat_view.dart';
+import 'package:spare_shop/core/services/support_ticket_service.dart';
 import 'package:spare_shop/core/services/vehicle_service.dart';
 // @stacked-import
 
@@ -81,6 +85,9 @@ import 'package:spare_shop/core/services/vehicle_service.dart';
     MaterialRoute(page: RareRequestDetailView),
     MaterialRoute(page: CustomerQuotationView),
     MaterialRoute(page: AddAddressView),
+    MaterialRoute(page: SupportTicketsView),
+    MaterialRoute(page: CreateTicketView),
+    MaterialRoute(page: TicketChatView),
 // @stacked-route
   ],
   dependencies: [
@@ -104,6 +111,7 @@ import 'package:spare_shop/core/services/vehicle_service.dart';
     LazySingleton(classType: AdminSupplierService),
     LazySingleton(classType: AdminPurchaseService),
     LazySingleton(classType: VehicleService),
+    LazySingleton(classType: SupportTicketService),
     // @stacked-service
   ],
   bottomsheets: [

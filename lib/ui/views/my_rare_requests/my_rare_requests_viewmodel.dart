@@ -1,12 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/rare_request_service.dart';
+import 'package:spare_shop/core/services/socket_service.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
 
 class MyRareRequestsViewModel extends FutureViewModel<void>
     with NavigationMixin {
   final _rareRequestService = locator<RareRequestService>();
+  final _socketService = locator<SocketService>();
+
+  Function(dynamic)? _onUpdatedHandler;
+  Function(dynamic)? _onNewHandler;
 
   String _selectedFilter = 'All';
   String get selectedFilter => _selectedFilter;
@@ -38,13 +44,23 @@ class MyRareRequestsViewModel extends FutureViewModel<void>
 
   @override
   Future<void> futureToRun() async {
+    _socketService.connect();
+    _onUpdatedHandler = (data) {
+      if (!disposed) loadRequests();
+    };
+    _onNewHandler = (data) {
+      if (!disposed) loadRequests();
+    };
+    _socketService.on('rare_request:updated', _onUpdatedHandler!);
+    _socketService.on('rare_request:new', _onNewHandler!);
     await loadRequests();
   }
 
   Future<void> loadRequests() async {
+    if (disposed) return;
     try {
       _allRequests = await _rareRequestService.getMyRequests();
-      rebuildUi();
+      if (!disposed) rebuildUi();
     } catch (_) {}
   }
 
@@ -53,13 +69,21 @@ class MyRareRequestsViewModel extends FutureViewModel<void>
     notifyListeners();
   }
 
-  void goToRequestDetail(String id) {
-    goToRequestChatQuotation(requestId: id);
+  Future<void> goToRequestDetail(String id) async {
+    await goToRequestChatQuotation(requestId: id);
+    if (!disposed) {
+      await loadRequests();
+    }
   }
 
-  void goToCreateRequest() async {
+  Future<void> goToCreateRequest([BuildContext? context]) async {
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Rare Requests');
+      if (!isAuth) return;
+    }
     final result = await goToRareProductRequest();
-    if (result == true) {
+    if (result == true && !disposed) {
       await loadRequests();
     }
   }
@@ -67,5 +91,16 @@ class MyRareRequestsViewModel extends FutureViewModel<void>
   @override
   void goBack() {
     clearStackAndShowHome();
+  }
+
+  @override
+  void dispose() {
+    if (_onUpdatedHandler != null) {
+      _socketService.off('rare_request:updated', _onUpdatedHandler);
+    }
+    if (_onNewHandler != null) {
+      _socketService.off('rare_request:new', _onNewHandler);
+    }
+    super.dispose();
   }
 }

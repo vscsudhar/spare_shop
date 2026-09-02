@@ -1,12 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/product_service.dart';
+import 'package:spare_shop/core/services/wishlist_service.dart';
 import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
 
 class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
   final _productService = locator<ProductService>();
+  final searchController = TextEditingController();
 
   int get currentTabIndex => 0;
 
@@ -71,15 +74,33 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
     // 4. Keyword search fallback check
     final nameLower = product.name.toLowerCase();
     final descLower = product.description.toLowerCase();
-    if (nameLower.contains(selectedBrand) || descLower.contains(selectedBrand)) {
+    if (nameLower.contains(selectedBrand) ||
+        descLower.contains(selectedBrand)) {
       return true;
     }
 
     return false;
   }
 
+  final _wishlistService = locator<WishlistService>();
+
+  void _onWishlistChanged() {
+    final wishlistedIds = _wishlistService.wishlistedProductIds;
+    _allProducts = _allProducts
+        .map((p) => p.copyWith(isWishlist: wishlistedIds.contains(p.id)))
+        .toList();
+    _featuredProducts = _featuredProducts
+        .map((p) => p.copyWith(isWishlist: wishlistedIds.contains(p.id)))
+        .toList();
+    rebuildUi();
+  }
+
   @override
   Future<void> futureToRun() async {
+    _wishlistService.wishlistedProductIdsNotifier
+        .removeListener(_onWishlistChanged);
+    _wishlistService.wishlistedProductIdsNotifier
+        .addListener(_onWishlistChanged);
     await loadData();
   }
 
@@ -89,13 +110,57 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
       _featuredProducts = await _productService.getProducts(featured: true);
       _allProducts = await _productService.getProducts();
       _allVehicles = await _productService.getVehicleModels();
-      rebuildUi();
+
+      for (final p in [..._featuredProducts, ..._allProducts]) {
+        if (p.isWishlist && !_wishlistService.isProductWishlisted(p.id)) {
+          _wishlistService.addToWishlist(p.id);
+        }
+      }
+      _onWishlistChanged();
     } catch (e) {
       print('Error loading home data: $e');
     }
   }
 
-  void onTabSelected(int index) {
+  bool isWishlistLoading(String id) => _wishlistService.isProductLoading(id);
+
+  Future<void> toggleWishlist(ProductModel product,
+      [BuildContext? context]) async {
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Wishlist');
+      if (!isAuth) return;
+    }
+    try {
+      await _wishlistService.toggleWishlist(product.id);
+    } catch (_) {}
+  }
+
+  Future<void> addToCart(ProductModel product, [BuildContext? context]) async {
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Cart & Checkout');
+      if (!isAuth) return;
+    }
+    goToProductDetails(product: product);
+  }
+
+  Future<void> onTabSelected(int index, [BuildContext? context]) async {
+    if (index == 2 && context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Rare Requests');
+      if (!isAuth) return;
+    }
+    if (index == 3 && context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Cart & Checkout');
+      if (!isAuth) return;
+    }
+    if (index == 4 && context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Profile & Account');
+      if (!isAuth) return;
+    }
     navigateToTab(index, currentIndex: currentTabIndex);
   }
 
@@ -116,11 +181,25 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
     goToCart();
   }
 
-  void openRareRequest() {
+  Future<void> openRareRequest([BuildContext? context]) async {
+    if (context != null) {
+      final isAuth = await ensureAuthenticated(context,
+          featureName: 'Rare Product Requests');
+      if (!isAuth) return;
+    }
     goToRareProductRequest();
   }
 
   Future<void> refresh() async {
     await loadData();
+    rebuildUi();
+  }
+
+  @override
+  void dispose() {
+    _wishlistService.wishlistedProductIdsNotifier
+        .removeListener(_onWishlistChanged);
+    searchController.dispose();
+    super.dispose();
   }
 }

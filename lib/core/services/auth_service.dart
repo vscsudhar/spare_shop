@@ -107,4 +107,13 @@ class AuthService {
 
     await _tokenService.clearTokens();
   }
+
+  Future<void> enterGuestMode() async {
+    await _tokenService.setGuestMode(true);
+    await _tokenService.getOrCreateGuestDeviceId();
+  }
+
+  Future<bool> isGuest() async {
+    return _tokenService.isGuestMode();
+  }
 }

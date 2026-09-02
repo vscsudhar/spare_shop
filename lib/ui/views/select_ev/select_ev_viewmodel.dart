@@ -68,7 +68,8 @@ class SelectEvViewModel extends BaseViewModel with NavigationMixin {
     return [...filtered, 'Other'];
   }
 
-  List<String> get years => ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
+  List<String> get years =>
+      ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
 
   void selectBrand(String brandId) {
     _selectedBrandId = brandId;
@@ -95,7 +96,8 @@ class SelectEvViewModel extends BaseViewModel with NavigationMixin {
 
     if (_selectedBrandId == 'other') {
       if (customBrandController.text.trim().isEmpty) return false;
-      if (_selectedModel != 'Other' || customModelController.text.trim().isEmpty) {
+      if (_selectedModel != 'Other' ||
+          customModelController.text.trim().isEmpty) {
         return false;
       }
       return true;

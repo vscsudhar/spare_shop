@@ -87,6 +87,8 @@ Color orderStatusColor(OrderStatusFilter status) {
       return kcInfoColor;
     case OrderStatusFilter.delivered:
       return kcSuccessColor;
+    case OrderStatusFilter.cancelled:
+      return kcErrorColor;
     case OrderStatusFilter.all:
       return kcPrimaryColor;
   }
@@ -100,6 +102,8 @@ String orderStatusLabel(OrderStatusFilter status) {
       return 'Shipped';
     case OrderStatusFilter.delivered:
       return 'Delivered';
+    case OrderStatusFilter.cancelled:
+      return 'Cancelled';
     case OrderStatusFilter.all:
       return 'All';
   }

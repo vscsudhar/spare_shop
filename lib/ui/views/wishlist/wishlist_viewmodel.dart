@@ -1,77 +1,109 @@
+import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
+import 'package:spare_shop/core/services/cart_service.dart';
 import 'package:spare_shop/core/services/wishlist_service.dart';
-import 'package:spare_shop/ui/common/shop_models.dart';
+import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
 
 class WishlistViewModel extends FutureViewModel<void> with NavigationMixin {
   final _wishlistService = locator<WishlistService>();
+  final _cartService = locator<CartService>();
 
-  List<ShopProduct> _products = [];
-  List<ShopProduct> get products => List.unmodifiable(_products);
+  List<ProductModel> _products = [];
+  List<ProductModel> get products => List.unmodifiable(_products);
 
-  AppTab get currentTab => AppTab.wishlist;
+  String get errorMessage => modelError?.toString() ?? '';
+
+  bool isProductLoading(String id) => _wishlistService.isProductLoading(id);
 
   @override
   Future<void> futureToRun() async {
+    _wishlistService.wishlistedProductIdsNotifier
+        .removeListener(_onWishlistChanged);
+    _wishlistService.wishlistedProductIdsNotifier
+        .addListener(_onWishlistChanged);
     await loadWishlist();
   }
 
+  void _onWishlistChanged() {
+    final currentIds = _wishlistService.wishlistedProductIds;
+    // Filter out any products that were unwishlisted from outside
+    final updated = _products.where((p) => currentIds.contains(p.id)).toList();
+    if (updated.length != _products.length) {
+      _products = updated;
+      rebuildUi();
+    }
+  }
+
   Future<void> loadWishlist() async {
+    clearErrors();
     try {
       final list = await _wishlistService.getWishlist();
-      _products = list.map((p) => _mapToShopProduct(p)).toList();
-      rebuildUi();
-    } catch (_) {}
+      final mockItems = mockProducts
+          .where((p) => _wishlistService.wishlistedProductIds.contains(p.id))
+          .toList();
+      final all = [
+        ...list,
+        ...mockItems.where((m) => !list.any((p) => p.id == m.id))
+      ];
+      _products = all;
+    } catch (e) {
+      setError('Failed to load wishlist. Please try again.');
+    }
   }
 
-  ShopProduct _mapToShopProduct(ProductModel p) {
-    return ShopProduct(
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      rating: p.rating,
-      visual: ProductVisual.headphones,
-      category: ProductCategory.electronics,
-      description: p.description,
-      originalPrice: p.originalPrice,
-      isFavorite: true,
-    );
+  Future<void> refresh() async {
+    await loadWishlist();
+    rebuildUi();
   }
 
-  Future<void> openProductDetails(ShopProduct product) async {
-    final p = ProductModel(
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      originalPrice: product.originalPrice ?? product.price,
-      rating: product.rating,
-      description: product.description,
-      categoryId: '',
-      compatibleVehicleIds: [],
-      fitmentBadge: 'Universal',
-      stockCount: 10,
-    );
-    await goToProductDetails(product: p);
+  Future<void> openProductDetails(ProductModel product) async {
+    await goToProductDetails(product: product);
   }
 
-  Future<void> toggleFavorite(String productId) async {
-    final index = _products.indexWhere((product) => product.id == productId);
-    if (index == -1) return;
+  Future<void> toggleWishlist(ProductModel product,
+      [BuildContext? context]) async {
+    if (isProductLoading(product.id)) return;
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Wishlist');
+      if (!isAuth) return;
+    }
 
+    final id = product.id;
     try {
-      await _wishlistService.removeFromWishlist(productId);
-      _products.removeAt(index);
-      rebuildUi();
+      final isStillWishlisted = await _wishlistService.toggleWishlist(id);
+      if (!isStillWishlisted) {
+        _products = _products.where((p) => p.id != id).toList();
+        rebuildUi();
+      }
+    } catch (_) {
+      // Handled with state rollback inside WishlistService
+    }
+  }
+
+  Future<void> addToCart(ProductModel product, [BuildContext? context]) async {
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Cart & Checkout');
+      if (!isAuth) return;
+    }
+    try {
+      await _cartService.addToCart(product.id, 1);
+      goToCart();
     } catch (_) {}
   }
 
-  Future<void> onTabSelected(AppTab tab) async {
-    int index = 0;
-    if (tab == AppTab.wishlist) index = 1;
-    if (tab == AppTab.cart) index = 3;
-    if (tab == AppTab.profile) index = 4;
-    await navigateToTab(index, currentIndex: 1);
+  void browseProducts() {
+    clearStackAndShowHome();
+  }
+
+  @override
+  void dispose() {
+    _wishlistService.wishlistedProductIdsNotifier
+        .removeListener(_onWishlistChanged);
+    super.dispose();
   }
 }

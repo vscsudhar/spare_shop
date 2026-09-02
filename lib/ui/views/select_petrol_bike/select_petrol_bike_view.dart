@@ -11,7 +11,7 @@ class SelectPetrolBikeView extends StackedView<SelectPetrolBikeViewModel> {
 
   @override
   void onViewModelReady(SelectPetrolBikeViewModel viewModel) {
-    viewModel.init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => viewModel.init());
     super.onViewModelReady(viewModel);
   }
 
@@ -223,9 +223,8 @@ class SelectPetrolBikeView extends StackedView<SelectPetrolBikeViewModel> {
 
                         PrimaryActionButton(
                           label: 'Save and Continue',
-                          onPressed: viewModel.canSave
-                              ? viewModel.saveVehicle
-                              : null,
+                          onPressed:
+                              viewModel.canSave ? viewModel.saveVehicle : null,
                         ),
                       ],
                     ),

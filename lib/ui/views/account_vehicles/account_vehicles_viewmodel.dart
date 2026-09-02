@@ -8,6 +8,7 @@ import 'package:spare_shop/core/services/token_service.dart';
 import 'package:spare_shop/core/services/address_service.dart';
 import 'package:spare_shop/core/services/vehicle_service.dart';
 import 'package:spare_shop/core/services/order_service.dart';
+import 'package:spare_shop/core/services/wishlist_service.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
@@ -21,8 +22,11 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
   final _addressService = locator<AddressService>();
   final _vehicleService = locator<VehicleService>();
   final _orderService = locator<OrderService>();
+  final _wishlistService = locator<WishlistService>();
 
   int get currentTabIndex => 4;
+
+  int get wishlistCount => _wishlistService.wishlistedProductIds.length;
 
   String _userName = 'Customer';
   String get userName => _userName;
@@ -47,7 +51,14 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
   List<OrderModel> _orders = [];
   List<OrderModel> get orders => _orders;
 
+  void _onWishlistChanged() {
+    rebuildUi();
+  }
+
   Future<void> init() async {
+    _wishlistService.wishlistedProductIdsNotifier.removeListener(_onWishlistChanged);
+    _wishlistService.wishlistedProductIdsNotifier.addListener(_onWishlistChanged);
+
     final name = await _tokenService.getUserName();
     final email = await _tokenService.getUserEmail();
     final phone = await _tokenService.getUserPhone();
@@ -73,10 +84,14 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
       _vehicles = await _vehicleService.getVehicles();
       _addresses = await _addressService.getAddresses();
       _orders = await _orderService.getMyOrders();
+      try {
+        await _wishlistService.getWishlist();
+      } catch (_) {}
 
       // Sync active selected vehicle state
       if (currentSelectedVehicle != null) {
-        final hasSelected = _vehicles.any((v) => v.id == currentSelectedVehicle!.id);
+        final hasSelected =
+            _vehicles.any((v) => v.id == currentSelectedVehicle!.id);
         if (!hasSelected && _vehicles.isNotEmpty) {
           currentSelectedVehicle = _vehicles.first;
         }
@@ -87,6 +102,30 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
       print('Error loading dynamic profile data: $e');
     }
     setBusy(false);
+  }
+
+  Future<void> openWishlist([BuildContext? context]) async {
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Wishlist');
+      if (!isAuth) return;
+    }
+    goToWishlist();
+  }
+
+  Future<void> openSupportTickets([BuildContext? context]) async {
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Support Tickets');
+      if (!isAuth) return;
+    }
+    goToSupportTickets();
+  }
+
+  @override
+  void dispose() {
+    _wishlistService.wishlistedProductIdsNotifier.removeListener(_onWishlistChanged);
+    super.dispose();
   }
 
   void selectVehicle() {
@@ -212,7 +251,8 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
         final email = await _tokenService.getUserEmail();
         if (email != null) {
           if (currentSelectedVehicle != null) {
-            await _tokenService.saveSelectedVehicle(email, currentSelectedVehicle!);
+            await _tokenService.saveSelectedVehicle(
+                email, currentSelectedVehicle!);
           } else {
             await _tokenService.removeSelectedVehicle(email);
           }
@@ -270,8 +310,8 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
                     GestureDetector(
                       onTap: () async {
                         final picker = ImagePicker();
-                        final file = await picker.pickImage(
-                            source: ImageSource.gallery);
+                        final file =
+                            await picker.pickImage(source: ImageSource.gallery);
                         if (file != null) {
                           setState(() {
                             selectedImageUrl = file.path;
@@ -286,13 +326,15 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
                             backgroundColor: Colors.grey[200],
                             backgroundImage: selectedImageUrl != null
                                 ? (selectedImageUrl!.startsWith('http')
-                                    ? NetworkImage(selectedImageUrl!)
-                                    : FileImage(File(selectedImageUrl!))) as ImageProvider?
+                                        ? NetworkImage(selectedImageUrl!)
+                                        : FileImage(File(selectedImageUrl!)))
+                                    as ImageProvider?
                                 : null,
                             child: selectedImageUrl == null
                                 ? Text(
                                     userName.isNotEmpty
-                                        ? userName.characters.first.toUpperCase()
+                                        ? userName.characters.first
+                                            .toUpperCase()
                                         : 'U',
                                     style: const TextStyle(
                                         fontSize: 32,
@@ -373,14 +415,14 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
                       _userName = newName;
                       _userPhone = newPhone;
                       _userImageUrl = selectedImageUrl;
-                      
+
                       // Persist locally using TokenService
                       await _tokenService.saveUserName(newName);
                       await _tokenService.saveUserPhone(newPhone);
                       if (selectedImageUrl != null) {
                         await _tokenService.saveUserImageUrl(selectedImageUrl!);
                       }
-                      
+
                       rebuildUi();
                       Navigator.pop(context);
                     }

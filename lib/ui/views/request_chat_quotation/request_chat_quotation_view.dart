@@ -16,12 +16,18 @@ class RequestChatQuotationView
   }) : super(key: key);
 
   @override
+  void onViewModelReady(RequestChatQuotationViewModel viewModel) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => viewModel.init(requestId));
+    super.onViewModelReady(viewModel);
+  }
+
+  @override
   Widget builder(
     BuildContext context,
     RequestChatQuotationViewModel viewModel,
     Widget? child,
   ) {
-    viewModel.init(requestId);
     final req = viewModel.request;
 
     if (req == null) {
@@ -183,11 +189,15 @@ class RequestChatQuotationView
                         return _buildSystemMessage(message.message);
                       }
 
+                      final quotation = message.quotation ??
+                          (message.messageType == RareChatMessageType.quotation
+                              ? viewModel.request?.quotation
+                              : null);
                       if (message.messageType ==
                               RareChatMessageType.quotation &&
-                          message.quotation != null) {
+                          quotation != null) {
                         return _buildQuotationMessageCard(
-                            context, viewModel, message.quotation!);
+                            context, viewModel, quotation);
                       }
 
                       final isMe = message.sender == RareChatSender.customer;
@@ -281,7 +291,8 @@ class RequestChatQuotationView
                       margin: const EdgeInsets.only(right: 8, bottom: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: isMe ? Colors.white30 : kcVoltSpareBorder),
+                        border: Border.all(
+                            color: isMe ? Colors.white30 : kcVoltSpareBorder),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
@@ -410,7 +421,7 @@ class RequestChatQuotationView
 
   Widget _buildQuotationMessageCard(BuildContext context,
       RequestChatQuotationViewModel vm, RareQuotationModel q) {
-    final isPending = q.status == 'pending';
+    final isPending = q.status == 'pending' || q.status == 'sent';
 
     return Card(
       color: Colors.white,

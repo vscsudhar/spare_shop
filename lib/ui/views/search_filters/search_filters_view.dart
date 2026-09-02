@@ -352,9 +352,14 @@ class SearchFiltersView extends StackedView<SearchFiltersViewModel> {
         final product = products[index];
         return ProductCard(
           product: product,
+          showFavorite: true,
+          onFavoriteToggle: () => viewModel.toggleWishlist(product, context),
+          isLoadingFavorite: viewModel.isWishlistLoading(product.id),
           onTap: () => viewModel.openProductDetails(product),
-          onAddToCart: () {
-            // Direct to Cart
+          onAddToCart: () async {
+            final isAuth = await viewModel.ensureAuthenticated(context,
+                featureName: 'Cart');
+            if (!isAuth) return;
             viewModel.goToCart();
           },
         );

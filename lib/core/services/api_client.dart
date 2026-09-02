@@ -17,13 +17,23 @@ class ApiClient {
       baseUrl: ApiEndpoints.baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
+      headers: {
+        'Accept': 'application/json',
+      },
     ));
 
     dio.interceptors.add(QueuedInterceptorsWrapper(
       onRequest: (options, handler) async {
+        final isAuthRoute =
+            options.path.startsWith(ApiEndpoints.customerLogin) ||
+                options.path.startsWith(ApiEndpoints.adminLogin) ||
+                options.path.startsWith(ApiEndpoints.customerRegister);
+
         final token = await _tokenService.getAccessToken();
-        if (token != null && token.isNotEmpty) {
+        if (token != null && token.isNotEmpty && !isAuthRoute) {
           options.headers['Authorization'] = 'Bearer $token';
+        } else {
+          options.headers.remove('Authorization');
         }
         return handler.next(options);
       },

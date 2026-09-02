@@ -8,20 +8,33 @@ import 'package:stacked/stacked.dart';
 
 class RareRequestDetailViewModel extends BaseViewModel with NavigationMixin {
   final _rareRequestService = locator<RareRequestService>();
+  String? _loadedRequestId;
+  bool _isInitialLoading = false;
+  bool _initialDataLoaded = false;
   late String _requestId;
+  String get requestId => _requestId;
 
   RareProductRequestModel? _request;
   RareProductRequestModel? get request => _request;
 
   void init(String id) async {
+    if (_isInitialLoading || (_loadedRequestId == id && _initialDataLoaded)) {
+      return;
+    }
+
+    _isInitialLoading = true;
+    _loadedRequestId = id;
     _requestId = id;
     setBusy(true);
+
     try {
       _request = await _rareRequestService.getRequestById(id);
+      _initialDataLoaded = true;
       rebuildUi();
     } catch (e) {
       print('Error loading request detail: $e');
     } finally {
+      _isInitialLoading = false;
       setBusy(false);
     }
   }

@@ -27,8 +27,12 @@ class OrdersViewModel extends FutureViewModel<void> with NavigationMixin {
         .toList(growable: false);
   }
 
+  bool _initialized = false;
+
   @override
   Future<void> futureToRun() async {
+    if (_initialized) return;
+    _initialized = true;
     await loadOrders();
   }
 
@@ -41,18 +45,27 @@ class OrdersViewModel extends FutureViewModel<void> with NavigationMixin {
           filterStatus = OrderStatusFilter.shipped;
         } else if (order.status == OrderStatus.delivered) {
           filterStatus = OrderStatusFilter.delivered;
+        } else if (order.status == OrderStatus.cancelled) {
+          filterStatus = OrderStatusFilter.cancelled;
         }
 
         final date = order.date;
-        final dateStr = '${date.day}/${date.month}/${date.year}';
+        final dateStr =
+            '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
         final itemsCount =
             order.items.fold<int>(0, (sum, i) => sum + i.quantity);
 
+        final orderNum = order.orderNumber.isNotEmpty
+            ? order.orderNumber
+            : (order.id.isNotEmpty
+                ? 'ORD-${order.id.substring(order.id.length > 6 ? order.id.length - 6 : 0).toUpperCase()}'
+                : 'ORD-UNKNOWN');
+
         return ShopOrder(
           id: order.id,
-          orderNumber: order.orderNumber,
+          orderNumber: orderNum,
           dateLabel: dateStr,
-          itemCountLabel: '$itemsCount item${itemsCount > 1 ? 's' : ''}',
+          itemCountLabel: '$itemsCount item${itemsCount != 1 ? 's' : ''}',
           total: order.total,
           status: filterStatus,
         );

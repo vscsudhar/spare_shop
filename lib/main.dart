@@ -4,12 +4,15 @@ import 'package:spare_shop/app/app.bottomsheets.dart';
 import 'package:spare_shop/app/app.dialogs.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/app/app.router.dart';
+import 'package:spare_shop/core/services/api_endpoints.dart';
 import 'package:spare_shop/ui/common/app_theme.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
+  debugPrint('⚡ [App Startup] Resolved API Base URL: ${ApiEndpoints.baseUrl}');
+  debugPrint('⚡ [App Startup] Resolved Socket URL: ${ApiEndpoints.socketUrl}');
   await setupLocator();
   setupDialogUi();
   setupBottomSheetUi();

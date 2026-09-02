@@ -46,6 +46,7 @@ class PaymentViewModel extends FutureViewModel<void> with NavigationMixin {
   }
 
   Future<void> completePayment() async {
+    if (isBusy) return;
     if (_selectedOption == null ||
         _items.isEmpty ||
         currentSelectedAddress == null) {

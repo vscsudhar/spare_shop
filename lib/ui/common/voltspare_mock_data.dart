@@ -252,7 +252,8 @@ const List<ProductModel> mockProducts = [
       'veh_bajaj_pulsar'
     ],
     fitmentBadge: 'Universal Fit',
-    stockCount: 18,
+    stockManaged: false,
+    stockCount: null,
   ),
   ProductModel(
     id: 'prod_fork_seals',
@@ -270,7 +271,8 @@ const List<ProductModel> mockProducts = [
       'veh_bajaj_pulsar'
     ],
     fitmentBadge: 'Compatible',
-    stockCount: 50,
+    stockManaged: true,
+    stockCount: 0,
   ),
 ];
 

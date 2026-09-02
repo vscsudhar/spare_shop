@@ -96,7 +96,8 @@ class SelectPetrolBikeViewModel extends BaseViewModel with NavigationMixin {
 
     if (_selectedBrandId == 'other') {
       if (customBrandController.text.trim().isEmpty) return false;
-      if (_selectedModel != 'Other' || customModelController.text.trim().isEmpty) {
+      if (_selectedModel != 'Other' ||
+          customModelController.text.trim().isEmpty) {
         return false;
       }
       return true;
@@ -160,7 +161,11 @@ class SelectPetrolBikeViewModel extends BaseViewModel with NavigationMixin {
                 m.name == _selectedModel &&
                 m.brand.toLowerCase() == brandName.toLowerCase(),
             orElse: () => const VehicleModel(
-                id: '', brand: '', name: '', year: '', type: VehicleType.petrol),
+                id: '',
+                brand: '',
+                name: '',
+                year: '',
+                type: VehicleType.petrol),
           );
           modelId = matchedModel.id.isNotEmpty
               ? matchedModel.id

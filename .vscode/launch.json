@@ -1,0 +1,32 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    
+        {
+            "name": "spare_shop",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "spare_shop (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "spare_shop (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "stacked_cli_local",
+            "cwd": ".codex_tools\\stacked_cli_local",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}
