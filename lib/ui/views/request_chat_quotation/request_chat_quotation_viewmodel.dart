@@ -61,7 +61,7 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
     _setupSocketListeners(id);
   }
 
-  void _setupSocketListeners(String id) {
+  Future<void> _setupSocketListeners(String id) async {
     // Unsubscribe from any previous listeners first to prevent duplicates
     _socketService.off('rare_chat:message');
     _socketService.off('rare_chat:read');
@@ -69,7 +69,7 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
     _socketService.off('rare_request:updated');
 
     // Connect real-time socket listeners
-    _socketService.connect();
+    await _socketService.connect();
     _socketService.joinRequestRoom(id);
 
     // Emit read receipt for existing messages
@@ -79,17 +79,30 @@ class RequestChatQuotationViewModel extends BaseViewModel with NavigationMixin {
       if (disposed) return;
       if (data != null) {
         try {
-          final newMsg = RareChatMessageModelExtension.fromJson(
-              Map<String, dynamic>.from(data));
-          if (!_messages.any((m) => m.id == newMsg.id)) {
+          final map = data is Map<String, dynamic>
+              ? data
+              : Map<String, dynamic>.from(data as Map);
+          final newMsg = RareChatMessageModelExtension.fromJson(map);
+
+          final existingIdx = _messages.indexWhere((m) =>
+              m.id == newMsg.id ||
+              (m.id.startsWith('temp_') &&
+                  m.message == newMsg.message &&
+                  m.sender == newMsg.sender));
+
+          if (existingIdx != -1) {
+            _messages[existingIdx] = newMsg;
+          } else {
             _messages.add(newMsg);
-
-            // Mark as read immediately since chat view is active
-            _socketService.emit('rare_chat:read', {'requestId': _requestId});
-
-            rebuildUi();
           }
-        } catch (_) {}
+
+          // Mark as read immediately since chat view is active
+          _socketService.emit('rare_chat:read', {'requestId': _requestId});
+
+          rebuildUi();
+        } catch (e) {
+          debugPrint('Error handling incoming chat message: $e');
+        }
       }
     });
 

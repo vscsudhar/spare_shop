@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/cart_service.dart';
+import 'package:spare_shop/core/services/delivery_charge_service.dart';
+import 'package:spare_shop/ui/common/delivery_charge_models.dart';
 import 'package:spare_shop/ui/common/delivery_estimator.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
 
 class CartViewModel extends FutureViewModel<void> with NavigationMixin {
   final _cartService = locator<CartService>();
+  final _deliveryService = locator<DeliveryChargeService>();
 
   int get currentTabIndex => 3;
 
   List<CartItemModel> _items = [];
   List<CartItemModel> get items => _items;
+
+  List<DeliveryChargeModel> _deliveryTiers = [];
+  List<DeliveryChargeModel> get deliveryTiers => _deliveryTiers;
 
   CartDeliverySummary get deliverySummary =>
       DeliveryEstimator.getCartDeliverySummary(_items);
@@ -22,7 +28,19 @@ class CartViewModel extends FutureViewModel<void> with NavigationMixin {
         (sum, item) => sum + (item.product.price * item.quantity),
       );
 
-  double get deliveryFee => subtotal == 0 || subtotal > 1500 ? 0.0 : 150.0;
+  double get deliveryFee =>
+      _deliveryService.calculateFee(subtotal, _deliveryTiers);
+
+  double? get freeDeliveryThreshold =>
+      _deliveryService.getFreeDeliveryThreshold(_deliveryTiers);
+
+  double get amountNeededForFreeDelivery {
+    final threshold = freeDeliveryThreshold;
+    if (threshold == null || subtotal >= threshold) return 0.0;
+    return threshold - subtotal;
+  }
+
+  bool get isFreeDelivery => deliveryFee == 0.0 && subtotal > 0;
 
   double get total => subtotal + deliveryFee;
 
@@ -34,6 +52,7 @@ class CartViewModel extends FutureViewModel<void> with NavigationMixin {
   Future<void> loadCart() async {
     try {
       _items = await _cartService.getCart();
+      _deliveryTiers = await _deliveryService.getDeliveryCharges();
       rebuildUi();
     } catch (_) {}
   }

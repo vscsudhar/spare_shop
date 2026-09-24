@@ -136,8 +136,11 @@ mixin NavigationMixin {
     return navigationService.navigateTo(Routes.orderSuccessView);
   }
 
-  Future<dynamic>? goToOrderTracking() {
-    return navigationService.navigateTo(Routes.orderTrackingView);
+  Future<dynamic>? goToOrderTracking({String? orderId, OrderModel? order}) {
+    return navigationService.navigateTo(
+      Routes.orderTrackingView,
+      arguments: OrderTrackingViewArguments(orderId: orderId, order: order),
+    );
   }
 
   Future<dynamic>? goToAccountVehicles() {

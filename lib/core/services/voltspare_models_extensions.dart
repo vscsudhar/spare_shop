@@ -216,11 +216,20 @@ extension CartItemModelExtension on CartItemModel {
 
 extension AddressModelExtension on AddressModel {
   static AddressModel fromJson(Map<String, dynamic> json) {
-    final line1 = json['addressLine1'] ?? json['addressLine'] ?? '';
-    final line2 = json['addressLine2'] ?? '';
-    final city = json['city'] ?? '';
-    final state = json['state'] ?? '';
-    final postalCode = json['postalCode'] ?? '';
+    final line1 = (json['addressLine1'] ?? json['addressLine'] ?? '').toString();
+    final line2 = (json['addressLine2'] ?? '').toString();
+    final city = (json['city'] ?? '').toString();
+    var state = (json['state'] ?? '').toString();
+    var postalCode = (json['postalCode'] ?? '').toString();
+
+    // Clean any legacy dirty coordinates that may have been saved inside state or postalCode
+    final latRegex = RegExp(r'\(Lat:\s*[0-9.-]+.*');
+    if (latRegex.hasMatch(state)) {
+      state = state.replaceAll(latRegex, '').trim();
+    }
+    if (postalCode.contains('Lng:') || postalCode.contains('Lat:')) {
+      postalCode = '';
+    }
 
     final parts = [
       if (line1.isNotEmpty) line1,
@@ -230,11 +239,32 @@ extension AddressModelExtension on AddressModel {
       if (postalCode.isNotEmpty) postalCode,
     ];
 
+    final locMap = json['location'];
+    String? locId = json['locationId']?.toString();
+    String? locName = json['locationName']?.toString();
+    double? distKm = json['distanceFromLocationKm'] != null
+        ? (json['distanceFromLocationKm'] as num).toDouble()
+        : null;
+
+    if (locMap is Map) {
+      locId ??= (locMap['id'] ?? locMap['_id'])?.toString();
+      locName ??= locMap['name']?.toString();
+      distKm ??= locMap['distanceKm'] != null
+          ? (locMap['distanceKm'] as num).toDouble()
+          : null;
+    }
+
     return AddressModel(
-      id: json['_id'] ?? json['id'] ?? '',
-      name: json['name'] ?? 'Home',
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      name: json['name'] ?? json['recipientName'] ?? 'Home',
       phone: json['phone'] ?? '',
-      addressLine: parts.isEmpty ? '' : parts.join(', '),
+      addressLine: parts.isEmpty ? (json['addressLine'] ?? '') : parts.join(', '),
+      addressLine1: line1,
+      addressLine2: line2,
+      city: city,
+      state: state,
+      postalCode: postalCode,
+      country: json['country']?.toString() ?? 'India',
       isDefault: json['isDefault'] ?? false,
       latitude: json['latitude'] != null
           ? (json['latitude'] as num).toDouble()
@@ -242,16 +272,42 @@ extension AddressModelExtension on AddressModel {
       longitude: json['longitude'] != null
           ? (json['longitude'] as num).toDouble()
           : null,
+      locationId: locId,
+      locationName: locName,
+      distanceFromLocationKm: distKm,
     );
   }
 
   Map<String, dynamic> toJson() {
-    final parts = addressLine.split(',');
-    final line1 = parts.isNotEmpty ? parts[0].trim() : addressLine;
-    final line2 = parts.length > 1 ? parts[1].trim() : '';
-    final city = parts.length > 2 ? parts[2].trim() : 'Bangalore';
-    final state = parts.length > 3 ? parts[3].trim() : 'Karnataka';
-    final postalCode = parts.length > 4 ? parts[4].trim() : '560001';
+    final line1 = (addressLine1 != null && addressLine1!.isNotEmpty)
+        ? addressLine1!
+        : (addressLine.isNotEmpty ? addressLine.split(',').first.trim() : 'Address');
+    final line2 = addressLine2 ?? '';
+    
+    var cityName = (city != null && city!.isNotEmpty)
+        ? city!
+        : (addressLine.split(',').length > 2 ? addressLine.split(',')[2].trim() : 'Coimbatore');
+    if (cityName.contains('(Lat:')) {
+      cityName = cityName.split('(Lat:')[0].trim();
+    }
+
+    var stateName = (state != null && state!.isNotEmpty)
+        ? state!
+        : 'Tamil Nadu';
+    if (stateName.contains('(Lat:')) {
+      stateName = stateName.split('(Lat:')[0].trim();
+    }
+    if (stateName.isEmpty) stateName = 'Tamil Nadu';
+
+    var pCode = (postalCode != null && postalCode!.isNotEmpty)
+        ? postalCode!
+        : '641001';
+    if (pCode.contains('Lng:') || pCode.contains('Lat:')) {
+      pCode = '641001';
+    }
+    // Retain only valid postal code characters (digits, letters, spaces)
+    pCode = pCode.replaceAll(RegExp(r'[^0-9a-zA-Z -]'), '').trim();
+    if (pCode.isEmpty) pCode = '641001';
 
     return {
       'name': name,
@@ -259,13 +315,17 @@ extension AddressModelExtension on AddressModel {
       'phone': phone,
       'addressLine1': line1.isEmpty ? 'Address' : line1,
       'addressLine2': line2,
-      'city': city,
-      'state': state,
-      'postalCode': postalCode,
-      'country': 'India',
+      'city': cityName.isEmpty ? 'Coimbatore' : cityName,
+      'state': stateName.isEmpty ? 'Tamil Nadu' : stateName,
+      'postalCode': pCode,
+      'country': country ?? 'India',
       'isDefault': isDefault,
       'latitude': latitude,
       'longitude': longitude,
+      if (locationId != null) 'locationId': locationId,
+      if (locationName != null) 'locationName': locationName,
+      if (distanceFromLocationKm != null)
+        'distanceFromLocationKm': distanceFromLocationKm,
     };
   }
 }
@@ -321,11 +381,31 @@ extension OrderModelExtension on OrderModel {
             ? 'ORD-${id.substring(id.length > 6 ? id.length - 6 : 0).toUpperCase()}'
             : 'ORD-UNKNOWN')).toString();
 
-    double orderTotal = 0.0;
-    final rawTotal = json['grandTotal'] ?? json['total'];
-    if (rawTotal is num) {
-      orderTotal = rawTotal.toDouble();
+    double parsePaise(dynamic val) {
+      if (val is num) {
+        return val.toDouble() / 100.0;
+      }
+      if (val != null) {
+        final parsed = double.tryParse(val.toString());
+        if (parsed != null) return parsed / 100.0;
+      }
+      return 0.0;
     }
+
+    final double orderTotal = parsePaise(json['grandTotal'] ?? json['total']);
+    final double subTotal = parsePaise(json['subTotal']);
+    final double taxAmount = parsePaise(json['taxAmount']);
+    final double deliveryFee = parsePaise(json['deliveryFee']);
+    final double discountAmount = parsePaise(json['discountAmount']);
+
+    final rawHistory = json['statusHistory'] as List<dynamic>? ?? [];
+    final List<Map<String, dynamic>> statusHistory = rawHistory
+        .map((h) => h is Map ? Map<String, dynamic>.from(h) : <String, dynamic>{})
+        .toList();
+
+    final deliveryAssignment = json['deliveryAssignment'] is Map
+        ? Map<String, dynamic>.from(json['deliveryAssignment'] as Map)
+        : null;
 
     return OrderModel(
       id: id,
@@ -334,8 +414,17 @@ extension OrderModelExtension on OrderModel {
       status: status,
       items: items,
       total: orderTotal,
+      subTotal: subTotal,
+      taxAmount: taxAmount,
+      deliveryFee: deliveryFee,
+      discountAmount: discountAmount,
       address: AddressModelExtension.fromJson(addressMap),
-      paymentMethod: json['paymentMethod'] ?? 'cod',
+      paymentMethod: json['paymentMethod'] ?? 'Cash on Delivery',
+      paymentStatus: json['paymentStatus']?.toString(),
+      locationName: json['locationName']?.toString() ??
+          (addressMap['locationName']?.toString()),
+      statusHistory: statusHistory,
+      deliveryAssignment: deliveryAssignment,
     );
   }
 }
@@ -396,10 +485,18 @@ extension RareProductRequestModelExtension on RareProductRequestModel {
 
     final imageList = json['images'] as List<dynamic>? ?? [];
 
+    final String customerName = (json['customerName'] != null && json['customerName'].toString().trim().isNotEmpty)
+        ? json['customerName'].toString()
+        : (json['user'] is Map ? (json['user']['name'] ?? 'Customer') : 'Customer');
+
+    final String phone = (json['phone'] != null && json['phone'].toString().trim().isNotEmpty)
+        ? json['phone'].toString()
+        : (json['user'] is Map ? (json['user']['phone'] ?? '') : '');
+
     return RareProductRequestModel(
       id: json['_id'] ?? json['id'] ?? '',
-      customerName: json['user'] is Map ? (json['user']['name'] ?? '') : '',
-      phone: json['user'] is Map ? (json['user']['phone'] ?? '') : '',
+      customerName: customerName,
+      phone: phone,
       vehicle: vehicle,
       partName: json['title'] ?? '',
       description: json['description'] ?? '',

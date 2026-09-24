@@ -19,11 +19,12 @@ class RareRequestService {
     required String description,
     required int quantity,
     required String urgency,
-    double? budget,
     required String brand,
     required String modelName,
     required String year,
     required String vehicleType,
+    String? customerName,
+    String? phone,
   }) async {
     String formattedVehicleType = 'Universal';
     final vtLower = vehicleType.toLowerCase();
@@ -40,12 +41,13 @@ class RareRequestService {
         'description': description,
         'quantity': quantity,
         'urgency': urgency.toLowerCase(),
-        'budget':
-            budget != null ? (budget * 100).toInt() : null, // Convert to paise
         'vehicleType': formattedVehicleType,
         'vehicleBrand': brand,
         'vehicleModel': modelName,
         'vehicleYear': int.tryParse(year) ?? 2026,
+        if (customerName != null && customerName.isNotEmpty)
+          'customerName': customerName,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
       },
     );
     final data = response.data['data'] ?? {};

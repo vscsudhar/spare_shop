@@ -158,7 +158,7 @@ class HomeView extends StackedView<HomeViewModel> {
                       const SizedBox(height: 28),
                     ],
 
-                    // Featured products
+                    // All products
                     const Text(
                       'All Products',
                       style: TextStyle(
@@ -168,31 +168,45 @@ class HomeView extends StackedView<HomeViewModel> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: viewModel.featuredProducts.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: isDesktop ? 4 : 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 0.72,
+                    if (viewModel.allProducts.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: Text(
+                            'No products available',
+                            style: TextStyle(
+                              color: kcVoltSpareTextSecondary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: viewModel.allProducts.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: isDesktop ? 4 : 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.72,
+                        ),
+                        itemBuilder: (context, index) {
+                          final product = viewModel.allProducts[index];
+                          return ProductCard(
+                            product: product,
+                            showFavorite: true,
+                            onFavoriteToggle: () =>
+                                viewModel.toggleWishlist(product, context),
+                            isLoadingFavorite:
+                                viewModel.isWishlistLoading(product.id),
+                            onTap: () => viewModel.openProductDetails(product),
+                            onAddToCart: () =>
+                                viewModel.addToCart(product, context),
+                          );
+                        },
                       ),
-                      itemBuilder: (context, index) {
-                        final product = viewModel.featuredProducts[index];
-                        return ProductCard(
-                          product: product,
-                          showFavorite: true,
-                          onFavoriteToggle: () =>
-                              viewModel.toggleWishlist(product, context),
-                          isLoadingFavorite:
-                              viewModel.isWishlistLoading(product.id),
-                          onTap: () => viewModel.openProductDetails(product),
-                          onAddToCart: () =>
-                              viewModel.addToCart(product, context),
-                        );
-                      },
-                    ),
                     const SizedBox(height: 40),
                   ],
                 ),

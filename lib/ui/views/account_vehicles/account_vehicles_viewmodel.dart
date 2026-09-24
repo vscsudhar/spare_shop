@@ -82,6 +82,40 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
     setBusy(true);
     try {
       _vehicles = await _vehicleService.getVehicles();
+
+      // If backend has no vehicles yet, auto-sync existing locally saved vehicle to database
+      if (_vehicles.isEmpty) {
+        final email = await _tokenService.getUserEmail();
+        if (email != null) {
+          final localVeh = await _tokenService.getSelectedVehicle(email);
+          if (localVeh != null && localVeh.name.isNotEmpty) {
+            try {
+              final synced = await _vehicleService.addVehicle(localVeh);
+              _vehicles = [synced];
+              currentSelectedVehicle = synced;
+              userVehicles = [synced];
+              await _tokenService.saveSelectedVehicle(email, synced);
+            } catch (_) {
+              _vehicles = [localVeh];
+            }
+          } else if (userVehicles.isNotEmpty &&
+              userVehicles.first.name.isNotEmpty) {
+            try {
+              final synced =
+                  await _vehicleService.addVehicle(userVehicles.first);
+              _vehicles = [synced];
+              currentSelectedVehicle = synced;
+              userVehicles = [synced];
+              await _tokenService.saveSelectedVehicle(email, synced);
+            } catch (_) {
+              _vehicles = userVehicles;
+            }
+          }
+        }
+      } else {
+        userVehicles = _vehicles;
+      }
+
       _addresses = await _addressService.getAddresses();
       _orders = await _orderService.getMyOrders();
       try {
@@ -98,8 +132,8 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
       } else if (_vehicles.isNotEmpty) {
         currentSelectedVehicle = _vehicles.first;
       }
-    } catch (e) {
-      print('Error loading dynamic profile data: $e');
+    } catch (_) {
+      // Keep state intact on network error
     }
     setBusy(false);
   }
@@ -141,7 +175,7 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
   }
 
   void trackOrder(OrderModel order) {
-    goToOrderTracking();
+    goToOrderTracking(orderId: order.id, order: order);
   }
 
   // --- Address CRUD ---

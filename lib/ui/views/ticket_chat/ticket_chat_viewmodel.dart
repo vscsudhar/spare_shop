@@ -64,22 +64,36 @@ class TicketChatViewModel extends BaseViewModel with NavigationMixin {
       _socketService.off('support_ticket:status_changed');
 
       _socketService.on('support_ticket:message', (data) {
-        if (data is Map<String, dynamic>) {
-          final newMsg = TicketMessageModel.fromJson(data);
-          if (!_messages.any((m) => m.id == newMsg.id)) {
-            _messages.add(newMsg);
+        if (data != null) {
+          try {
+            final map = Map<String, dynamic>.from(data as Map);
+            final newMsg = TicketMessageModel.fromJson(map);
+            final existingIndex = _messages.indexWhere(
+                (m) => m.id == newMsg.id || (m.id.startsWith('temp_') && m.message == newMsg.message));
+            if (existingIndex != -1) {
+              _messages[existingIndex] = newMsg;
+            } else {
+              _messages.add(newMsg);
+            }
             rebuildUi();
             _scrollToBottom();
+          } catch (e) {
+            debugPrint('Error handling socket support_ticket:message: $e');
           }
         }
       });
 
       _socketService.on('support_ticket:status_changed', (data) {
-        if (data is Map<String, dynamic> && data['status'] != null) {
-          _ticket = _ticket.copyWith(
-            status: TicketStatus.fromString(data['status'].toString()),
-          );
-          rebuildUi();
+        if (data != null) {
+          try {
+            final map = Map<String, dynamic>.from(data as Map);
+            if (map['status'] != null) {
+              _ticket = _ticket.copyWith(
+                status: TicketStatus.fromString(map['status'].toString()),
+              );
+              rebuildUi();
+            }
+          } catch (_) {}
         }
       });
     } catch (_) {}
@@ -126,26 +140,48 @@ class TicketChatViewModel extends BaseViewModel with NavigationMixin {
     final text = messageController.text.trim();
     if (text.isEmpty && _selectedPhotos.isEmpty) return;
 
-    _isSending = true;
-    rebuildUi();
-
     final photosToSend = List<XFile>.from(_selectedPhotos);
+    final messageText = text.isNotEmpty ? text : 'Attached photo(s)';
+
     messageController.clear();
     _selectedPhotos.clear();
+
+    final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+    final tempMsg = TicketMessageModel(
+      id: tempId,
+      ticketId: _ticket.id,
+      senderId: _ticket.customerId,
+      senderName: _ticket.customerName,
+      senderRole: 'customer',
+      message: messageText,
+      attachments: [],
+      createdAt: DateTime.now(),
+    );
+
+    _messages.add(tempMsg);
+    _isSending = true;
+    rebuildUi();
+    _scrollToBottom();
 
     try {
       final msg = await _ticketService.sendMessage(
         _ticket.id,
-        text.isNotEmpty ? text : 'Attached photo(s)',
+        messageText,
         photos: photosToSend,
       );
 
-      if (!_messages.any((m) => m.id == msg.id)) {
+      final index = _messages.indexWhere((m) => m.id == tempId || m.id == msg.id);
+      if (index != -1) {
+        _messages[index] = msg;
+      } else if (!_messages.any((m) => m.id == msg.id)) {
         _messages.add(msg);
       }
       _scrollToBottom();
     } catch (e) {
       debugPrint('Error sending message: $e');
+      _messages.removeWhere((m) => m.id == tempId);
+      messageController.text = text;
+      _selectedPhotos.addAll(photosToSend);
     } finally {
       _isSending = false;
       rebuildUi();

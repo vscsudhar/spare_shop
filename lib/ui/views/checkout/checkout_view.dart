@@ -56,38 +56,44 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
               final isSelected = viewModel.selectedAddress?.id == address.id;
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
+                child: Material(
                   color: kcVoltSpareWhite,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareBorder,
-                    width: isSelected ? 1.5 : 1.0,
-                  ),
-                ),
-                child: RadioListTile<AddressModel>(
-                  title: Text(
-                    address.name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: Text(
-                      '${address.addressLine}\nPhone: ${address.phone}',
-                      style: const TextStyle(
-                          color: kcVoltSpareTextSecondary,
-                          fontSize: 12,
-                          height: 1.4),
+                  clipBehavior: Clip.antiAlias,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareBorder,
+                        width: isSelected ? 1.5 : 1.0,
+                      ),
+                    ),
+                    child: RadioListTile<AddressModel>(
+                      title: Text(
+                        address.name,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          '${address.addressLine}\nPhone: ${address.phone}',
+                          style: const TextStyle(
+                              color: kcVoltSpareTextSecondary,
+                              fontSize: 12,
+                              height: 1.4),
+                        ),
+                      ),
+                      value: address,
+                      groupValue: viewModel.selectedAddress,
+                      activeColor: kcVoltSpareEVGreen,
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      onChanged: (val) {
+                        if (val != null) viewModel.selectAddress(val);
+                      },
                     ),
                   ),
-                  value: address,
-                  groupValue: viewModel.selectedAddress,
-                  activeColor: kcVoltSpareEVGreen,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  onChanged: (val) {
-                    if (val != null) viewModel.selectAddress(val);
-                  },
                 ),
               );
             }),
@@ -152,14 +158,18 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                                       : kcVoltSpareEVGreen,
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  estimate.title,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: estimate.type == DeliveryType.twoDays
-                                        ? Colors.blue.shade700
-                                        : kcVoltSpareEVGreen,
-                                    fontWeight: FontWeight.w500,
+                                Expanded(
+                                  child: Text(
+                                    estimate.title,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: estimate.type == DeliveryType.twoDays
+                                          ? Colors.blue.shade700
+                                          : kcVoltSpareEVGreen,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -325,17 +335,22 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
   Widget _billingRow(String label, String value, {bool isGreen = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: const TextStyle(color: kcVoltSpareTextSecondary, fontSize: 13),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-            color: isGreen ? kcVoltSpareEVGreen : kcVoltSpareTextPrimary,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: isGreen ? kcVoltSpareEVGreen : kcVoltSpareTextPrimary,
+            ),
           ),
         ),
       ],

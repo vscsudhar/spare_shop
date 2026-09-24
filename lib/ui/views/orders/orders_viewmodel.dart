@@ -1,14 +1,11 @@
-import 'package:spare_shop/app/app.dialogs.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/order_service.dart';
 import 'package:spare_shop/ui/common/shop_models.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
-import 'package:stacked_services/stacked_services.dart';
 
 class OrdersViewModel extends FutureViewModel<void> with NavigationMixin {
-  final _dialogService = locator<DialogService>();
   final _orderService = locator<OrderService>();
 
   List<ShopOrder> _orders = [];
@@ -80,12 +77,7 @@ class OrdersViewModel extends FutureViewModel<void> with NavigationMixin {
   }
 
   Future<void> viewOrderDetails(ShopOrder order) async {
-    await _dialogService.showCustomDialog(
-      variant: DialogType.infoAlert,
-      title: 'Order ${order.orderNumber}',
-      description:
-          'This order has ${order.itemCountLabel} with total amount of ₹${order.total.toStringAsFixed(2)}. Order date: ${order.dateLabel}.',
-    );
+    await goToOrderTracking(orderId: order.id);
   }
 
   Future<void> onTabSelected(AppTab tab) async {

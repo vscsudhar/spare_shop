@@ -128,9 +128,6 @@ class RequestChatQuotationView
                           children: [
                             _summaryField('Quantity', '${req.quantity} Units'),
                             _summaryField('Urgency', req.urgency),
-                            if (req.budget != null)
-                              _summaryField('Budget',
-                                  '₹${req.budget!.toStringAsFixed(2)}'),
                           ],
                         ),
                         if (req.images.isNotEmpty) ...[

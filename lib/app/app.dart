@@ -52,6 +52,7 @@ import 'package:spare_shop/ui/views/create_ticket/create_ticket_view.dart';
 import 'package:spare_shop/ui/views/ticket_chat/ticket_chat_view.dart';
 import 'package:spare_shop/core/services/support_ticket_service.dart';
 import 'package:spare_shop/core/services/vehicle_service.dart';
+import 'package:spare_shop/core/services/delivery_charge_service.dart';
 // @stacked-import
 
 @StackedApp(
@@ -112,6 +113,7 @@ import 'package:spare_shop/core/services/vehicle_service.dart';
     LazySingleton(classType: AdminPurchaseService),
     LazySingleton(classType: VehicleService),
     LazySingleton(classType: SupportTicketService),
+    LazySingleton(classType: DeliveryChargeService),
     // @stacked-service
   ],
   bottomsheets: [

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
@@ -121,53 +122,57 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Quantity and Budget
-                  Row(
+                  // Quantity Section
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      const Text('Quantity Required',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 12)),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: kcVoltSpareBorder),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Quantity Required',
+                            const Text('Required Units',
                                 style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 12)),
-                            const SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: kcVoltSpareBorder),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove, size: 18),
-                                    onPressed: viewModel.decrementQuantity,
+                                    color: kcVoltSpareTextSecondary,
+                                    fontSize: 13)),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove, size: 18),
+                                  onPressed: viewModel.decrementQuantity,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: kcVoltSpareOffWhite,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  Text('${viewModel.quantity}',
+                                  child: Text('${viewModel.quantity}',
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  IconButton(
-                                    icon: const Icon(Icons.add, size: 18),
-                                    onPressed: viewModel.incrementQuantity,
-                                  ),
-                                ],
-                              ),
-                            )
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15)),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.add, size: 18),
+                                  onPressed: viewModel.incrementQuantity,
+                                ),
+                              ],
+                            ),
                           ],
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _textField('Target Budget (Optional)',
-                            viewModel.budgetController,
-                            hint: 'e.g. 1500', keyboard: TextInputType.number),
-                      ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -195,7 +200,7 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: viewModel.addSimulatedPhoto,
+                          onPressed: viewModel.pickFromGallery,
                           icon: const Icon(Icons.photo_library_outlined),
                           label: const Text('Add Gallery Photo'),
                           style: OutlinedButton.styleFrom(
@@ -208,7 +213,7 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: viewModel.addSimulatedPhoto,
+                          onPressed: viewModel.pickFromCamera,
                           icon: const Icon(Icons.camera_alt_outlined),
                           label: const Text('Capture Camera'),
                           style: OutlinedButton.styleFrom(
@@ -225,26 +230,35 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
                   // Multiple-image preview list
                   if (viewModel.uploadedImages.isNotEmpty) ...[
                     SizedBox(
-                      height: 80,
+                      height: 85,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: viewModel.uploadedImages.length,
                         itemBuilder: (context, index) {
+                          final imgPath = viewModel.uploadedImages[index];
+                          final isUrl = imgPath.startsWith('http://') ||
+                              imgPath.startsWith('https://');
+
                           return Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
+                            padding: const EdgeInsets.only(right: 10.0),
                             child: Stack(
                               children: [
                                 Container(
-                                  width: 80,
-                                  height: 80,
+                                  width: 85,
+                                  height: 85,
                                   decoration: BoxDecoration(
                                     border:
                                         Border.all(color: kcVoltSpareBorder),
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.grey[100],
+                                    image: DecorationImage(
+                                      image: isUrl
+                                          ? NetworkImage(imgPath)
+                                          : FileImage(File(imgPath))
+                                              as ImageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                  child: const Icon(Icons.image,
-                                      color: Colors.grey),
                                 ),
                                 Positioned(
                                   top: 4,
@@ -253,11 +267,11 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
                                     onTap: () => viewModel.removePhoto(index),
                                     child: Container(
                                       decoration: const BoxDecoration(
-                                          color: Colors.red,
+                                          color: Colors.redAccent,
                                           shape: BoxShape.circle),
                                       padding: const EdgeInsets.all(4),
                                       child: const Icon(Icons.close,
-                                          color: Colors.white, size: 10),
+                                          color: Colors.white, size: 12),
                                     ),
                                   ),
                                 )
@@ -414,6 +428,12 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
       selectedColor: kcVoltSpareDark,
       backgroundColor: Colors.white,
     );
+  }
+
+  @override
+  void onViewModelReady(RareProductRequestViewModel viewModel) {
+    viewModel.init();
+    super.onViewModelReady(viewModel);
   }
 
   @override

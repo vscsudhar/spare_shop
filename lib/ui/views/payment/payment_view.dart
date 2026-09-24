@@ -49,38 +49,44 @@ class PaymentView extends StackedView<PaymentViewModel> {
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
+                child: Material(
                   color: kcVoltSpareWhite,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareBorder,
-                    width: isSelected ? 1.5 : 1.0,
-                  ),
-                ),
-                child: RadioListTile<PaymentOptionModel>(
-                  title: Text(
-                    option.name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 2.0),
-                    child: Text(
-                      description,
-                      style: const TextStyle(
-                          color: kcVoltSpareTextSecondary, fontSize: 12),
+                  clipBehavior: Clip.antiAlias,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareBorder,
+                        width: isSelected ? 1.5 : 1.0,
+                      ),
+                    ),
+                    child: RadioListTile<PaymentOptionModel>(
+                      title: Text(
+                        option.name,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 2.0),
+                        child: Text(
+                          description,
+                          style: const TextStyle(
+                              color: kcVoltSpareTextSecondary, fontSize: 12),
+                        ),
+                      ),
+                      secondary: Icon(icon,
+                          color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareDark),
+                      value: option,
+                      groupValue: viewModel.selectedOption,
+                      activeColor: kcVoltSpareEVGreen,
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      onChanged: (val) {
+                        if (val != null) viewModel.selectOption(val);
+                      },
                     ),
                   ),
-                  secondary: Icon(icon,
-                      color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareDark),
-                  value: option,
-                  groupValue: viewModel.selectedOption,
-                  activeColor: kcVoltSpareEVGreen,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  onChanged: (val) {
-                    if (val != null) viewModel.selectOption(val);
-                  },
                 ),
               );
             }),
@@ -246,17 +252,22 @@ class PaymentView extends StackedView<PaymentViewModel> {
   Widget _billingRow(String label, String value, {bool isGreen = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: const TextStyle(color: kcVoltSpareTextSecondary, fontSize: 13),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-            color: isGreen ? kcVoltSpareEVGreen : kcVoltSpareTextPrimary,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: isGreen ? kcVoltSpareEVGreen : kcVoltSpareTextPrimary,
+            ),
           ),
         ),
       ],

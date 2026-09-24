@@ -168,4 +168,10 @@ class VehicleSelectorView extends StackedView<VehicleSelectorViewModel> {
     BuildContext context,
   ) =>
       VehicleSelectorViewModel();
+
+  @override
+  void onViewModelReady(VehicleSelectorViewModel viewModel) {
+    viewModel.init();
+    super.onViewModelReady(viewModel);
+  }
 }

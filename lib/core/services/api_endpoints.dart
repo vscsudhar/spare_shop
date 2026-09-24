@@ -81,6 +81,7 @@ class ApiEndpoints {
   static const String addresses = '/addresses';
   static const String orders = '/orders';
   static const String checkout = '/checkout';
+  static const String deliveryCharges = '/delivery-charges';
 
   // Admin features
   static const String dashboard = '/admin/dashboard';

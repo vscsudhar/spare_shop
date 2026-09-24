@@ -1,4 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 // **************************************************************************
 // StackedLocatorGenerator
@@ -18,6 +19,7 @@ import '../core/services/admin_supplier_service.dart';
 import '../core/services/api_client.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/cart_service.dart';
+import '../core/services/delivery_charge_service.dart';
 import '../core/services/network_info_service.dart';
 import '../core/services/order_service.dart';
 import '../core/services/product_service.dart';
@@ -32,10 +34,8 @@ import '../core/services/wishlist_service.dart';
 
 final locator = StackedLocator.instance;
 
-Future<void> setupLocator({
-  String? environment,
-  EnvironmentFilter? environmentFilter,
-}) async {
+Future<void> setupLocator(
+    {String? environment, EnvironmentFilter? environmentFilter}) async {
 // Register environments
   locator.registerEnvironment(
       environment: environment, environmentFilter: environmentFilter);
@@ -62,4 +62,5 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => AdminPurchaseService());
   locator.registerLazySingleton(() => VehicleService());
   locator.registerLazySingleton(() => SupportTicketService());
+  locator.registerLazySingleton(() => DeliveryChargeService());
 }

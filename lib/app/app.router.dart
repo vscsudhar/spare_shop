@@ -472,7 +472,8 @@ class StackedRouter extends _i1.RouterBase {
         orElse: () => const OrderTrackingViewArguments(),
       );
       return _i34.MaterialPageRoute<dynamic>(
-        builder: (context) => _i21.OrderTrackingView(key: args.key),
+        builder: (context) => _i21.OrderTrackingView(
+            key: args.key, orderId: args.orderId, order: args.order),
         settings: data,
       );
     },
@@ -1015,24 +1016,32 @@ class OrderSuccessViewArguments {
 }
 
 class OrderTrackingViewArguments {
-  const OrderTrackingViewArguments({this.key});
+  const OrderTrackingViewArguments({
+    this.key,
+    this.orderId,
+    this.order,
+  });
 
   final _i34.Key? key;
 
+  final String? orderId;
+
+  final _i35.OrderModel? order;
+
   @override
   String toString() {
-    return '{"key": "$key"}';
+    return '{"key": "$key", "orderId": "$orderId", "order": "$order"}';
   }
 
   @override
   bool operator ==(covariant OrderTrackingViewArguments other) {
     if (identical(this, other)) return true;
-    return other.key == key;
+    return other.key == key && other.orderId == orderId && other.order == order;
   }
 
   @override
   int get hashCode {
-    return key.hashCode;
+    return key.hashCode ^ orderId.hashCode ^ order.hashCode;
   }
 }
 
@@ -1648,6 +1657,8 @@ extension NavigatorStateExtension on _i37.NavigationService {
 
   Future<dynamic> navigateToOrderTrackingView({
     _i34.Key? key,
+    String? orderId,
+    _i35.OrderModel? order,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -1655,7 +1666,8 @@ extension NavigatorStateExtension on _i37.NavigationService {
         transition,
   }) async {
     return navigateTo<dynamic>(Routes.orderTrackingView,
-        arguments: OrderTrackingViewArguments(key: key),
+        arguments: OrderTrackingViewArguments(
+            key: key, orderId: orderId, order: order),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
@@ -2174,6 +2186,8 @@ extension NavigatorStateExtension on _i37.NavigationService {
 
   Future<dynamic> replaceWithOrderTrackingView({
     _i34.Key? key,
+    String? orderId,
+    _i35.OrderModel? order,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -2181,7 +2195,8 @@ extension NavigatorStateExtension on _i37.NavigationService {
         transition,
   }) async {
     return replaceWith<dynamic>(Routes.orderTrackingView,
-        arguments: OrderTrackingViewArguments(key: key),
+        arguments: OrderTrackingViewArguments(
+            key: key, orderId: orderId, order: order),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,

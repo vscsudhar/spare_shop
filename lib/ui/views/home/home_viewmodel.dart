@@ -34,15 +34,24 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
   }
 
   List<ProductModel> _allProducts = [];
+  List<ProductModel> get allProducts {
+    if (selectedVehicle == null) return _allProducts;
+    final filtered = _allProducts
+        .where(isProductCompatibleWithSelectedVehicleBrand)
+        .toList();
+    return filtered.isNotEmpty ? filtered : _allProducts;
+  }
+
   List<VehicleModel> _allVehicles = [];
 
   List<ProductModel> get compatibleProducts {
     if (selectedVehicle == null) return _allProducts;
 
-    return _allProducts.where((product) {
+    final filtered = _allProducts.where((product) {
       return product.compatibleVehicleIds.contains(selectedVehicle!.id) ||
           (product.fitmentBadge?.toLowerCase().contains('universal') ?? false);
     }).toList();
+    return filtered.isNotEmpty ? filtered : _allProducts;
   }
 
   bool isProductCompatibleWithSelectedVehicleBrand(ProductModel product) {

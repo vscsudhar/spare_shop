@@ -5,6 +5,9 @@ import 'package:stacked_services/stacked_services.dart';
 import 'package:spare_shop/core/services/api_client.dart';
 import 'package:spare_shop/core/services/token_service.dart';
 import 'package:spare_shop/core/services/product_service.dart';
+import 'package:spare_shop/core/services/wishlist_service.dart';
+import 'package:spare_shop/core/services/cart_service.dart';
+import 'package:spare_shop/core/services/delivery_charge_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -25,7 +28,31 @@ void registerServices() {
   getAndRegisterTokenService();
   getAndRegisterApiClient();
   getAndRegisterProductService();
+  getAndRegisterWishlistService();
+  getAndRegisterCartService();
+  getAndRegisterDeliveryChargeService();
   // @stacked-mock-register
+}
+
+WishlistService getAndRegisterWishlistService() {
+  _removeRegistrationIfExists<WishlistService>();
+  final service = WishlistService(apiClient: locator<ApiClient>());
+  locator.registerSingleton<WishlistService>(service);
+  return service;
+}
+
+CartService getAndRegisterCartService() {
+  _removeRegistrationIfExists<CartService>();
+  final service = CartService(apiClient: locator<ApiClient>());
+  locator.registerSingleton<CartService>(service);
+  return service;
+}
+
+DeliveryChargeService getAndRegisterDeliveryChargeService() {
+  _removeRegistrationIfExists<DeliveryChargeService>();
+  final service = DeliveryChargeService(apiClient: locator<ApiClient>());
+  locator.registerSingleton<DeliveryChargeService>(service);
+  return service;
 }
 
 TokenService getAndRegisterTokenService() {

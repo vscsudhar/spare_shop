@@ -4,6 +4,7 @@ import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/api_client.dart';
 import 'package:spare_shop/core/services/product_service.dart';
 import 'package:spare_shop/core/services/token_service.dart';
+import 'package:spare_shop/core/services/vehicle_service.dart';
 import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
@@ -11,6 +12,7 @@ import 'package:stacked/stacked.dart';
 class SelectPetrolBikeViewModel extends BaseViewModel with NavigationMixin {
   final _tokenService = locator<TokenService>();
   final _productService = locator<ProductService>();
+  final _vehicleService = locator<VehicleService>();
   final _apiClient = locator<ApiClient>();
 
   final customBrandController = TextEditingController();
@@ -181,20 +183,27 @@ class SelectPetrolBikeViewModel extends BaseViewModel with NavigationMixin {
         type: VehicleType.petrol,
       );
 
-      // Save to global mock state
-      userVehicles.add(newVehicle);
-      currentSelectedVehicle = newVehicle;
+      VehicleModel savedVehicle = newVehicle;
+      try {
+        // Save to backend database
+        savedVehicle = await _vehicleService.addVehicle(newVehicle);
+      } catch (_) {
+        // Fallback gracefully if guest or network error
+      }
 
-      // Save to persistent storage
+      // Save to global userVehicles state
+      userVehicles.add(savedVehicle);
+      currentSelectedVehicle = savedVehicle;
+
+      // Save to persistent local storage
       final email = await _tokenService.getUserEmail();
       if (email != null) {
-        await _tokenService.saveSelectedVehicle(email, newVehicle);
+        await _tokenService.saveSelectedVehicle(email, savedVehicle);
       }
 
       setBusy(false);
       clearStackAndShowHome();
-    } catch (e) {
-      print('Error saving vehicle: $e');
+    } catch (_) {
       setBusy(false);
     }
   }

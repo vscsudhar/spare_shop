@@ -202,14 +202,18 @@ class CartView extends StackedView<CartViewModel> {
                           : kcVoltSpareEVGreen,
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      estimate.title,
-                      style: TextStyle(
-                        color: estimate.type == DeliveryType.twoDays
-                            ? Colors.blue.shade700
-                            : kcVoltSpareEVGreen,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                    Expanded(
+                      child: Text(
+                        estimate.title,
+                        style: TextStyle(
+                          color: estimate.type == DeliveryType.twoDays
+                              ? Colors.blue.shade700
+                              : kcVoltSpareEVGreen,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -306,6 +310,33 @@ class CartView extends StackedView<CartViewModel> {
               ),
             ),
             const SizedBox(height: 16),
+            if (viewModel.amountNeededForFreeDelivery > 0) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: kcVoltSpareEVGreen.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: kcVoltSpareEVGreen.withValues(alpha: 0.25)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.local_shipping_outlined, color: kcVoltSpareEVGreen, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Add ₹${viewModel.amountNeededForFreeDelivery.toInt()} more for FREE Delivery',
+                        style: const TextStyle(
+                          color: kcVoltSpareEVGreen,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             _summaryRow('Subtotal', '₹${viewModel.subtotal.toInt()}'),
             const SizedBox(height: 10),
             _summaryRow(
@@ -368,17 +399,22 @@ class CartView extends StackedView<CartViewModel> {
   Widget _summaryRow(String label, String value, {bool isGreen = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: const TextStyle(color: kcVoltSpareTextSecondary, fontSize: 13),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-            color: isGreen ? kcVoltSpareEVGreen : kcVoltSpareTextPrimary,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: isGreen ? kcVoltSpareEVGreen : kcVoltSpareTextPrimary,
+            ),
           ),
         ),
       ],

@@ -1,11 +1,13 @@
-import 'dart:math';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:dio/dio.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/responsive.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:spare_shop/ui/widgets/common/voltspare_widgets.dart';
 import 'package:stacked/stacked.dart';
-import 'package:dio/dio.dart';
 
 import 'add_address_viewmodel.dart';
 
@@ -87,7 +89,7 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                         child: _buildTextField(
                           controller: viewModel.talukController,
                           label: 'Taluk / Area',
-                          hint: 'HSR Layout',
+                          hint: 'Peelamedu',
                           icon: Icons.location_city_outlined,
                         ),
                       ),
@@ -96,19 +98,86 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                         child: _buildTextField(
                           controller: viewModel.districtController,
                           label: 'District / City',
-                          hint: 'Bengaluru',
+                          hint: 'Coimbatore',
                           icon: Icons.map_outlined,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildTextField(
-                    controller: viewModel.stateController,
-                    label: 'State',
-                    hint: 'Karnataka',
-                    icon: Icons.explore_outlined,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildTextField(
+                          controller: viewModel.stateController,
+                          label: 'State',
+                          hint: 'Tamil Nadu',
+                          icon: Icons.explore_outlined,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildTextField(
+                          controller: viewModel.postalCodeController,
+                          label: 'Postal / PIN Code',
+                          hint: '641001',
+                          icon: Icons.pin_drop_outlined,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
                   ),
+                  if (viewModel.locationName != null) ...[
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: kcVoltSpareEVGreen.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color: kcVoltSpareEVGreen.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: kcVoltSpareEVGreen.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.hub_outlined,
+                                color: kcVoltSpareEVGreen, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Service Hub: ${viewModel.locationName}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: kcVoltSpareTextPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  viewModel.distanceFromLocationKm != null
+                                      ? 'Distance: ${viewModel.distanceFromLocationKm!.toStringAsFixed(2)} km (Eligible for fast delivery)'
+                                      : 'Assigned to nearest service center',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: kcVoltSpareTextSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 32),
                   PrimaryActionButton(
                     label: address == null ? 'Save Address' : 'Update Address',
@@ -153,8 +222,10 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: kcVoltSpareEVGreen.withValues(alpha: 0.1),
+                            color: kcVoltSpareEVGreen.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                                color: kcVoltSpareEVGreen.withValues(alpha: 0.3)),
                           ),
                           child: const Row(
                             children: [
@@ -175,7 +246,7 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                   ),
                   const SizedBox(height: 16),
                   Container(
-                    height: isDesktop ? 500 : 320,
+                    height: isDesktop ? 500 : 360,
                     decoration: BoxDecoration(
                       color: kcVoltSpareWhite,
                       borderRadius: BorderRadius.circular(24),
@@ -195,8 +266,8 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                       onLocationChanged: (lat, lng) {
                         viewModel.updateLocation(lat, lng);
                       },
-                      onAreaSelected: (taluk, district, state) {
-                        viewModel.onAreaSelected(taluk, district, state);
+                      onAreaSelected: (taluk, district, state, [postalCode]) {
+                        viewModel.onAreaSelected(taluk, district, state, postalCode);
                       },
                     ),
                   ),
@@ -293,6 +364,7 @@ class SearchLocation {
   final String taluk;
   final String district;
   final String state;
+  final String postalCode;
 
   const SearchLocation({
     required this.name,
@@ -301,121 +373,15 @@ class SearchLocation {
     required this.taluk,
     required this.district,
     required this.state,
+    this.postalCode = '',
   });
 }
-
-const List<SearchLocation> searchableLocations = [
-  SearchLocation(
-    name: "Avinashi Road, Coimbatore",
-    latitude: 11.0250,
-    longitude: 77.0050,
-    taluk: "Peelamedu",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "Gandhipuram Bus Stand, Coimbatore",
-    latitude: 11.0183,
-    longitude: 76.9687,
-    taluk: "Coimbatore North",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "PSG Tech, Peelamedu, Coimbatore",
-    latitude: 11.0243,
-    longitude: 77.0032,
-    taluk: "Peelamedu",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "VOC Park Zoo, Coimbatore South",
-    latitude: 11.0068,
-    longitude: 76.9732,
-    taluk: "Coimbatore South",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "Prozone Mall, Saravanampatti, Coimbatore",
-    latitude: 11.0543,
-    longitude: 76.9932,
-    taluk: "Saravanampatti",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "Coimbatore Junction Railway Station",
-    latitude: 11.0003,
-    longitude: 76.9637,
-    taluk: "Coimbatore South",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "HSR Layout Sector 5, Bengaluru",
-    latitude: 12.9116,
-    longitude: 77.6388,
-    taluk: "HSR Layout",
-    district: "Bengaluru",
-    state: "Karnataka",
-  ),
-  SearchLocation(
-    name: "Bellandur EcoSpace, Bengaluru",
-    latitude: 12.9304,
-    longitude: 77.6784,
-    taluk: "Varthur Hobli",
-    district: "Bengaluru",
-    state: "Karnataka",
-  ),
-  SearchLocation(
-    name: "Marudhamalai Road, Coimbatore",
-    latitude: 11.0195,
-    longitude: 76.9015,
-    taluk: "Vadavalli",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "Cross Cut Road, Coimbatore North",
-    latitude: 11.0210,
-    longitude: 76.9695,
-    taluk: "Coimbatore North",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "Madukkarai, Coimbatore South",
-    latitude: 10.9068,
-    longitude: 76.9632,
-    taluk: "Madukkarai",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "Singanallur, Coimbatore East",
-    latitude: 11.0028,
-    longitude: 77.0252,
-    taluk: "Singanallur",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-  SearchLocation(
-    name: "Ramanathapuram, Coimbatore South",
-    latitude: 10.9982,
-    longitude: 76.9856,
-    taluk: "Ramanathapuram",
-    district: "Coimbatore",
-    state: "Tamil Nadu",
-  ),
-];
 
 class InteractiveMapPicker extends StatefulWidget {
   final double initialLat;
   final double initialLng;
   final Function(double lat, double lng) onLocationChanged;
-  final Function(String taluk, String district, String state)? onAreaSelected;
+  final Function(String taluk, String district, String state, [String? postalCode])? onAreaSelected;
 
   const InteractiveMapPicker({
     Key? key,
@@ -431,194 +397,298 @@ class InteractiveMapPicker extends StatefulWidget {
 
 class _InteractiveMapPickerState extends State<InteractiveMapPicker>
     with SingleTickerProviderStateMixin {
-  late Offset _mapOffset;
-  bool _isDragging = false;
+  late final MapController _mapController;
   late double _currentLat;
   late double _currentLng;
-  double _zoomLevel = 1.0; // Default zoom scale
+  bool _isDragging = false;
+  bool _isSearching = false;
+  bool _isReverseGeocoding = false;
 
   final _searchController = TextEditingController();
   List<SearchLocation> _searchResults = [];
 
-  // Animation for pin jump
-  late AnimationController _animationController;
+  Timer? _searchDebounceTimer;
+  Timer? _panDebounceTimer;
+  CancelToken? _searchCancelToken;
+  CancelToken? _reverseGeoCancelToken;
+  final Dio _dio = Dio();
+
+  late AnimationController _pinAnimationController;
   late Animation<double> _pinTranslationY;
   late Animation<double> _shadowScale;
 
   @override
   void initState() {
     super.initState();
+    _mapController = MapController();
     _currentLat = widget.initialLat;
     _currentLng = widget.initialLng;
-    _mapOffset = Offset.zero;
 
-    _animationController = AnimationController(
+    _pinAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 180),
     );
 
-    _pinTranslationY = Tween<double>(begin: 0, end: -15).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    _pinTranslationY = Tween<double>(begin: 0, end: -12).animate(
+      CurvedAnimation(parent: _pinAnimationController, curve: Curves.easeOut),
     );
 
     _shadowScale = Tween<double>(begin: 1.0, end: 0.6).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+      CurvedAnimation(parent: _pinAnimationController, curve: Curves.easeOut),
     );
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _searchDebounceTimer?.cancel();
+    _panDebounceTimer?.cancel();
+    _searchCancelToken?.cancel();
+    _reverseGeoCancelToken?.cancel();
+    _pinAnimationController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
-  void _onPanStart(DragStartDetails details) {
-    setState(() {
-      _isDragging = true;
-    });
-    _animationController.forward();
-  }
-
-  void _onPanUpdate(DragUpdateDetails details) {
-    setState(() {
-      _mapOffset += details.delta;
-      // 1px panning ~ 0.00004 degrees coordinate offset at 1.0 zoom
-      _currentLat = widget.initialLat - (_mapOffset.dy * 0.00004 / _zoomLevel);
-      _currentLng = widget.initialLng + (_mapOffset.dx * 0.00004 / _zoomLevel);
-    });
-  }
-
-  void _onPanEnd(DragEndDetails details) {
-    setState(() {
-      _isDragging = false;
-    });
-    _animationController.reverse();
-    widget.onLocationChanged(_currentLat, _currentLng);
-  }
-
-  void _recenterMap() {
-    setState(() {
-      _mapOffset = Offset.zero;
-      _currentLat = widget.initialLat;
-      _currentLng = widget.initialLng;
-      _zoomLevel = 1.0;
-      _searchController.clear();
-      _searchResults = [];
-    });
-    widget.onLocationChanged(_currentLat, _currentLng);
-  }
-
-  void _zoomIn() {
-    setState(() {
-      if (_zoomLevel < 2.5) {
-        _zoomLevel += 0.25;
-        // Keep coordinates synced with new zoom and offset
-        _currentLat =
-            widget.initialLat - (_mapOffset.dy * 0.00004 / _zoomLevel);
-        _currentLng =
-            widget.initialLng + (_mapOffset.dx * 0.00004 / _zoomLevel);
+  void _onPositionChanged(MapCamera camera, bool hasGesture) {
+    if (hasGesture) {
+      if (!_isDragging) {
+        _isDragging = true;
+        _pinAnimationController.forward();
       }
-    });
-    widget.onLocationChanged(_currentLat, _currentLng);
+
+      setState(() {
+        _currentLat = camera.center.latitude;
+        _currentLng = camera.center.longitude;
+      });
+
+      _panDebounceTimer?.cancel();
+      _panDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+        _finalizePinMove(camera.center.latitude, camera.center.longitude);
+      });
+    }
   }
 
-  void _zoomOut() {
+  void _onMapEvent(MapEvent event) {
+    if (event is MapEventMoveEnd) {
+      _panDebounceTimer?.cancel();
+      _panDebounceTimer = Timer(const Duration(milliseconds: 150), () {
+        final center = _mapController.camera.center;
+        _finalizePinMove(center.latitude, center.longitude);
+      });
+    }
+  }
+
+  void _finalizePinMove(double lat, double lng) {
+    if (!mounted) return;
+    if (_isDragging) {
+      setState(() {
+        _isDragging = false;
+        _currentLat = lat;
+        _currentLng = lng;
+      });
+      _pinAnimationController.reverse();
+    }
+
+    widget.onLocationChanged(_currentLat, _currentLng);
+    _performReverseGeocode(_currentLat, _currentLng);
+  }
+
+  Future<void> _performReverseGeocode(double lat, double lng) async {
+    _reverseGeoCancelToken?.cancel();
+    _reverseGeoCancelToken = CancelToken();
+
     setState(() {
-      if (_zoomLevel > 0.5) {
-        _zoomLevel -= 0.25;
-        // Keep coordinates synced with new zoom and offset
-        _currentLat =
-            widget.initialLat - (_mapOffset.dy * 0.00004 / _zoomLevel);
-        _currentLng =
-            widget.initialLng + (_mapOffset.dx * 0.00004 / _zoomLevel);
-      }
+      _isReverseGeocoding = true;
     });
-    widget.onLocationChanged(_currentLat, _currentLng);
+
+    try {
+      final response = await _dio.get(
+        'https://nominatim.openstreetmap.org/reverse',
+        queryParameters: {
+          'lat': lat,
+          'lon': lng,
+          'format': 'json',
+          'addressdetails': '1',
+        },
+        options: Options(
+          headers: {'User-Agent': 'VoltSpare_App/1.0'},
+          receiveTimeout: const Duration(seconds: 5),
+          sendTimeout: const Duration(seconds: 5),
+        ),
+        cancelToken: _reverseGeoCancelToken,
+      );
+
+      if (response.statusCode == 200 && response.data is Map && mounted) {
+        final data = response.data as Map;
+        final addr = (data['address'] as Map?) ?? {};
+
+        final String taluk = (addr['suburb'] ??
+                addr['neighbourhood'] ??
+                addr['village'] ??
+                addr['town'] ??
+                addr['city_district'] ??
+                addr['county'] ??
+                '')
+            .toString();
+
+        final String district = (addr['city'] ??
+                addr['town'] ??
+                addr['district'] ??
+                addr['county'] ??
+                '')
+            .toString();
+
+        final String state = (addr['state'] ?? '').toString();
+        final String postalCode = (addr['postcode'] ?? '').toString();
+
+        if (widget.onAreaSelected != null) {
+          widget.onAreaSelected!(
+            taluk.isNotEmpty ? taluk : 'Area',
+            district.isNotEmpty ? district : 'City',
+            state.isNotEmpty ? state : 'State',
+            postalCode,
+          );
+        }
+      }
+    } catch (_) {
+      // Graceful error handling - maintain current user values
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isReverseGeocoding = false;
+        });
+      }
+    }
   }
 
-  Future<void> _onSearchChanged(String query) async {
+  void _onSearchChanged(String query) {
+    _searchDebounceTimer?.cancel();
+
     if (query.trim().length < 3) {
       setState(() {
         _searchResults = [];
+        _isSearching = false;
       });
       return;
     }
 
-    try {
-      final dio = Dio();
-      // Set User-Agent as required by Nominatim usage policy
-      dio.options.headers['User-Agent'] = 'VoltSpare_App/1.0';
-      final response = await dio.get(
-        'https://nominatim.openstreetmap.org/search',
-        queryParameters: {
-          'q': query,
-          'format': 'json',
-          'addressdetails': '1',
-          'limit': '5',
-          'countrycodes': 'in', // Limit to India for relevance
-        },
-      );
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 550), () async {
+      _searchCancelToken?.cancel();
+      _searchCancelToken = CancelToken();
 
-      if (response.statusCode == 200 && response.data is List) {
-        final list = response.data as List;
+      if (mounted) {
         setState(() {
-          _searchResults = list.map((item) {
-            final addr = item['address'] ?? {};
-
-            final String taluk = (addr['suburb'] ??
-                    addr['neighbourhood'] ??
-                    addr['village'] ??
-                    addr['town'] ??
-                    addr['city_district'] ??
-                    addr['county'] ??
-                    '')
-                .toString();
-
-            final String district = (addr['city'] ??
-                    addr['town'] ??
-                    addr['district'] ??
-                    addr['county'] ??
-                    '')
-                .toString();
-
-            final String state = (addr['state'] ?? '').toString();
-
-            return SearchLocation(
-              name: item['display_name'] ?? '',
-              latitude: double.tryParse(item['lat']?.toString() ?? '') ??
-                  widget.initialLat,
-              longitude: double.tryParse(item['lon']?.toString() ?? '') ??
-                  widget.initialLng,
-              taluk: taluk.isNotEmpty ? taluk : 'Area',
-              district: district.isNotEmpty ? district : 'City',
-              state: state.isNotEmpty ? state : 'State',
-            );
-          }).toList();
+          _isSearching = true;
         });
       }
-    } catch (e) {
-      print('Error search address Nominatim: $e');
-    }
+
+      try {
+        final response = await _dio.get(
+          'https://nominatim.openstreetmap.org/search',
+          queryParameters: {
+            'q': query.trim(),
+            'format': 'json',
+            'addressdetails': '1',
+            'limit': '6',
+            'countrycodes': 'in',
+          },
+          options: Options(
+            headers: {'User-Agent': 'VoltSpare_App/1.0'},
+            receiveTimeout: const Duration(seconds: 6),
+            sendTimeout: const Duration(seconds: 6),
+          ),
+          cancelToken: _searchCancelToken,
+        );
+
+        if (response.statusCode == 200 && response.data is List && mounted) {
+          final list = response.data as List;
+          setState(() {
+            _searchResults = list.map((item) {
+              final addr = (item['address'] as Map?) ?? {};
+
+              final String taluk = (addr['suburb'] ??
+                      addr['neighbourhood'] ??
+                      addr['village'] ??
+                      addr['town'] ??
+                      addr['city_district'] ??
+                      addr['county'] ??
+                      '')
+                  .toString();
+
+              final String district = (addr['city'] ??
+                      addr['town'] ??
+                      addr['district'] ??
+                      addr['county'] ??
+                      '')
+                  .toString();
+
+              final String state = (addr['state'] ?? '').toString();
+              final String postalCode = (addr['postcode'] ?? '').toString();
+
+              return SearchLocation(
+                name: item['display_name'] ?? '',
+                latitude: double.tryParse(item['lat']?.toString() ?? '') ??
+                    widget.initialLat,
+                longitude: double.tryParse(item['lon']?.toString() ?? '') ??
+                    widget.initialLng,
+                taluk: taluk.isNotEmpty ? taluk : 'Area',
+                district: district.isNotEmpty ? district : 'City',
+                state: state.isNotEmpty ? state : 'State',
+                postalCode: postalCode,
+              );
+            }).toList();
+          });
+        }
+      } catch (_) {
+        // Silently handle search network issues
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSearching = false;
+          });
+        }
+      }
+    });
   }
 
   void _selectSearchResult(SearchLocation loc) {
     setState(() {
       _currentLat = loc.latitude;
       _currentLng = loc.longitude;
-      // Calculate offset from initialLat/Lng
-      _mapOffset = Offset(
-        (loc.longitude - widget.initialLng) * _zoomLevel / 0.00004,
-        (widget.initialLat - loc.latitude) * _zoomLevel / 0.00004,
-      );
       _searchResults = [];
       _searchController.text = loc.name;
       FocusScope.of(context).unfocus();
     });
 
-    widget.onLocationChanged(_currentLat, _currentLng);
+    _mapController.move(LatLng(loc.latitude, loc.longitude), 16.0);
+    widget.onLocationChanged(loc.latitude, loc.longitude);
     if (widget.onAreaSelected != null) {
-      widget.onAreaSelected!(loc.taluk, loc.district, loc.state);
+      widget.onAreaSelected!(loc.taluk, loc.district, loc.state, loc.postalCode);
+    }
+  }
+
+  void _recenterMap() {
+    setState(() {
+      _currentLat = widget.initialLat;
+      _currentLng = widget.initialLng;
+      _searchController.clear();
+      _searchResults = [];
+    });
+    _mapController.move(LatLng(widget.initialLat, widget.initialLng), 15.0);
+    widget.onLocationChanged(_currentLat, _currentLng);
+  }
+
+  void _zoomIn() {
+    final currentZoom = _mapController.camera.zoom;
+    if (currentZoom < 18.5) {
+      _mapController.move(_mapController.camera.center, currentZoom + 1.0);
+    }
+  }
+
+  void _zoomOut() {
+    final currentZoom = _mapController.camera.zoom;
+    if (currentZoom > 4.5) {
+      _mapController.move(_mapController.camera.center, currentZoom - 1.0);
     }
   }
 
@@ -626,23 +696,96 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Pan gesture detector on custom painter map
-        GestureDetector(
-          onPanStart: _onPanStart,
-          onPanUpdate: _onPanUpdate,
-          onPanEnd: _onPanEnd,
-          child: CustomPaint(
-            painter: StylizedMapPainter(
-                mapOffset: _mapOffset, zoomScale: _zoomLevel),
-            child: Container(),
+        // Real OpenStreetMap Layer using FlutterMap
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: LatLng(widget.initialLat, widget.initialLng),
+            initialZoom: 15.0,
+            minZoom: 4.0,
+            maxZoom: 19.0,
+            onPositionChanged: _onPositionChanged,
+            onMapEvent: _onMapEvent,
+            interactionOptions: const InteractionOptions(
+              flags: InteractiveFlag.all,
+            ),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.voltspare.spare_shop',
+              maxZoom: 19,
+            ),
+          ],
+        ),
+
+        // Center Pin with micro-animation and shadow
+        Align(
+          alignment: Alignment.center,
+          child: AnimatedBuilder(
+            animation: _pinAnimationController,
+            builder: (context, child) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Ground Pin Shadow
+                  Transform.translate(
+                    offset: const Offset(0, 16),
+                    child: Transform.scale(
+                      scale: _shadowScale.value,
+                      child: Container(
+                        width: 14,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: kcVoltSpareDark.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: kcVoltSpareDark.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Animated Center Pin Teardrop
+                  Transform.translate(
+                    offset: Offset(0, -18 + _pinTranslationY.value),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(
+                          Icons.location_on_rounded,
+                          size: 42,
+                          color: kcVoltSpareEVGreen,
+                        ),
+                        Transform.translate(
+                          offset: const Offset(0, -3),
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
 
-        // Map HUD Overlay in top corner (Search & Coordinates)
+        // Map HUD Overlay in Top Corner (Search + Coordinates Banner)
         Positioned(
-          top: 16,
-          left: 16,
-          right: 16,
+          top: 14,
+          left: 14,
+          right: 14,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -653,11 +796,12 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
+                  border: Border.all(color: kcVoltSpareBorder),
                 ),
                 child: TextField(
                   controller: _searchController,
@@ -665,15 +809,27 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                   style: const TextStyle(
                       fontSize: 13,
                       color: kcVoltSpareTextPrimary,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.w600),
                   decoration: InputDecoration(
-                    hintText: 'Search area (e.g. PSG Tech, HSR Layout...)',
+                    hintText: 'Search location (e.g. Madukkarai, Coimbatore...)',
                     hintStyle: const TextStyle(
                         color: kcLightGrey,
                         fontSize: 12,
                         fontWeight: FontWeight.normal),
-                    prefixIcon: const Icon(Icons.search_rounded,
-                        color: kcVoltSpareEVGreen, size: 20),
+                    prefixIcon: _isSearching
+                        ? const Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: kcVoltSpareEVGreen,
+                              ),
+                            ),
+                          )
+                        : const Icon(Icons.search_rounded,
+                            color: kcVoltSpareEVGreen, size: 20),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear_rounded,
@@ -692,34 +848,52 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
               ),
               const SizedBox(height: 8),
 
-              // Coordinates details banner below search input
+              // Coordinates & Status Banner
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: kcVoltSpareDark.withValues(alpha: 0.85),
+                  color: kcVoltSpareDark.withValues(alpha: 0.88),
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.gps_fixed_rounded,
-                        color: kcVoltSpareEVGreen, size: 14),
+                    Icon(
+                      _isReverseGeocoding
+                          ? Icons.sync_rounded
+                          : Icons.gps_fixed_rounded,
+                      color: kcVoltSpareEVGreen,
+                      size: 14,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Lat: ${_currentLat.toStringAsFixed(5)}, Lng: ${_currentLng.toStringAsFixed(5)}',
                         style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 10,
+                            color: Colors.white.withValues(alpha: 0.95),
+                            fontSize: 11,
                             fontFamily: 'Courier',
                             fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: _recenterMap,
-                      child: const Icon(Icons.my_location_rounded,
-                          color: Colors.white, size: 14),
+                    Tooltip(
+                      message: 'Recenter Map',
+                      child: InkWell(
+                        onTap: _recenterMap,
+                        child: const Padding(
+                          padding: EdgeInsets.all(4.0),
+                          child: Icon(Icons.my_location_rounded,
+                              color: Colors.white, size: 15),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -728,28 +902,25 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
           ),
         ),
 
-        // Search Results Dropdown List overlay
+        // Search Results Dropdown List Overlay
         if (_searchResults.isNotEmpty)
           Positioned(
-            top: 60, // directly below search box (before coordinate banner)
-            left: 16,
-            right: 16,
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 180),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: Border.all(color: kcVoltSpareBorder),
-              ),
+            top: 62,
+            left: 14,
+            right: 14,
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              elevation: 4,
+              shadowColor: Colors.black.withValues(alpha: 0.18),
               clipBehavior: Clip.antiAlias,
-              child: ListView.separated(
+              child: Container(
+                constraints: const BoxConstraints(maxHeight: 200),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: kcVoltSpareBorder),
+                ),
+                child: ListView.separated(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
                 itemCount: _searchResults.length,
@@ -760,11 +931,13 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                   return ListTile(
                     dense: true,
                     contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                     leading: const Icon(Icons.location_on_rounded,
-                        color: kcVoltSpareEVGreen, size: 18),
+                        color: kcVoltSpareEVGreen, size: 20),
                     title: Text(
                       loc.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
@@ -772,8 +945,10 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                     ),
                     subtitle: Text(
                       '${loc.taluk}, ${loc.district}, ${loc.state}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          fontSize: 10, color: kcVoltSpareTextSecondary),
+                          fontSize: 10.5, color: kcVoltSpareTextSecondary),
                     ),
                     onTap: () => _selectSearchResult(loc),
                   );
@@ -781,68 +956,9 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
               ),
             ),
           ),
-
-        // Centered Animated Map Pin Marker
-        Align(
-          alignment: Alignment.center,
-          child: AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Animated shadow underneath
-                  Transform.translate(
-                    offset: const Offset(0, 16),
-                    child: Transform.scale(
-                      scale: _shadowScale.value,
-                      child: Container(
-                        width: 12,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: kcVoltSpareDark.withValues(alpha: 0.35),
-                              blurRadius: 4,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Animated Pin
-                  Transform.translate(
-                    offset: Offset(0, _pinTranslationY.value),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        const Icon(
-                          Icons.location_on_rounded,
-                          size: 42,
-                          color: kcVoltSpareEVGreen,
-                        ),
-                        Transform.translate(
-                          offset: const Offset(0, -3),
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
         ),
 
-        // Zoom Controls overlay in bottom left
+        // Zoom Controls overlay in Bottom Left
         Positioned(
           bottom: 16,
           left: 16,
@@ -857,6 +973,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                   offset: const Offset(0, 3),
                 ),
               ],
+              border: Border.all(color: kcVoltSpareBorder),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -868,8 +985,8 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(12)),
                     child: const SizedBox(
-                      width: 40,
-                      height: 40,
+                      width: 38,
+                      height: 38,
                       child: Icon(Icons.add_rounded,
                           color: kcVoltSpareTextPrimary, size: 22),
                     ),
@@ -877,7 +994,7 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                 ),
                 Container(
                   width: 24,
-                  height: 1.5,
+                  height: 1.0,
                   color: kcVoltSpareBorder,
                 ),
                 Material(
@@ -887,8 +1004,8 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                     borderRadius: const BorderRadius.vertical(
                         bottom: Radius.circular(12)),
                     child: const SizedBox(
-                      width: 40,
-                      height: 40,
+                      width: 38,
+                      height: 38,
                       child: Icon(Icons.remove_rounded,
                           color: kcVoltSpareTextPrimary, size: 22),
                     ),
@@ -899,408 +1016,28 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
           ),
         ),
 
-        // Compass / Map scale simulation in bottom right
+        // OpenStreetMap Attribution badge bottom-right
         Positioned(
-          bottom: 16,
-          right: 16,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        offset: Offset(0, 2)),
-                  ],
-                ),
-                child: Center(
-                  child: Transform.rotate(
-                    angle: -pi / 6, // slight offset rotation
-                    child: const Icon(Icons.explore_outlined,
-                        color: kcVoltSpareTextPrimary, size: 20),
-                  ),
-                ),
+          bottom: 8,
+          right: 8,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.85),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: kcVoltSpareBorder.withValues(alpha: 0.6)),
+            ),
+            child: const Text(
+              '© OpenStreetMap contributors',
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
+                color: kcVoltSpareTextSecondary,
               ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  '${(100 / _zoomLevel).round()} m',
-                  style: const TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                      color: kcVoltSpareTextSecondary),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ],
     );
-  }
-}
-
-class StylizedMapPainter extends CustomPainter {
-  final Offset mapOffset;
-  final double zoomScale;
-
-  StylizedMapPainter({required this.mapOffset, this.zoomScale = 1.0});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint();
-    final center = Offset(size.width / 2, size.height / 2);
-    final relativeOffset = mapOffset;
-
-    // Save current canvas settings
-    canvas.save();
-
-    // Scale canvas centered at the middle of the viewport
-    canvas.translate(center.dx, center.dy);
-    canvas.scale(zoomScale);
-    canvas.translate(-center.dx, -center.dy);
-
-    // Draw Background Land (large size to cover edges when zoomed out)
-    paint.color = const Color(0xFFF4F3F0); // map background color (cream/beige)
-    canvas.drawRect(
-      Rect.fromLTRB(
-          -size.width * 2, -size.height * 2, size.width * 3, size.height * 3),
-      paint,
-    );
-
-    // Grid Coordinates helper (to draw lines scrolling with offset)
-    const gridSize = 160.0;
-    final startX = (relativeOffset.dx % gridSize) - gridSize - size.width;
-    final startY = (relativeOffset.dy % gridSize) - gridSize - size.height;
-    final endX = size.width * 2;
-    final endY = size.height * 2;
-
-    // Draw Parks (green zones)
-    paint.color = const Color(0xFFD4ECD5); // lush green
-    paint.style = PaintingStyle.fill;
-    final parks = [
-      const Offset(100, -80),
-      const Offset(-300, 200),
-      const Offset(400, 300),
-      const Offset(-200, -400),
-    ];
-    for (var park in parks) {
-      final rect = Rect.fromLTWH(
-        center.dx + park.dx + relativeOffset.dx,
-        center.dy + park.dy + relativeOffset.dy,
-        180,
-        120,
-      );
-      canvas.drawRRect(
-          RRect.fromRectAndRadius(rect, const Radius.circular(16)), paint);
-    }
-
-    // Draw Water Bodies (rivers / lakes)
-    paint.color = const Color(0xFFC0DAE8); // clear blue water
-    paint.style = PaintingStyle.stroke;
-    paint.strokeWidth = 36;
-    paint.strokeCap = StrokeCap.round;
-
-    final riverPath = Path();
-    riverPath.moveTo(center.dx - 600 + relativeOffset.dx,
-        center.dy - 300 + relativeOffset.dy);
-    riverPath.quadraticBezierTo(
-      center.dx - 200 + relativeOffset.dx,
-      center.dy - 100 + relativeOffset.dy,
-      center.dx + relativeOffset.dx,
-      center.dy + 150 + relativeOffset.dy,
-    );
-    riverPath.quadraticBezierTo(
-      center.dx + 250 + relativeOffset.dx,
-      center.dy + 350 + relativeOffset.dy,
-      center.dx + 600 + relativeOffset.dx,
-      center.dy + 400 + relativeOffset.dy,
-    );
-    canvas.drawPath(riverPath, paint);
-
-    // Draw Buildings (grey blocks)
-    paint.style = PaintingStyle.fill;
-    paint.color = const Color(0xFFE5E2DB); // building fill grey
-    final buildings = [
-      const Offset(120, 100),
-      const Offset(150, 110),
-      const Offset(130, 150),
-      const Offset(-120, -50),
-      const Offset(-180, -90),
-      const Offset(-140, -130),
-      const Offset(50, -220),
-      const Offset(-50, 240),
-      const Offset(-90, 260),
-    ];
-    for (var b in buildings) {
-      final rect = Rect.fromLTWH(
-        center.dx + b.dx + relativeOffset.dx,
-        center.dy + b.dy + relativeOffset.dy,
-        35,
-        45,
-      );
-      canvas.drawRRect(
-          RRect.fromRectAndRadius(rect, const Radius.circular(6)), paint);
-    }
-
-    // --- Draw Bordered Roads (casings drawn first, then fills) ---
-    paint.style = PaintingStyle.stroke;
-    paint.strokeCap = StrokeCap.round;
-
-    // 1. Secondary Roads - Outlines (Grey borders)
-    paint.color = const Color(0xFFD2CFC7);
-    paint.strokeWidth = 10;
-    for (double x = startX; x < endX; x += gridSize) {
-      canvas.drawLine(
-          Offset(x, -size.height), Offset(x, size.height * 2), paint);
-    }
-    for (double y = startY; y < endY; y += gridSize) {
-      canvas.drawLine(Offset(-size.width, y), Offset(size.width * 2, y), paint);
-    }
-
-    // 2. Secondary Roads - Fills (Clean White)
-    paint.color = Colors.white;
-    paint.strokeWidth = 6.5;
-    for (double x = startX; x < endX; x += gridSize) {
-      canvas.drawLine(
-          Offset(x, -size.height), Offset(x, size.height * 2), paint);
-    }
-    for (double y = startY; y < endY; y += gridSize) {
-      canvas.drawLine(Offset(-size.width, y), Offset(size.width * 2, y), paint);
-    }
-
-    // 3. Highways - Outlines (Orange/Brown borders)
-    paint.color = const Color(0xFFE2AE6E);
-    paint.strokeWidth = 18;
-    // Diagonal Highway
-    canvas.drawLine(
-      Offset(center.dx - 600 + relativeOffset.dx,
-          center.dy - 600 + relativeOffset.dy),
-      Offset(center.dx + 600 + relativeOffset.dx,
-          center.dy + 600 + relativeOffset.dy),
-      paint,
-    );
-    // Vertical Highway
-    canvas.drawLine(
-      Offset(center.dx + 250 + relativeOffset.dx, -size.height),
-      Offset(center.dx + 250 + relativeOffset.dx, size.height * 2),
-      paint,
-    );
-
-    // 4. Highways - Fills (Google Maps Light Orange/Yellow)
-    paint.color = const Color(0xFFFFE0B2);
-    paint.strokeWidth = 13;
-    // Diagonal Highway
-    canvas.drawLine(
-      Offset(center.dx - 600 + relativeOffset.dx,
-          center.dy - 600 + relativeOffset.dy),
-      Offset(center.dx + 600 + relativeOffset.dx,
-          center.dy + 600 + relativeOffset.dy),
-      paint,
-    );
-    // Vertical Highway
-    canvas.drawLine(
-      Offset(center.dx + 250 + relativeOffset.dx, -size.height),
-      Offset(center.dx + 250 + relativeOffset.dx, size.height * 2),
-      paint,
-    );
-
-    // --- Draw Street Names and Landmark Labels ---
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
-
-    // Dynamic Road Badges (white cards on top of roads)
-    _drawRoadLabelBadge(
-      canvas,
-      textPainter,
-      "Avinashi Highway (NH 544)",
-      Offset(center.dx - 180 + relativeOffset.dx,
-          center.dy - 180 + relativeOffset.dy),
-    );
-    _drawRoadLabelBadge(
-      canvas,
-      textPainter,
-      "NSR Road",
-      Offset(center.dx + 250 + relativeOffset.dx,
-          center.dy - 120 + relativeOffset.dy),
-    );
-    _drawRoadLabelBadge(
-      canvas,
-      textPainter,
-      "Cross Cut Road",
-      Offset(startX + gridSize * 2 + 80, center.dy + 80 + relativeOffset.dy),
-    );
-    _drawRoadLabelBadge(
-      canvas,
-      textPainter,
-      "DB Road",
-      Offset(center.dx - 120 + relativeOffset.dx, startY + gridSize * 3 + 80),
-    );
-
-    // Draw Interactive Landmarks (markers & labels)
-    _drawLandmark(
-      canvas,
-      textPainter,
-      "VoltSpare Depot",
-      Offset(center.dx - 60 + relativeOffset.dx,
-          center.dy - 80 + relativeOffset.dy),
-      Colors.redAccent,
-    );
-    _drawLandmark(
-      canvas,
-      textPainter,
-      "Coimbatore Junction",
-      Offset(center.dx - 140 + relativeOffset.dx,
-          center.dy + 260 + relativeOffset.dy),
-      Colors.blueAccent,
-    );
-    _drawLandmark(
-      canvas,
-      textPainter,
-      "VOC Park & Zoo",
-      Offset(center.dx - 220 + relativeOffset.dx,
-          center.dy + 120 + relativeOffset.dy),
-      Colors.green,
-    );
-    _drawLandmark(
-      canvas,
-      textPainter,
-      "PSG Tech campus",
-      Offset(center.dx + 180 + relativeOffset.dx,
-          center.dy + 350 + relativeOffset.dy),
-      Colors.orange,
-    );
-
-    // Restore canvas state
-    canvas.restore();
-  }
-
-  void _drawRoadLabelBadge(
-      Canvas canvas, TextPainter textPainter, String text, Offset position) {
-    textPainter.text = TextSpan(
-      text: text,
-      style: const TextStyle(
-        color: Color(0xFF4B5563), // Medium gray
-        fontSize: 7.5,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 0.5,
-      ),
-    );
-    textPainter.layout();
-
-    final width = textPainter.width;
-    final height = textPainter.height;
-
-    // Badge boundary rect
-    final rect = Rect.fromLTWH(position.dx - width / 2 - 8,
-        position.dy - height / 2 - 4, width + 16, height + 8);
-
-    // Draw shadow
-    final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.06)
-      ..style = PaintingStyle.fill;
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            rect.translate(0, 1.5), const Radius.circular(8)),
-        shadowPaint);
-
-    // Draw white background
-    final badgePaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(8)), badgePaint);
-
-    // Draw light gray border
-    final borderPaint = Paint()
-      ..color = const Color(0xFFE5E7EB)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(8)), borderPaint);
-
-    // Draw text centered
-    textPainter.paint(
-        canvas, Offset(position.dx - width / 2, position.dy - height / 2));
-  }
-
-  void _drawLandmark(Canvas canvas, TextPainter textPainter, String name,
-      Offset position, Color color) {
-    // Draw circular pin dot
-    final markerPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final whiteBorderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-
-    // Draw outer shadow circle
-    canvas.drawCircle(position, 7, markerPaint);
-    canvas.drawCircle(position, 7, whiteBorderPaint);
-
-    // Draw text label in bubble next to marker
-    textPainter.text = TextSpan(
-      text: name,
-      style: const TextStyle(
-        color: Color(0xFF111827), // Dark text
-        fontSize: 8.5,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-    textPainter.layout();
-
-    final width = textPainter.width;
-    final height = textPainter.height;
-
-    final bubbleRect = Rect.fromLTWH(
-        position.dx + 12, position.dy - height / 2 - 3, width + 10, height + 6);
-
-    // Draw bubble background
-    final bubblePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.92)
-      ..style = PaintingStyle.fill;
-    final bubbleBorderPaint = Paint()
-      ..color = const Color(0xFFD1D5DB)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
-
-    // Draw bubble drop shadow
-    final bubbleShadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.04)
-      ..style = PaintingStyle.fill;
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            bubbleRect.translate(0, 1), const Radius.circular(5)),
-        bubbleShadowPaint);
-
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(bubbleRect, const Radius.circular(5)),
-        bubblePaint);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(bubbleRect, const Radius.circular(5)),
-        bubbleBorderPaint);
-
-    // Paint text inside bubble
-    textPainter.paint(
-        canvas, Offset(position.dx + 17, position.dy - height / 2));
-  }
-
-  @override
-  bool shouldRepaint(covariant StylizedMapPainter oldDelegate) {
-    return oldDelegate.mapOffset != mapOffset ||
-        oldDelegate.zoomScale != zoomScale;
   }
 }

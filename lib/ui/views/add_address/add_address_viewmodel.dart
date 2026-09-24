@@ -17,6 +17,7 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
   final talukController = TextEditingController();
   final districtController = TextEditingController();
   final stateController = TextEditingController();
+  final postalCodeController = TextEditingController();
 
   // Location Coordinate Picked from Map
   double _latitude = 11.0123; // Default Coimbatore Lat
@@ -28,46 +29,71 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
   bool _isMapMoved = false;
   bool get isMapMoved => _isMapMoved;
 
+  String? _locationName;
+  String? get locationName => _locationName;
+
+  double? _distanceFromLocationKm;
+  double? get distanceFromLocationKm => _distanceFromLocationKm;
+
+  String? _locationId;
+  String? get locationId => _locationId;
+
   AddAddressViewModel({this.addressToEdit}) {
     if (addressToEdit != null) {
       labelController.text = addressToEdit!.name;
       phoneController.text = addressToEdit!.phone;
+      _locationId = addressToEdit!.locationId;
+      _locationName = addressToEdit!.locationName;
+      _distanceFromLocationKm = addressToEdit!.distanceFromLocationKm;
 
-      // Parse addressLine
-      final addressLine = addressToEdit!.addressLine;
-
-      // Parse coordinates from string if present, e.g., (Lat: 11.0123, Lng: 76.9567)
-      final coordRegex = RegExp(r'\(Lat:\s*([0-9.-]+),\s*Lng:\s*([0-9.-]+)\)');
-      final match = coordRegex.firstMatch(addressLine);
-      if (match != null) {
-        _latitude = double.tryParse(match.group(1) ?? '') ?? 11.0123;
-        _longitude = double.tryParse(match.group(2) ?? '') ?? 76.9567;
+      if (addressToEdit!.latitude != null &&
+          addressToEdit!.longitude != null) {
+        _latitude = addressToEdit!.latitude!;
+        _longitude = addressToEdit!.longitude!;
         _isMapMoved = true;
+      }
+
+      if (addressToEdit!.addressLine1 != null &&
+          addressToEdit!.addressLine1!.isNotEmpty) {
+        doorNoController.text = addressToEdit!.addressLine1!;
+        talukController.text = addressToEdit!.addressLine2 ?? '';
+        districtController.text = addressToEdit!.city ?? '';
+        stateController.text = addressToEdit!.state ?? 'Tamil Nadu';
+        postalCodeController.text = addressToEdit!.postalCode ?? '';
       } else {
-        // Fallback to model fields if they are added
-        _latitude = addressToEdit!.latitude ?? 11.0123;
-        _longitude = addressToEdit!.longitude ?? 76.9567;
+        // Legacy fallback from addressLine
+        final addressLine = addressToEdit!.addressLine;
+        final coordRegex = RegExp(r'\(Lat:\s*([0-9.-]+),\s*Lng:\s*([0-9.-]+)\)');
+        final match = coordRegex.firstMatch(addressLine);
+        if (match != null) {
+          _latitude = double.tryParse(match.group(1) ?? '') ?? _latitude;
+          _longitude = double.tryParse(match.group(2) ?? '') ?? _longitude;
+          _isMapMoved = true;
+        }
+
+        final cleanAddressLine = addressLine.replaceAll(coordRegex, '').trim();
+        final parts = cleanAddressLine.split(',').map((e) => e.trim()).toList();
+
+        if (parts.isNotEmpty) doorNoController.text = parts[0];
+        if (parts.length > 1) talukController.text = parts[1];
+        if (parts.length > 2) districtController.text = parts[2];
+        if (parts.length > 3) stateController.text = parts[3];
+        if (parts.length > 4 && !parts[4].contains('Lng:')) {
+          postalCodeController.text = parts[4];
+        }
       }
 
-      // Remove coordinates string for form parsing
-      final cleanAddressLine = addressLine.replaceAll(coordRegex, '').trim();
-      final parts = cleanAddressLine.split(',').map((e) => e.trim()).toList();
-
-      if (parts.isNotEmpty) {
-        doorNoController.text = parts[0];
+      // Sanitize legacy dirty state/postalCode
+      if (stateController.text.contains('(Lat:')) {
+        stateController.text = stateController.text.split('(Lat:')[0].trim();
       }
-      if (parts.length > 1) {
-        talukController.text = parts[1];
-      }
-      if (parts.length > 2) {
-        districtController.text = parts[2];
-      }
-      if (parts.length > 3) {
-        stateController.text = parts.sublist(3).join(', ');
+      if (postalCodeController.text.contains('Lng:')) {
+        postalCodeController.text = '';
       }
     } else {
       stateController.text = 'Tamil Nadu'; // Pre-fill default state
       districtController.text = 'Coimbatore'; // Pre-fill default district
+      postalCodeController.text = '641001';
     }
   }
 
@@ -78,10 +104,13 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
     notifyListeners();
   }
 
-  void onAreaSelected(String taluk, String district, String state) {
+  void onAreaSelected(String taluk, String district, String state, [String? postalCode]) {
     talukController.text = taluk;
     districtController.text = district;
     stateController.text = state;
+    if (postalCode != null && postalCode.isNotEmpty && !postalCode.contains('Lng:')) {
+      postalCodeController.text = postalCode;
+    }
     notifyListeners();
   }
 
@@ -91,47 +120,74 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
     final doorNo = doorNoController.text.trim();
     final taluk = talukController.text.trim();
     final district = districtController.text.trim();
-    final state = stateController.text.trim();
+    var state = stateController.text.trim();
+    var postalCode = postalCodeController.text.trim();
+
+    if (state.contains('(Lat:')) {
+      state = state.split('(Lat:')[0].trim();
+    }
+    if (state.isEmpty) state = 'Tamil Nadu';
+
+    if (postalCode.contains('Lng:') || postalCode.contains('Lat:')) {
+      postalCode = '641001';
+    }
+    postalCode = postalCode.replaceAll(RegExp(r'[^0-9a-zA-Z -]'), '').trim();
+    if (postalCode.isEmpty) postalCode = '641001';
 
     if (label.isEmpty ||
         phone.isEmpty ||
         doorNo.isEmpty ||
         taluk.isEmpty ||
-        district.isEmpty ||
-        state.isEmpty) {
-      // Handled by UI validation
+        district.isEmpty) {
       return;
     }
 
     setBusy(true);
 
-    // Format address line: Door No & Street, Taluk, District, State (Lat: XX.XXXX, Lng: YY.YYYY)
-    final addressLineText =
-        '$doorNo, $taluk, $district, $state (Lat: ${latitude.toStringAsFixed(4)}, Lng: ${longitude.toStringAsFixed(4)})';
+    final cleanParts = [
+      doorNo,
+      taluk,
+      district,
+      state,
+      postalCode,
+    ];
+    final addressLineText = cleanParts.join(', ');
 
     final addressModel = AddressModel(
       id: addressToEdit?.id ?? '',
       name: label,
       phone: phone,
       addressLine: addressLineText,
+      addressLine1: doorNo,
+      addressLine2: taluk,
+      city: district,
+      state: state,
+      postalCode: postalCode,
+      country: 'India',
       isDefault: addressToEdit?.isDefault ?? false,
       latitude: latitude,
       longitude: longitude,
+      locationId: _locationId,
+      locationName: _locationName,
+      distanceFromLocationKm: _distanceFromLocationKm,
     );
 
     try {
+      AddressModel savedAddress;
       if (addressToEdit == null) {
-        await _addressService.addAddress(addressModel);
+        savedAddress = await _addressService.addAddress(addressModel);
       } else {
-        await _addressService.updateAddress(addressToEdit!.id, addressModel);
+        savedAddress = await _addressService.updateAddress(
+            addressToEdit!.id, addressModel);
       }
+      _locationId = savedAddress.locationId;
+      _locationName = savedAddress.locationName;
+      _distanceFromLocationKm = savedAddress.distanceFromLocationKm;
+
       setBusy(false);
-      navigationService.back(
-          result: true); // Return true to indicate address saved
-    } catch (e) {
+      navigationService.back(result: true);
+    } catch (_) {
       setBusy(false);
-      // Let UI show error or print for debugging
-      print('Error saving address: $e');
     }
   }
 
@@ -143,6 +199,7 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
     talukController.dispose();
     districtController.dispose();
     stateController.dispose();
+    postalCodeController.dispose();
     super.dispose();
   }
 }

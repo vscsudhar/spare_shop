@@ -15,7 +15,6 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:spare_shop/app/app.router.dart';
 import 'package:spare_shop/core/services/token_service.dart';
-import 'package:spare_shop/ui/widgets/common/shop_components.dart';
 
 class ProfileViewModel extends BaseViewModel with NavigationMixin {
   final _dialogService = locator<DialogService>();
@@ -124,12 +123,7 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
   }
 
   Future<void> viewOrderDetails(ShopOrder order) async {
-    await _dialogService.showCustomDialog(
-      variant: DialogType.infoAlert,
-      title: 'Order ${order.orderNumber}',
-      description:
-          'This order has ${order.itemCountLabel} with total amount of ₹${order.total.toStringAsFixed(2)}. Order date: ${order.dateLabel}. Status: ${orderStatusLabel(order.status)}.',
-    );
+    await goToOrderTracking(orderId: order.id);
   }
 
   AppTab get currentTab => AppTab.profile;

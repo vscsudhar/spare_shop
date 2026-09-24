@@ -109,9 +109,6 @@ class RareRequestDetailView extends StackedView<RareRequestDetailViewModel> {
                       _specRow('Vehicle Compat.', req.vehicle.displayName),
                       _specRow('Quantity Required', '${req.quantity} Units'),
                       _specRow('Urgency Priority', req.urgency),
-                      if (req.budget != null)
-                        _specRow('Target Budget',
-                            '₹${req.budget!.toStringAsFixed(2)}'),
                     ],
                   ),
                 ),
