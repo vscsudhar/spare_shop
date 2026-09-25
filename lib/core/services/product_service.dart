@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'api_client.dart';
 import 'api_endpoints.dart';
@@ -73,11 +74,19 @@ class ProductService {
     }
     if (search != null && search.isNotEmpty) {
       final queryStr = search.toLowerCase();
-      result = result
-          .where((p) =>
-              p.name.toLowerCase().contains(queryStr) ||
-              p.description.toLowerCase().contains(queryStr))
-          .toList();
+      result = result.where((p) {
+        final catName = mockCategories
+            .firstWhere((c) => c.id == p.categoryId,
+                orElse: () => const CategoryModel(
+                    id: '', name: '', icon: Icons.category))
+            .name
+            .toLowerCase();
+
+        return p.name.toLowerCase().contains(queryStr) ||
+            p.description.toLowerCase().contains(queryStr) ||
+            catName.contains(queryStr) ||
+            (p.fitmentBadge?.toLowerCase().contains(queryStr) ?? false);
+      }).toList();
     }
     return result;
   }

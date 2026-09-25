@@ -32,13 +32,40 @@ class SearchFiltersViewModel extends FutureViewModel<void>
   List<ProductModel> _allProducts = [];
   List<VehicleModel> _allVehicles = [];
 
+  void init({String? initialCategoryId, String? initialQuery}) {
+    if (initialCategoryId != null && initialCategoryId.isNotEmpty) {
+      _selectedCategoryId = initialCategoryId;
+    }
+    if (initialQuery != null && initialQuery.isNotEmpty) {
+      searchController.text = initialQuery;
+    }
+    notifyListeners();
+  }
+
   List<ProductModel> get filteredProducts {
     final query = searchController.text.trim().toLowerCase();
 
     return _allProducts.where((product) {
-      // 1. Query filter
-      if (query.isNotEmpty && !product.name.toLowerCase().contains(query)) {
-        return false;
+      // 1. Query filter (matches name, description, brand, fitment, or category name!)
+      if (query.isNotEmpty) {
+        final categoryName = _categories
+            .firstWhere(
+              (c) => c.id == product.categoryId,
+              orElse: () =>
+                  const CategoryModel(id: '', name: '', icon: Icons.category),
+            )
+            .name
+            .toLowerCase();
+
+        final nameMatch = product.name.toLowerCase().contains(query);
+        final descMatch = product.description.toLowerCase().contains(query);
+        final catMatch = categoryName.contains(query);
+        final fitmentMatch =
+            product.fitmentBadge?.toLowerCase().contains(query) ?? false;
+
+        if (!nameMatch && !descMatch && !catMatch && !fitmentMatch) {
+          return false;
+        }
       }
 
       // 2. Vehicle compatibility brand filter

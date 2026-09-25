@@ -33,6 +33,12 @@ class AuthService {
     await _tokenService.saveUserRole(user['role']?['name'] ?? 'customer');
     await _tokenService.saveUserEmail(user['email'] ?? '');
     await _tokenService.saveUserName(user['name'] ?? '');
+    if (user['phone'] != null) {
+      await _tokenService.saveUserPhone(user['phone'].toString());
+    }
+    if (user['profileImage'] != null) {
+      await _tokenService.saveUserImageUrl(user['profileImage'].toString());
+    }
 
     final perms = user['role']?['permissions'] as List<dynamic>? ?? [];
     final permNames =
@@ -57,6 +63,12 @@ class AuthService {
     await _tokenService.saveUserRole(user['role']?['name'] ?? 'admin');
     await _tokenService.saveUserEmail(user['email'] ?? '');
     await _tokenService.saveUserName(user['name'] ?? '');
+    if (user['phone'] != null) {
+      await _tokenService.saveUserPhone(user['phone'].toString());
+    }
+    if (user['profileImage'] != null) {
+      await _tokenService.saveUserImageUrl(user['profileImage'].toString());
+    }
 
     final perms = user['role']?['permissions'] as List<dynamic>? ?? [];
     final permNames =
@@ -64,6 +76,38 @@ class AuthService {
     await _tokenService.saveUserPermissions(permNames);
 
     return true;
+  }
+
+  Future<Map<String, dynamic>?> getProfile() async {
+    try {
+      final response = await _apiClient.get(ApiEndpoints.me);
+      final rawData = response.data['data'];
+      Map<String, dynamic>? user;
+      if (rawData is Map<String, dynamic>) {
+        if (rawData['user'] is Map<String, dynamic>) {
+          user = rawData['user'] as Map<String, dynamic>;
+        } else {
+          user = rawData;
+        }
+      }
+      if (user != null) {
+        if (user['name'] != null && user['name'].toString().isNotEmpty) {
+          await _tokenService.saveUserName(user['name'].toString());
+        }
+        if (user['email'] != null && user['email'].toString().isNotEmpty) {
+          await _tokenService.saveUserEmail(user['email'].toString());
+        }
+        if (user['phone'] != null && user['phone'].toString().isNotEmpty) {
+          await _tokenService.saveUserPhone(user['phone'].toString());
+        }
+        if (user['profileImage'] != null &&
+            user['profileImage'].toString().isNotEmpty) {
+          await _tokenService.saveUserImageUrl(user['profileImage'].toString());
+        }
+        return user;
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<bool> registerCustomer(

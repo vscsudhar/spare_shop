@@ -15,6 +15,26 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
 
   VehicleModel? get selectedVehicle => currentSelectedVehicle;
 
+  String? _selectedCategoryId;
+  String? get selectedCategoryId => _selectedCategoryId;
+
+  CategoryModel? get selectedCategory {
+    if (_selectedCategoryId == null) return null;
+    return _categories.firstWhere(
+      (c) => c.id == _selectedCategoryId,
+      orElse: () => const CategoryModel(id: '', name: '', icon: Icons.category),
+    );
+  }
+
+  void selectCategory(String? categoryId) {
+    if (_selectedCategoryId == categoryId) {
+      _selectedCategoryId = null;
+    } else {
+      _selectedCategoryId = categoryId;
+    }
+    rebuildUi();
+  }
+
   List<CategoryModel> _categories = [];
   List<CategoryModel> get categories {
     if (selectedVehicle == null) return _categories;
@@ -27,31 +47,43 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
 
   List<ProductModel> _featuredProducts = [];
   List<ProductModel> get featuredProducts {
-    if (selectedVehicle == null) return _featuredProducts;
-    return _featuredProducts
+    var list = _featuredProducts;
+    if (_selectedCategoryId != null) {
+      list = list.where((p) => p.categoryId == _selectedCategoryId).toList();
+    }
+    if (selectedVehicle == null) return list;
+    return list
         .where(isProductCompatibleWithSelectedVehicleBrand)
         .toList();
   }
 
   List<ProductModel> _allProducts = [];
   List<ProductModel> get allProducts {
-    if (selectedVehicle == null) return _allProducts;
-    final filtered = _allProducts
+    var list = _allProducts;
+    if (_selectedCategoryId != null) {
+      list = list.where((p) => p.categoryId == _selectedCategoryId).toList();
+    }
+    if (selectedVehicle == null) return list;
+    final filtered = list
         .where(isProductCompatibleWithSelectedVehicleBrand)
         .toList();
-    return filtered.isNotEmpty ? filtered : _allProducts;
+    return filtered.isNotEmpty ? filtered : list;
   }
 
   List<VehicleModel> _allVehicles = [];
 
   List<ProductModel> get compatibleProducts {
-    if (selectedVehicle == null) return _allProducts;
+    var list = _allProducts;
+    if (_selectedCategoryId != null) {
+      list = list.where((p) => p.categoryId == _selectedCategoryId).toList();
+    }
+    if (selectedVehicle == null) return list;
 
-    final filtered = _allProducts.where((product) {
+    final filtered = list.where((product) {
       return product.compatibleVehicleIds.contains(selectedVehicle!.id) ||
           (product.fitmentBadge?.toLowerCase().contains('universal') ?? false);
     }).toList();
-    return filtered.isNotEmpty ? filtered : _allProducts;
+    return filtered.isNotEmpty ? filtered : list;
   }
 
   bool isProductCompatibleWithSelectedVehicleBrand(ProductModel product) {
@@ -178,8 +210,11 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
     rebuildUi();
   }
 
-  void openSearch() {
-    goToSearchFilters();
+  void openSearch({String? categoryId, String? query}) {
+    goToSearchFilters(
+      categoryId: categoryId ?? _selectedCategoryId,
+      query: query,
+    );
   }
 
   void openProductDetails(ProductModel product) {

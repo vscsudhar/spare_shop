@@ -475,7 +475,31 @@ extension RareProductRequestModelExtension on RareProductRequestModel {
       status = RareRequestStatus.convertedToOrder;
     }
 
-    final vehicleJson = json['vehicle'] as Map<String, dynamic>? ?? {};
+    final vehicleJson = json['vehicle'] is Map
+        ? Map<String, dynamic>.from(json['vehicle'] as Map)
+        : <String, dynamic>{};
+
+    if ((vehicleJson['brand'] == null ||
+            vehicleJson['brand'].toString().trim().isEmpty) &&
+        json['vehicleBrand'] != null) {
+      vehicleJson['brand'] = json['vehicleBrand'];
+    }
+    if ((vehicleJson['name'] == null ||
+            vehicleJson['name'].toString().trim().isEmpty) &&
+        (json['vehicleModel'] != null || json['modelName'] != null)) {
+      vehicleJson['name'] = json['vehicleModel'] ?? json['modelName'];
+    }
+    if ((vehicleJson['year'] == null ||
+            vehicleJson['year'].toString().trim().isEmpty) &&
+        json['vehicleYear'] != null) {
+      vehicleJson['year'] = json['vehicleYear'];
+    }
+    if ((vehicleJson['type'] == null ||
+            vehicleJson['type'].toString().trim().isEmpty) &&
+        json['vehicleType'] != null) {
+      vehicleJson['type'] = json['vehicleType'];
+    }
+
     final vehicle = VehicleModelExtension.fromJson(vehicleJson);
 
     final quotationJson = json['activeQuotation'] as Map<String, dynamic>?;

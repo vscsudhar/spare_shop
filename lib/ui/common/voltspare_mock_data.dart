@@ -4,6 +4,10 @@ import 'voltspare_models.dart';
 // Categories
 const List<CategoryModel> mockCategories = [
   CategoryModel(
+      id: 'cat_cables',
+      name: 'Cables & Wiring',
+      icon: Icons.cable_rounded),
+  CategoryModel(
       id: 'cat_battery',
       name: 'EV Battery & Power',
       icon: Icons.battery_charging_full_rounded),
@@ -273,6 +277,61 @@ const List<ProductModel> mockProducts = [
     fitmentBadge: 'Compatible',
     stockManaged: true,
     stockCount: 0,
+  ),
+  ProductModel(
+    id: 'prod_throttle_cable',
+    name: 'High-Tensile Friction-Free Throttle Cable',
+    price: 280.0,
+    originalPrice: 350.0,
+    rating: 4.7,
+    description:
+        'Multi-strand stainless steel wire inner cable with Teflon coating for ultra-smooth throttle action and long endurance. Fits Activa, Splendor, Pulsar, and Apache.',
+    categoryId: 'cat_cables',
+    compatibleVehicleIds: [
+      'veh_hero_splendor',
+      'veh_honda_activa',
+      'veh_tvs_apache',
+      'veh_bajaj_pulsar'
+    ],
+    fitmentBadge: 'Universal Fit',
+    stockCount: 50,
+  ),
+  ProductModel(
+    id: 'prod_brake_cable',
+    name: 'Heavy Duty Rear Drum Brake Cable',
+    price: 240.0,
+    originalPrice: 320.0,
+    rating: 4.6,
+    description:
+        'Durable braided steel wire rear drum brake cable with weatherproof rubber boot sleeves. Ensures responsive and firm braking feel.',
+    categoryId: 'cat_cables',
+    compatibleVehicleIds: [
+      'veh_honda_activa',
+      'veh_hero_splendor',
+      'veh_ola_s1',
+      'veh_ola_s1_air'
+    ],
+    fitmentBadge: 'Compatible',
+    stockCount: 35,
+  ),
+  ProductModel(
+    id: 'prod_ev_charging_cable',
+    name: 'EV High-Current Fast Charging Extension Cable (3M)',
+    price: 1850.0,
+    originalPrice: 2200.0,
+    rating: 4.9,
+    description:
+        '16A heavy duty heat-resistant EV charging extension cord with flame retardant TPU coating and copper terminals. Compatible with Ola, Ather, TVS iQube.',
+    categoryId: 'cat_cables',
+    compatibleVehicleIds: [
+      'veh_ola_s1',
+      'veh_ola_s1_air',
+      'veh_ather_450x',
+      'veh_tvs_iqube'
+    ],
+    fitmentBadge: 'Universal Fit',
+    isFeatured: true,
+    stockCount: 20,
   ),
 ];
 

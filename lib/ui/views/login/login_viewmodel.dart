@@ -3,7 +3,9 @@ import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/auth_service.dart';
 import 'package:spare_shop/core/services/token_service.dart';
+import 'package:spare_shop/core/services/vehicle_service.dart';
 import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
+import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
 
 class LoginViewModel extends BaseViewModel with NavigationMixin {
@@ -45,10 +47,25 @@ class LoginViewModel extends BaseViewModel with NavigationMixin {
       );
       if (success) {
         final email = emailController.text.trim();
-        final vehicle = await _tokenService.getSelectedVehicle(email);
+        VehicleModel? vehicle = await _tokenService.getSelectedVehicle(email);
+
+        if (vehicle == null) {
+          try {
+            final backendVehicles =
+                await locator<VehicleService>().getVehicles();
+            if (backendVehicles.isNotEmpty) {
+              vehicle = backendVehicles.first;
+              userVehicles = backendVehicles;
+              await _tokenService.saveSelectedVehicle(email, vehicle);
+            }
+          } catch (_) {}
+        }
+
         if (vehicle != null) {
           currentSelectedVehicle = vehicle;
-          userVehicles = [vehicle];
+          if (!userVehicles.any((v) => v.id == vehicle!.id)) {
+            userVehicles.add(vehicle);
+          }
           await replaceWithHome();
         } else {
           await replaceWithChooseVehicleType();

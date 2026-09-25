@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
+import 'package:spare_shop/core/services/auth_service.dart';
 import 'package:spare_shop/core/services/rare_request_service.dart';
 import 'package:spare_shop/core/services/token_service.dart';
 import 'package:spare_shop/core/services/upload_service.dart';
@@ -11,6 +12,7 @@ import 'package:stacked/stacked.dart';
 
 class RareProductRequestViewModel extends BaseViewModel with NavigationMixin {
   final _rareRequestService = locator<RareRequestService>();
+  final _authService = locator<AuthService>();
   final _tokenService = locator<TokenService>();
   final _uploadService = locator<UploadService>();
 
@@ -49,6 +51,18 @@ class RareProductRequestViewModel extends BaseViewModel with NavigationMixin {
       }
       if (phone != null && phone.trim().isNotEmpty) {
         phoneController.text = phone.trim();
+      }
+
+      final profile = await _authService.getProfile();
+      if (profile != null) {
+        if (profile['name'] != null &&
+            profile['name'].toString().trim().isNotEmpty) {
+          customerNameController.text = profile['name'].toString().trim();
+        }
+        if (profile['phone'] != null &&
+            profile['phone'].toString().trim().isNotEmpty) {
+          phoneController.text = profile['phone'].toString().trim();
+        }
       }
     } catch (_) {}
 
@@ -151,6 +165,16 @@ class RareProductRequestViewModel extends BaseViewModel with NavigationMixin {
 
     setBusy(true);
     try {
+      String finalCustomerName = customerNameController.text.trim();
+      String finalPhone = phoneController.text.trim();
+
+      if (finalCustomerName.isEmpty) {
+        finalCustomerName = (await _tokenService.getUserName()) ?? '';
+      }
+      if (finalPhone.isEmpty) {
+        finalPhone = (await _tokenService.getUserPhone()) ?? '';
+      }
+
       final request = await _rareRequestService.createRequest(
         title: partNameController.text.trim().isEmpty
             ? 'Rare Spare Part'
@@ -162,8 +186,8 @@ class RareProductRequestViewModel extends BaseViewModel with NavigationMixin {
         modelName: modelController.text.trim(),
         year: yearController.text.trim(),
         vehicleType: _vehicleType == VehicleType.ev ? 'ev' : 'petrol',
-        customerName: customerNameController.text.trim(),
-        phone: phoneController.text.trim(),
+        customerName: finalCustomerName,
+        phone: finalPhone,
       );
 
       // Upload any captured/picked images to the created request

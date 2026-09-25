@@ -192,6 +192,10 @@ class VoltSpareAppBar extends StatelessWidget implements PreferredSizeWidget {
                           tLower.contains('account') ||
                           tLower.contains('vehicle'),
                       4),
+                  if (actions != null && actions!.isNotEmpty) ...[
+                    const Spacer(),
+                    ...actions!,
+                  ],
                 ],
               ),
             ),
@@ -210,6 +214,7 @@ class VoltSpareAppBar extends StatelessWidget implements PreferredSizeWidget {
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
+          automaticallyImplyLeading: showBackButton,
           title: Text(
             title,
             style: const TextStyle(
@@ -254,7 +259,7 @@ class VoltSpareAppBar extends StatelessWidget implements PreferredSizeWidget {
               navigationService.replaceWith(Routes.searchFiltersView);
               break;
             case 2:
-              navigationService.replaceWith(Routes.requestChatQuotationView);
+              navigationService.replaceWith(Routes.myRareRequestsView);
               break;
             case 3:
               navigationService.replaceWith(Routes.cartView);

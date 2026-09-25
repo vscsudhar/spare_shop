@@ -120,8 +120,14 @@ mixin NavigationMixin {
     return navigationService.navigateTo(Routes.selectPetrolBikeView);
   }
 
-  Future<dynamic>? goToSearchFilters() {
-    return navigationService.navigateTo(Routes.searchFiltersView);
+  Future<dynamic>? goToSearchFilters({String? categoryId, String? query}) {
+    return navigationService.navigateTo(
+      Routes.searchFiltersView,
+      arguments: SearchFiltersViewArguments(
+        initialCategoryId: categoryId,
+        initialQuery: query,
+      ),
+    );
   }
 
   Future<dynamic>? goToVehicleSelector() {

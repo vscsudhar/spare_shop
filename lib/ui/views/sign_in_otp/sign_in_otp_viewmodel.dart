@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/auth_service.dart';
+import 'package:spare_shop/core/services/token_service.dart';
+import 'package:spare_shop/core/services/vehicle_service.dart';
+import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
+import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:stacked/stacked.dart';
 
 class SignInOtpViewModel extends BaseViewModel with NavigationMixin {
   final _authService = locator<AuthService>();
+  final _tokenService = locator<TokenService>();
+  final _vehicleService = locator<VehicleService>();
 
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
@@ -75,7 +81,35 @@ class SignInOtpViewModel extends BaseViewModel with NavigationMixin {
           mobileController.text.trim(), otpController.text.trim());
       _isLoading = false;
       notifyListeners();
-      goToChooseVehicleType();
+
+      final email = await _tokenService.getUserEmail();
+      VehicleModel? vehicle;
+      if (email != null && email.isNotEmpty) {
+        vehicle = await _tokenService.getSelectedVehicle(email);
+      }
+
+      if (vehicle == null) {
+        try {
+          final backendVehicles = await _vehicleService.getVehicles();
+          if (backendVehicles.isNotEmpty) {
+            vehicle = backendVehicles.first;
+            userVehicles = backendVehicles;
+            if (email != null && email.isNotEmpty) {
+              await _tokenService.saveSelectedVehicle(email, vehicle);
+            }
+          }
+        } catch (_) {}
+      }
+
+      if (vehicle != null) {
+        currentSelectedVehicle = vehicle;
+        if (!userVehicles.any((v) => v.id == vehicle!.id)) {
+          userVehicles.add(vehicle);
+        }
+        await replaceWithHome();
+      } else {
+        await replaceWithChooseVehicleType();
+      }
     } catch (e) {
       _isLoading = false;
       notifyListeners();

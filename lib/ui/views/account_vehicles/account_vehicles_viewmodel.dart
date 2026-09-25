@@ -9,6 +9,7 @@ import 'package:spare_shop/core/services/address_service.dart';
 import 'package:spare_shop/core/services/vehicle_service.dart';
 import 'package:spare_shop/core/services/order_service.dart';
 import 'package:spare_shop/core/services/wishlist_service.dart';
+import 'package:spare_shop/core/services/suggestion_service.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
@@ -23,10 +24,64 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
   final _vehicleService = locator<VehicleService>();
   final _orderService = locator<OrderService>();
   final _wishlistService = locator<WishlistService>();
+  final _suggestionService = locator<SuggestionService>();
 
   int get currentTabIndex => 4;
 
   int get wishlistCount => _wishlistService.wishlistedProductIds.length;
+
+  bool _isOrdersExpanded = true;
+  bool get isOrdersExpanded => _isOrdersExpanded;
+
+  void toggleOrdersExpanded() {
+    _isOrdersExpanded = !_isOrdersExpanded;
+    notifyListeners();
+  }
+
+  Future<void> openOrdersHistory([BuildContext? context]) async {
+    if (context != null) {
+      final isAuth =
+          await ensureAuthenticated(context, featureName: 'Order History');
+      if (!isAuth) return;
+    }
+    await goToOrders();
+  }
+
+  Future<bool> sendSuggestion({
+    required String suggestion,
+    String? name,
+    String? phone,
+    BuildContext? context,
+  }) async {
+    if (context != null) {
+      final isAuth = await ensureAuthenticated(context,
+          featureName: 'Suggestions & Feedback');
+      if (!isAuth) return false;
+    }
+
+    try {
+      String submitName = (name != null && name.trim().isNotEmpty) ? name : _userName;
+      String submitPhone = (phone != null && phone.trim().isNotEmpty) ? phone : _userPhone;
+      if (submitPhone.isEmpty) {
+        submitPhone = (await _tokenService.getUserPhone()) ?? '';
+      }
+      if (submitPhone.isEmpty) {
+        final profile = await _authService.getProfile();
+        if (profile != null && profile['phone'] != null) {
+          submitPhone = profile['phone'].toString();
+        }
+      }
+
+      final success = await _suggestionService.submitSuggestion(
+        name: submitName,
+        phone: submitPhone,
+        suggestion: suggestion,
+      );
+      return success;
+    } catch (_) {
+      return false;
+    }
+  }
 
   String _userName = 'Customer';
   String get userName => _userName;
@@ -34,7 +89,7 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
   String _userEmail = '';
   String get userEmail => _userEmail;
 
-  String _userPhone = '+91 98765 43210';
+  String _userPhone = '';
   String get userPhone => _userPhone;
 
   String? _userImageUrl;
@@ -75,6 +130,27 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       _userImageUrl = imageUrl;
     }
+
+    try {
+      final profile = await _authService.getProfile();
+      if (profile != null) {
+        if (profile['name'] != null && profile['name'].toString().isNotEmpty) {
+          _userName = profile['name'].toString();
+        }
+        if (profile['email'] != null && profile['email'].toString().isNotEmpty) {
+          _userEmail = profile['email'].toString();
+        }
+        if (profile['phone'] != null && profile['phone'].toString().isNotEmpty) {
+          _userPhone = profile['phone'].toString();
+        }
+        if (profile['profileImage'] != null &&
+            profile['profileImage'].toString().isNotEmpty) {
+          _userImageUrl = profile['profileImage'].toString();
+        }
+        notifyListeners();
+      }
+    } catch (_) {}
+
     await loadData();
   }
 

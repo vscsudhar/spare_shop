@@ -209,6 +209,29 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                   ),
                 );
               }),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.logout_rounded,
+                    color: Colors.redAccent, size: 18),
+                label: const Text('Logout',
+                    style: TextStyle(
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                      color: Colors.redAccent.withValues(alpha: 0.35),
+                      width: 1.2),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: viewModel.logout,
+              ),
+            ),
           ],
         );
 
@@ -489,98 +512,283 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 14),
 
-            // Order History
-            const Text(
-              'Order History',
-              style: TextStyle(
-                  color: kcVoltSpareTextPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16),
-            ),
-            const SizedBox(height: 12),
-            if (viewModel.orders.isEmpty)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: kcVoltSpareWhite,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: kcVoltSpareBorder),
-                ),
-                child: const Center(
-                  child: Text(
-                    'No orders placed yet.',
-                    style: TextStyle(
-                        color: kcVoltSpareTextSecondary, fontSize: 13),
+            // Suggestions & Feedback Card
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _showSuggestionDialog(context, viewModel),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  decoration: BoxDecoration(
+                    color: kcVoltSpareWhite,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFFFF9900).withValues(alpha: 0.2),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF9900).withValues(alpha: 0.06),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFF9900), Color(0xFFFFB84D)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  const Color(0xFFFF9900).withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.lightbulb_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Suggestions & Feedback',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: kcVoltSpareDark,
+                              ),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              'Share your ideas and feedback with us',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: kcVoltSpareTextSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        size: 26,
+                        color: kcVoltSpareDark,
+                      ),
+                    ],
                   ),
                 ),
-              )
-            else
-              ...viewModel.orders.map((order) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 14),
-                  padding: const EdgeInsets.all(16),
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            // Order History Card
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: viewModel.toggleOrdersExpanded,
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  decoration: BoxDecoration(
+                    color: kcVoltSpareWhite,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.06),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF059669), Color(0xFF10B981)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  const Color(0xFF059669).withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Order History',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: kcVoltSpareDark,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            const Text(
+                              'Track past orders and delivery status',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: kcVoltSpareTextSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              viewModel.orders.isEmpty
+                                  ? 'No orders yet'
+                                  : (viewModel.orders.length == 1
+                                      ? '1 order placed'
+                                      : '${viewModel.orders.length} orders placed'),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF059669),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        viewModel.isOrdersExpanded
+                            ? Icons.expand_less_rounded
+                            : Icons.expand_more_rounded,
+                        size: 26,
+                        color: kcVoltSpareDark,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            if (viewModel.isOrdersExpanded) ...[
+              const SizedBox(height: 16),
+              if (viewModel.orders.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: kcVoltSpareWhite,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: kcVoltSpareBorder),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            order.orderNumber,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                          Text(
-                            '₹${order.total.toInt()}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: kcVoltSpareTextPrimary),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Placed on: ${order.date.day}/${order.date.month}/${order.date.year}',
-                        style: const TextStyle(
-                            color: kcVoltSpareTextSecondary, fontSize: 11),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Status: ${order.status.name.toUpperCase()}',
-                            style: TextStyle(
-                              color: order.status == OrderStatus.delivered
-                                  ? kcVoltSpareEVGreen
-                                  : Colors.orange,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () => viewModel.trackOrder(order),
-                            child: const Text('Track Order',
-                                style: TextStyle(
-                                    color: kcVoltSpareEVGreen,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold)),
-                          )
-                        ],
-                      ),
-                    ],
+                  child: const Center(
+                    child: Text(
+                      'No orders placed yet.',
+                      style: TextStyle(
+                          color: kcVoltSpareTextSecondary, fontSize: 13),
+                    ),
                   ),
-                );
-              }),
+                )
+              else
+                ...viewModel.orders.map((order) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 14),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: kcVoltSpareWhite,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: kcVoltSpareBorder),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              order.orderNumber,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            Text(
+                              '₹${order.total.toInt()}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: kcVoltSpareTextPrimary),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Placed on: ${order.date.day}/${order.date.month}/${order.date.year}',
+                          style: const TextStyle(
+                              color: kcVoltSpareTextSecondary, fontSize: 11),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Status: ${order.status.name.toUpperCase()}',
+                              style: TextStyle(
+                                color: order.status == OrderStatus.delivered
+                                    ? kcVoltSpareEVGreen
+                                    : Colors.orange,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => viewModel.trackOrder(order),
+                              child: const Text('Track Order',
+                                  style: TextStyle(
+                                      color: kcVoltSpareEVGreen,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold)),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+            ],
           ],
         );
 
@@ -746,6 +954,146 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                   },
                   child: Text(vehicle == null ? 'Add' : 'Save',
                       style: const TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showSuggestionDialog(
+      BuildContext context, AccountVehiclesViewModel viewModel) {
+    final suggestionController = TextEditingController();
+    bool isSubmitting = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24)),
+              title: const Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Color(0xFFFFF3E0),
+                    child: Icon(Icons.lightbulb_rounded,
+                        color: Color(0xFFFF9900), size: 20),
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    'Suggestions & Feedback',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: kcVoltSpareTextPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'We value your ideas and feedback! Help us improve our spare parts catalog, store experience, or services.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: kcVoltSpareTextSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: suggestionController,
+                      maxLines: 5,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        labelText: 'Your Suggestion / Feedback *',
+                        hintText:
+                            'Describe your suggestion, missing spare part, or feedback in detail...',
+                        alignLabelWithHint: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.all(14),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSubmitting ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel',
+                      style: TextStyle(color: kcVoltSpareTextSecondary)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kcVoltSpareDark,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 10),
+                  ),
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final suggestion = suggestionController.text.trim();
+
+                          if (suggestion.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter your suggestion or feedback.'),
+                                backgroundColor: Colors.redAccent,
+                              ),
+                            );
+                            return;
+                          }
+
+                          setState(() => isSubmitting = true);
+                          final success = await viewModel.sendSuggestion(
+                            suggestion: suggestion,
+                            context: context,
+                          );
+                          setState(() => isSubmitting = false);
+
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Thank you! Your suggestion has been submitted to the admin team.'),
+                                  backgroundColor: Color(0xFF10B981),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Unable to submit suggestion. Please try again later.'),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: isSubmitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Submit Suggestion'),
                 ),
               ],
             );

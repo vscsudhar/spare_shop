@@ -8,7 +8,23 @@ import 'package:spare_shop/ui/common/responsive.dart';
 import 'package:spare_shop/ui/widgets/common/voltspare_widgets.dart';
 
 class SearchFiltersView extends StackedView<SearchFiltersViewModel> {
-  const SearchFiltersView({Key? key}) : super(key: key);
+  final String? initialCategoryId;
+  final String? initialQuery;
+
+  const SearchFiltersView({
+    Key? key,
+    this.initialCategoryId,
+    this.initialQuery,
+  }) : super(key: key);
+
+  @override
+  void onViewModelReady(SearchFiltersViewModel viewModel) {
+    viewModel.init(
+      initialCategoryId: initialCategoryId,
+      initialQuery: initialQuery,
+    );
+    super.onViewModelReady(viewModel);
+  }
 
   @override
   Widget builder(
@@ -239,7 +255,14 @@ class SearchFiltersView extends StackedView<SearchFiltersViewModel> {
         ...viewModel.categories.map((cat) {
           final isSelected = viewModel.selectedCategoryId == cat.id;
           return RadioListTile<String?>(
-            title: Text(cat.name, style: const TextStyle(fontSize: 13)),
+            title: Text(
+              cat.name,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? kcVoltSpareDark : kcVoltSpareTextPrimary,
+              ),
+            ),
             value: cat.id,
             groupValue: viewModel.selectedCategoryId,
             activeColor: kcVoltSpareEVGreen,

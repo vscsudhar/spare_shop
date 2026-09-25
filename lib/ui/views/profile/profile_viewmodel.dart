@@ -48,6 +48,25 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
     );
 
     try {
+      final profile = await _authService.getProfile();
+      if (profile != null) {
+        final profName = profile['name']?.toString() ?? _user.name;
+        final profEmail = profile['email']?.toString() ?? _user.email;
+        final profPhone = profile['phone']?.toString() ?? _user.phone;
+        final profImage = profile['profileImage']?.toString() ?? _user.imageUrl;
+
+        _user = UserProfileData(
+          name: profName.isNotEmpty ? profName : _user.name,
+          email: profEmail.isNotEmpty ? profEmail : _user.email,
+          phone: profPhone.isNotEmpty ? profPhone : _user.phone,
+          address: _user.address,
+          imageUrl: profImage ?? _user.imageUrl,
+        );
+        notifyListeners();
+      }
+    } catch (_) {}
+
+    try {
       final list = await _orderService.getMyOrders();
       _recentOrders = list.map((order) {
         OrderStatusFilter filterStatus = OrderStatusFilter.processing;

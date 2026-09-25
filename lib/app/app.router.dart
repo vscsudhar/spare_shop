@@ -436,7 +436,10 @@ class StackedRouter extends _i1.RouterBase {
         orElse: () => const SearchFiltersViewArguments(),
       );
       return _i34.MaterialPageRoute<dynamic>(
-        builder: (context) => _i17.SearchFiltersView(key: args.key),
+        builder: (context) => _i17.SearchFiltersView(
+            key: args.key,
+            initialCategoryId: args.initialCategoryId,
+            initialQuery: args.initialQuery),
         settings: data,
       );
     },
@@ -928,24 +931,34 @@ class SelectPetrolBikeViewArguments {
 }
 
 class SearchFiltersViewArguments {
-  const SearchFiltersViewArguments({this.key});
+  const SearchFiltersViewArguments({
+    this.key,
+    this.initialCategoryId,
+    this.initialQuery,
+  });
 
   final _i34.Key? key;
 
+  final String? initialCategoryId;
+
+  final String? initialQuery;
+
   @override
   String toString() {
-    return '{"key": "$key"}';
+    return '{"key": "$key", "initialCategoryId": "$initialCategoryId", "initialQuery": "$initialQuery"}';
   }
 
   @override
   bool operator ==(covariant SearchFiltersViewArguments other) {
     if (identical(this, other)) return true;
-    return other.key == key;
+    return other.key == key &&
+        other.initialCategoryId == initialCategoryId &&
+        other.initialQuery == initialQuery;
   }
 
   @override
   int get hashCode {
-    return key.hashCode;
+    return key.hashCode ^ initialCategoryId.hashCode ^ initialQuery.hashCode;
   }
 }
 
@@ -1593,6 +1606,8 @@ extension NavigatorStateExtension on _i37.NavigationService {
 
   Future<dynamic> navigateToSearchFiltersView({
     _i34.Key? key,
+    String? initialCategoryId,
+    String? initialQuery,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -1600,7 +1615,10 @@ extension NavigatorStateExtension on _i37.NavigationService {
         transition,
   }) async {
     return navigateTo<dynamic>(Routes.searchFiltersView,
-        arguments: SearchFiltersViewArguments(key: key),
+        arguments: SearchFiltersViewArguments(
+            key: key,
+            initialCategoryId: initialCategoryId,
+            initialQuery: initialQuery),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
@@ -2122,6 +2140,8 @@ extension NavigatorStateExtension on _i37.NavigationService {
 
   Future<dynamic> replaceWithSearchFiltersView({
     _i34.Key? key,
+    String? initialCategoryId,
+    String? initialQuery,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -2129,7 +2149,10 @@ extension NavigatorStateExtension on _i37.NavigationService {
         transition,
   }) async {
     return replaceWith<dynamic>(Routes.searchFiltersView,
-        arguments: SearchFiltersViewArguments(key: key),
+        arguments: SearchFiltersViewArguments(
+            key: key,
+            initialCategoryId: initialCategoryId,
+            initialQuery: initialQuery),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,

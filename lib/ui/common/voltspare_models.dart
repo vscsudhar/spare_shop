@@ -29,7 +29,13 @@ class VehicleModel {
     required this.type,
   });
 
-  String get displayName => '$brand $name ($year)';
+  String get displayName {
+    final parts = [brand, name].where((s) => s.trim().isNotEmpty).join(' ');
+    if (year.trim().isNotEmpty && year.trim() != '0') {
+      return parts.isNotEmpty ? '$parts ($year)' : year;
+    }
+    return parts.isNotEmpty ? parts : 'Universal / All Vehicles';
+  }
 }
 
 class CategoryModel {

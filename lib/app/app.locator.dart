@@ -26,6 +26,7 @@ import '../core/services/product_service.dart';
 import '../core/services/rare_request_mock_service.dart';
 import '../core/services/rare_request_service.dart';
 import '../core/services/socket_service.dart';
+import '../core/services/suggestion_service.dart';
 import '../core/services/support_ticket_service.dart';
 import '../core/services/token_service.dart';
 import '../core/services/upload_service.dart';
@@ -63,4 +64,5 @@ Future<void> setupLocator(
   locator.registerLazySingleton(() => VehicleService());
   locator.registerLazySingleton(() => SupportTicketService());
   locator.registerLazySingleton(() => DeliveryChargeService());
+  locator.registerLazySingleton(() => SuggestionService());
 }
