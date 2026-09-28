@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stacked/stacked.dart';
 
 import 'search_filters_viewmodel.dart';
@@ -32,7 +33,13 @@ class SearchFiltersView extends StackedView<SearchFiltersViewModel> {
     SearchFiltersViewModel viewModel,
     Widget? child,
   ) {
-    return ResponsiveBuilder(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await SystemNavigator.pop();
+      },
+      child: ResponsiveBuilder(
       builder: (context, sizingInformation) {
         final isDesktop = sizingInformation.isDesktop;
 
@@ -118,6 +125,7 @@ class SearchFiltersView extends StackedView<SearchFiltersViewModel> {
                 ),
         );
       },
+    ),
     );
   }
 

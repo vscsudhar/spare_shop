@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/widgets/common/shop_components.dart';
 import 'package:stacked/stacked.dart';
@@ -15,7 +16,13 @@ class ProfileView extends StackedView<ProfileViewModel> {
     ProfileViewModel viewModel,
     Widget? child,
   ) {
-    return ShopResponsiveScaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await SystemNavigator.pop();
+      },
+      child: ShopResponsiveScaffold(
       currentTab: viewModel.currentTab,
       onTabSelected: viewModel.onTabSelected,
       bodyBuilder: (context, sizingInformation) {
@@ -110,6 +117,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
           ),
         );
       },
+    ),
     );
   }
 

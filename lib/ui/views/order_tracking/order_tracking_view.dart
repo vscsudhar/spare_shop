@@ -72,7 +72,7 @@ class OrderTrackingView extends StackedView<OrderTrackingViewModel> {
                   const SizedBox(height: 20),
 
                   // Order Items & Pricing Breakdown Card
-                  _buildOrderItemsCard(order),
+                  _buildOrderItemsCard(context, viewModel, order),
                   const SizedBox(height: 24),
 
                   // Tracking Steps Timeline
@@ -183,19 +183,72 @@ class OrderTrackingView extends StackedView<OrderTrackingViewModel> {
           const SizedBox(height: 14),
           Row(
             children: [
-              const Icon(
-                Icons.local_shipping_outlined,
-                color: kcVoltSpareEVGreen,
-                size: 18,
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.local_shipping_outlined,
+                      color: kcVoltSpareEVGreen,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        viewModel.estimatedDeliveryText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  viewModel.estimatedDeliveryText,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+              InkWell(
+                onTap: viewModel.isInvoiceLoading
+                    ? null
+                    : () => viewModel.viewInvoice(context),
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: kcVoltSpareEVGreen.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: kcVoltSpareEVGreen.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (viewModel.isInvoiceLoading)
+                        const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: kcVoltSpareEVGreen,
+                          ),
+                        )
+                      else ...[
+                        const Icon(
+                          Icons.receipt_long_rounded,
+                          color: kcVoltSpareEVGreen,
+                          size: 15,
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'Invoice',
+                          style: TextStyle(
+                            color: kcVoltSpareEVGreen,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
@@ -336,7 +389,11 @@ class OrderTrackingView extends StackedView<OrderTrackingViewModel> {
     );
   }
 
-  Widget _buildOrderItemsCard(OrderModel order) {
+  Widget _buildOrderItemsCard(
+    BuildContext context,
+    OrderTrackingViewModel viewModel,
+    OrderModel order,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -439,14 +496,20 @@ class OrderTrackingView extends StackedView<OrderTrackingViewModel> {
           const SizedBox(height: 12),
           // Price summary rows
           _buildSummaryRow(
-            'Subtotal',
-            '₹${(order.subTotal > 0 ? order.subTotal : order.total).toStringAsFixed(2)}',
+            'Actual Price (Excl. Tax)',
+            '₹${order.actualPriceTotal.toStringAsFixed(2)}',
           ),
-          if (order.taxAmount > 0) ...[
-            const SizedBox(height: 6),
-            _buildSummaryRow(
-                'GST & Taxes (18%)', '₹${order.taxAmount.toStringAsFixed(2)}'),
-          ],
+          const SizedBox(height: 6),
+          _buildSummaryRow(
+            'Tax Included (GST 18%)',
+            '₹${order.taxTotal.toStringAsFixed(2)}',
+            isGreen: true,
+          ),
+          const SizedBox(height: 6),
+          _buildSummaryRow(
+            'Selling Price (Item Total)',
+            '₹${order.sellingPriceTotal.toStringAsFixed(2)}',
+          ),
           const SizedBox(height: 6),
           _buildSummaryRow(
             'Delivery Charges',
@@ -486,6 +549,42 @@ class OrderTrackingView extends StackedView<OrderTrackingViewModel> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          // View Tax Invoice Button
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                side: const BorderSide(color: kcVoltSpareDark, width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              icon: viewModel.isInvoiceLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: kcVoltSpareDark,
+                      ),
+                    )
+                  : const Icon(Icons.receipt_long_rounded,
+                      color: kcVoltSpareDark, size: 18),
+              label: const Text(
+                'View & Download Tax Invoice',
+                style: TextStyle(
+                  color: kcVoltSpareDark,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+              onPressed: viewModel.isInvoiceLoading
+                  ? null
+                  : () => viewModel.viewInvoice(context),
+            ),
           ),
         ],
       ),

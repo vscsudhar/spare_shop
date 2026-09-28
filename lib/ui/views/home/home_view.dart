@@ -429,7 +429,7 @@ class HomeView extends StackedView<HomeViewModel> {
               ),
               SizedBox(width: 12),
               Text(
-                'Exit App',
+                'Exit App?',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -439,7 +439,7 @@ class HomeView extends StackedView<HomeViewModel> {
             ],
           ),
           content: const Text(
-            'Are you sure you want to close the app?',
+            'Are you sure you want to exit the app?',
             style: TextStyle(
               fontSize: 14,
               color: kcVoltSpareTextSecondary,

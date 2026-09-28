@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/delivery_estimator.dart';
 import 'package:spare_shop/ui/common/responsive.dart';
@@ -19,62 +20,69 @@ class CartView extends StackedView<CartViewModel> {
   ) {
     final isEmpty = viewModel.items.isEmpty;
 
-    return ResponsiveBuilder(
-      builder: (context, sizingInformation) {
-        final isDesktop = sizingInformation.isDesktop;
-
-        return Scaffold(
-          backgroundColor: kcVoltSpareOffWhite,
-          appBar: VoltSpareAppBar(
-            title: 'My Cart',
-            showBackButton: true,
-            onBackPressed: viewModel.goBack,
-          ),
-          body: SafeArea(
-            child: MaxContentWidth(
-              maxWidth: 1200,
-              child: isEmpty
-                  ? _buildEmptyState(viewModel)
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 12),
-                      child: isDesktop
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Left Side: Cart Items
-                                Expanded(
-                                  flex: 7,
-                                  child: _buildCartItemsList(viewModel),
-                                ),
-                                const SizedBox(width: 24),
-                                // Right Side: Summary
-                                SizedBox(
-                                  width: 380,
-                                  child: _buildSummaryCard(context, viewModel),
-                                ),
-                              ],
-                            )
-                          : Column(
-                              children: [
-                                // Cart Items list
-                                Expanded(child: _buildCartItemsList(viewModel)),
-                                const SizedBox(height: 16),
-                                // Bottom Summary
-                                _buildSummaryCard(context, viewModel),
-                              ],
-                            ),
-                    ),
-            ),
-          ),
-          bottomNavigationBar: isDesktop || sizingInformation.isTablet
-              ? null
-              : VoltSpareBottomNavigation(
-                  selectedIndex: viewModel.currentTabIndex,
-                  onTap: viewModel.onTabSelected,
-                ),
-        );
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await SystemNavigator.pop();
       },
+      child: ResponsiveBuilder(
+        builder: (context, sizingInformation) {
+          final isDesktop = sizingInformation.isDesktop;
+
+          return Scaffold(
+            backgroundColor: kcVoltSpareOffWhite,
+            appBar: VoltSpareAppBar(
+              title: 'My Cart',
+              showBackButton: true,
+              onBackPressed: viewModel.goBack,
+            ),
+            body: SafeArea(
+              child: MaxContentWidth(
+                maxWidth: 1200,
+                child: isEmpty
+                    ? _buildEmptyState(viewModel)
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 12),
+                        child: isDesktop
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Left Side: Cart Items
+                                  Expanded(
+                                    flex: 7,
+                                    child: _buildCartItemsList(viewModel),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  // Right Side: Summary
+                                  SizedBox(
+                                    width: 380,
+                                    child: _buildSummaryCard(context, viewModel),
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  // Cart Items list
+                                  Expanded(child: _buildCartItemsList(viewModel)),
+                                  const SizedBox(height: 16),
+                                  // Bottom Summary
+                                  _buildSummaryCard(context, viewModel),
+                                ],
+                              ),
+                      ),
+              ),
+            ),
+            bottomNavigationBar: isDesktop || sizingInformation.isTablet
+                ? null
+                : VoltSpareBottomNavigation(
+                    selectedIndex: viewModel.currentTabIndex,
+                    onTap: viewModel.onTabSelected,
+                  ),
+          );
+        },
+      ),
     );
   }
 
@@ -337,16 +345,35 @@ class CartView extends StackedView<CartViewModel> {
               ),
               const SizedBox(height: 12),
             ],
-            _summaryRow('Subtotal', '₹${viewModel.subtotal.toInt()}'),
-            const SizedBox(height: 10),
             _summaryRow(
-              'Delivery Fee',
+              'Actual Price',
+              '₹${viewModel.actualPriceTotal.toStringAsFixed(2)}',
+            ),
+            const SizedBox(height: 8),
+            _summaryRow(
+              'Selling Price',
+              '₹${viewModel.subtotal.toStringAsFixed(2)}',
+            ),
+            const SizedBox(height: 8),
+            _summaryRow(
+              'Tax',
+              '₹${viewModel.taxTotal.toStringAsFixed(2)}',
+              isGreen: true,
+            ),
+            const SizedBox(height: 8),
+            _summaryRow(
+              'Subtotal',
+              '₹${viewModel.subtotal.toStringAsFixed(2)}',
+            ),
+            const SizedBox(height: 8),
+            _summaryRow(
+              'Delivery Charges',
               viewModel.deliveryFee == 0
                   ? 'FREE'
-                  : '₹${viewModel.deliveryFee.toInt()}',
+                  : '₹${viewModel.deliveryFee.toStringAsFixed(2)}',
               isGreen: viewModel.deliveryFee == 0,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             _summaryRow(
               'Delivery Estimate',
               viewModel.deliverySummary.summaryLabel,
@@ -375,7 +402,7 @@ class CartView extends StackedView<CartViewModel> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 Text(
-                  '₹${viewModel.total.toInt()}',
+                  '₹${viewModel.total.toStringAsFixed(2)}',
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,

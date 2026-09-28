@@ -53,7 +53,7 @@ class CategoryModel {
 class ProductModel {
   final String id;
   final String name;
-  final double price;
+  final double price; // Selling price including tax
   final double? originalPrice;
   final double rating;
   final String description;
@@ -68,6 +68,11 @@ class ProductModel {
   final String? imageAsset;
   final int? stockCount;
   final bool stockManaged;
+  final double taxPercentage;
+
+  double get sellingPrice => price;
+  double get actualPrice => price / (1.0 + (taxPercentage / 100.0));
+  double get taxAmount => price - actualPrice;
 
   int? get stockQuantity => stockCount;
   bool get isStockManaged => stockManaged;
@@ -92,6 +97,7 @@ class ProductModel {
     this.imageAsset,
     this.stockCount = 10,
     this.stockManaged = true,
+    this.taxPercentage = 18.0,
   }) : isWishlist = isWishlist || isFavorite || isLike || isLiked;
 
   ProductModel copyWith({
@@ -112,6 +118,7 @@ class ProductModel {
     String? imageAsset,
     int? stockCount,
     bool? stockManaged,
+    double? taxPercentage,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -128,6 +135,7 @@ class ProductModel {
       imageAsset: imageAsset ?? this.imageAsset,
       stockCount: stockCount ?? this.stockCount,
       stockManaged: stockManaged ?? this.stockManaged,
+      taxPercentage: taxPercentage ?? this.taxPercentage,
     );
   }
 }
@@ -136,6 +144,10 @@ class CartItemModel {
   final String id;
   final ProductModel product;
   final int quantity;
+
+  double get sellingPrice => product.sellingPrice * quantity;
+  double get actualPrice => product.actualPrice * quantity;
+  double get taxAmount => product.taxAmount * quantity;
 
   const CartItemModel({
     required this.id,
@@ -227,6 +239,16 @@ class OrderModel {
   final String? locationName;
   final List<Map<String, dynamic>> statusHistory;
   final Map<String, dynamic>? deliveryAssignment;
+
+  double get actualPriceTotal => items.isNotEmpty
+      ? items.fold(0.0, (sum, it) => sum + it.actualPrice)
+      : (subTotal > 0 ? (subTotal / 1.18) : (total - deliveryFee) / 1.18);
+
+  double get taxTotal =>
+      taxAmount > 0 ? taxAmount : (sellingPriceTotal - actualPriceTotal);
+
+  double get sellingPriceTotal =>
+      subTotal > 0 ? subTotal : (total - deliveryFee + discountAmount);
 
   const OrderModel({
     required this.id,

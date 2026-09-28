@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stacked/stacked.dart';
 
 import 'account_vehicles_viewmodel.dart';
@@ -24,7 +25,13 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
     AccountVehiclesViewModel viewModel,
     Widget? child,
   ) {
-    return ResponsiveBuilder(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await SystemNavigator.pop();
+      },
+      child: ResponsiveBuilder(
       builder: (context, sizingInformation) {
         final isDesktop = sizingInformation.isDesktop;
 
@@ -850,6 +857,7 @@ class AccountVehiclesView extends StackedView<AccountVehiclesViewModel> {
                 ),
         );
       },
+    ),
     );
   }
 

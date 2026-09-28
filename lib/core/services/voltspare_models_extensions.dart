@@ -383,20 +383,24 @@ extension OrderModelExtension on OrderModel {
 
     double parsePaise(dynamic val) {
       if (val is num) {
-        return val.toDouble() / 100.0;
+        return val >= 1000 ? (val.toDouble() / 100.0) : val.toDouble();
       }
       if (val != null) {
         final parsed = double.tryParse(val.toString());
-        if (parsed != null) return parsed / 100.0;
+        if (parsed != null) {
+          return parsed >= 1000 ? (parsed / 100.0) : parsed;
+        }
       }
       return 0.0;
     }
 
     final double orderTotal = parsePaise(json['grandTotal'] ?? json['total']);
-    final double subTotal = parsePaise(json['subTotal']);
-    final double taxAmount = parsePaise(json['taxAmount']);
-    final double deliveryFee = parsePaise(json['deliveryFee']);
-    final double discountAmount = parsePaise(json['discountAmount']);
+    final double subTotal = parsePaise(json['subTotal'] ?? json['subtotal']);
+    final double taxAmount = parsePaise(json['taxAmount'] ?? json['tax']);
+    final double deliveryFee =
+        parsePaise(json['deliveryFee'] ?? json['deliveryCharge']);
+    final double discountAmount =
+        parsePaise(json['discountAmount'] ?? json['discount']);
 
     final rawHistory = json['statusHistory'] as List<dynamic>? ?? [];
     final List<Map<String, dynamic>> statusHistory = rawHistory

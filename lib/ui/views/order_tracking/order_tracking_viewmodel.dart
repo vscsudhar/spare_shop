@@ -1,16 +1,23 @@
+import 'package:flutter/material.dart';
 import 'package:spare_shop/app/app.locator.dart';
 import 'package:spare_shop/core/mixins/navigation_mixin.dart';
 import 'package:spare_shop/core/services/order_service.dart';
+import 'package:spare_shop/core/services/invoice_service.dart';
 import 'package:spare_shop/ui/common/voltspare_mock_data.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
+import 'package:spare_shop/ui/widgets/common/customer_invoice_dialog.dart';
 import 'package:stacked/stacked.dart';
 
 class OrderTrackingViewModel extends BaseViewModel with NavigationMixin {
   final _orderService = locator<OrderService>();
+  final _invoiceService = locator<InvoiceService>();
 
   OrderModel? _order;
   bool _isLoading = true;
+  bool _isInvoiceLoading = false;
   String? _errorMessage;
+
+  bool get isInvoiceLoading => _isInvoiceLoading;
 
   OrderModel get order =>
       _order ??
@@ -166,6 +173,31 @@ class OrderTrackingViewModel extends BaseViewModel with NavigationMixin {
         isCurrent: isDelivered,
       ),
     ];
+  }
+
+  Future<void> viewInvoice(BuildContext context) async {
+    if (_isInvoiceLoading) return;
+    _isInvoiceLoading = true;
+    rebuildUi();
+
+    try {
+      final invoice = await _invoiceService.getInvoiceForOrder(order.id);
+      if (context.mounted) {
+        await CustomerInvoiceDialog.show(context, invoice);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not load invoice: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      _isInvoiceLoading = false;
+      rebuildUi();
+    }
   }
 
   void goHome() {

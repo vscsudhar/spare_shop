@@ -219,16 +219,35 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _billingRow('Subtotal', '₹${viewModel.subtotal.toInt()}'),
-                const SizedBox(height: 10),
+                _billingRow(
+                  'Actual Price',
+                  '₹${viewModel.actualPriceTotal.toStringAsFixed(2)}',
+                ),
+                const SizedBox(height: 8),
+                _billingRow(
+                  'Selling Price',
+                  '₹${viewModel.subtotal.toStringAsFixed(2)}',
+                ),
+                const SizedBox(height: 8),
+                _billingRow(
+                  'Tax',
+                  '₹${viewModel.taxTotal.toStringAsFixed(2)}',
+                  isGreen: true,
+                ),
+                const SizedBox(height: 8),
+                _billingRow(
+                  'Subtotal',
+                  '₹${viewModel.subtotal.toStringAsFixed(2)}',
+                ),
+                const SizedBox(height: 8),
                 _billingRow(
                   'Delivery Charges',
                   viewModel.deliveryFee == 0
                       ? 'FREE'
-                      : '₹${viewModel.deliveryFee.toInt()}',
+                      : '₹${viewModel.deliveryFee.toStringAsFixed(2)}',
                   isGreen: viewModel.deliveryFee == 0,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 _billingRow(
                   'Delivery Estimate',
                   DeliveryEstimator.getCartDeliverySummary(viewModel.items)
@@ -264,7 +283,7 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
                     Text(
-                      '₹${viewModel.total.toInt()}',
+                      '₹${viewModel.total.toStringAsFixed(2)}',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,

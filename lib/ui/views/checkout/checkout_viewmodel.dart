@@ -21,9 +21,16 @@ class CheckoutViewModel extends FutureViewModel<void> with NavigationMixin {
   List<DeliveryChargeModel> get deliveryTiers => _deliveryTiers;
 
   double get subtotal => _items.fold(
-        0,
-        (sum, item) => sum + (item.product.price * item.quantity),
+        0.0,
+        (sum, item) => sum + item.sellingPrice,
       );
+
+  double get actualPriceTotal => _items.fold(
+        0.0,
+        (sum, item) => sum + item.actualPrice,
+      );
+
+  double get taxTotal => subtotal - actualPriceTotal;
 
   double get deliveryFee =>
       _deliveryService.calculateFee(subtotal, _deliveryTiers);

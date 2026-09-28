@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:spare_shop/ui/widgets/common/voltspare_widgets.dart';
@@ -25,9 +26,13 @@ class MyRareRequestsView extends StackedView<MyRareRequestsViewModel> {
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        viewModel.goBack();
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          await SystemNavigator.pop();
+        }
       },
       child: Scaffold(
         backgroundColor: kcVoltSpareOffWhite,
