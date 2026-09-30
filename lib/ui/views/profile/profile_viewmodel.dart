@@ -130,6 +130,14 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
     goToSupportTickets();
   }
 
+  Future<void> openTermsConditions() async {
+    await goToTermsConditions();
+  }
+
+  Future<void> openPrivacyPolicy() async {
+    await goToPrivacyPolicy();
+  }
+
   void _onWishlistChanged() {
     rebuildUi();
   }
@@ -176,6 +184,13 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
       case 'Addresses':
         await goToAddAddress();
         break;
+      case 'Terms & Conditions':
+      case 'Terms and Conditions':
+        await goToTermsConditions();
+        break;
+      case 'Privacy Policy':
+        await goToPrivacyPolicy();
+        break;
       case 'Logout':
         final response = await _dialogService.showConfirmationDialog(
           title: 'Logout',
@@ -200,7 +215,7 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
   void editProfile(BuildContext context) async {
     final isAuth =
         await ensureAuthenticated(context, featureName: 'Edit Profile');
-    if (!isAuth) return;
+    if (!isAuth || !context.mounted) return;
 
     final nameController = TextEditingController(text: user.name);
     final phoneController = TextEditingController(text: user.phone);

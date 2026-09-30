@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/delivery_estimator.dart';
 import 'package:spare_shop/ui/common/responsive.dart';
@@ -22,9 +21,9 @@ class CartView extends StackedView<CartViewModel> {
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        await SystemNavigator.pop();
+        viewModel.replaceWithHome();
       },
       child: ResponsiveBuilder(
         builder: (context, sizingInformation) {

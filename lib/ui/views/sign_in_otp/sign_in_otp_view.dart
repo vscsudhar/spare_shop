@@ -40,25 +40,21 @@ class SignInOtpView extends StackedView<SignInOtpViewModel> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Center(
-                    child: Icon(
-                      Icons.electric_bolt_rounded,
-                      color: kcVoltSpareEVGreen,
-                      size: 48,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Center(
-                    child: Text(
-                      'VoltSpare',
-                      style: TextStyle(
-                        color: kcVoltSpareDark,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24.0),
+                      child: Image.asset(
+                        'assets/images/logo_full.png',
+                        height: 48,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Image.asset(
+                          'assets/images/logo_icon.png',
+                          height: 48,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 40),
                   if (!viewModel.isOtpSent) ...[
                     // Mobile entry state
                     const Text(

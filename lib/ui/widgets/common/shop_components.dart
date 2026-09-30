@@ -1475,8 +1475,21 @@ class _AuthFormPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (showIllustrationAbove) ...[
-            const AuthIllustration(height: 220),
-            const SizedBox(height: 8),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
+                child: Image.asset(
+                  'assets/images/logo_full.png',
+                  height: 44,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => Image.asset(
+                    'assets/images/logo_icon.png',
+                    height: 44,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
           ],
           Text(
             title,
@@ -1528,34 +1541,59 @@ class _AuthDesktopBranding extends StatelessWidget {
       height: double.infinity,
       padding: const EdgeInsets.all(36),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF5F2FF), Color(0xFFE8E1FB)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: const Color(0xFF0D1B2A),
         borderRadius: BorderRadius.circular(36),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'NovaCart',
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                  fontSize: 34,
-                ),
+          Image.asset(
+            'assets/images/logo_full.png',
+            height: 48,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => Image.asset(
+              'assets/images/logo_icon.png',
+              height: 48,
+              fit: BoxFit.contain,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
-            'Responsive commerce, one Flutter codebase.',
+            'Genuine EV & Petrol Two-Wheeler Spare Parts',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: kcMediumGrey,
+                  color: const Color(0xFF94A3B8),
+                  fontSize: 16,
                 ),
           ),
           const Spacer(),
-          const Center(
-            child: AuthIllustration(height: 360),
+          Center(
+            child: Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.06),
+                shape: BoxShape.circle,
+              ),
+              child: Image.asset(
+                'assets/images/logo_icon.png',
+                height: 130,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.electric_bolt_rounded,
+                  size: 90,
+                  color: Color(0xFF00C853),
+                ),
+              ),
+            ),
           ),
           const Spacer(),
+          const Text(
+            'VoltSpare • Right part. First time.',
+            style: TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );

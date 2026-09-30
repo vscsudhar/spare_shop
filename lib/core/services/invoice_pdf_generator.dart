@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -15,6 +14,7 @@ class InvoicePdfGenerator {
 
     pw.Font fontBold;
     pw.Font fontNormal;
+    pw.MemoryImage? logoImage;
 
     try {
       final regularData =
@@ -25,6 +25,16 @@ class InvoicePdfGenerator {
     } catch (_) {
       fontNormal = pw.Font.helvetica();
       fontBold = pw.Font.helveticaBold();
+    }
+
+    try {
+      final logoBytes = await rootBundle.load('assets/images/logo_full.png');
+      logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
+    } catch (_) {
+      try {
+        final logoBytes = await rootBundle.load('assets/images/logo_icon.png');
+        logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
+      } catch (_) {}
     }
 
     pdf.addPage(
@@ -81,12 +91,19 @@ class InvoicePdfGenerator {
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                // Seller Info
+                // Seller Info & Logo
                 pw.Expanded(
                   flex: 5,
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
+                      if (logoImage != null) ...[
+                        pw.Container(
+                          height: 32,
+                          child: pw.Image(logoImage, fit: pw.BoxFit.contain),
+                        ),
+                        pw.SizedBox(height: 6),
+                      ],
                       pw.Text(b.name, style: pw.TextStyle(font: fontBold, fontSize: 13, color: const PdfColor.fromInt(0xFF0D1B2A))),
                       pw.Text(b.legalName, style: pw.TextStyle(font: fontNormal, fontSize: 8, color: PdfColors.grey700)),
                       pw.SizedBox(height: 4),

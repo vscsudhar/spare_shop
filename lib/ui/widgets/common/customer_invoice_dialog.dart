@@ -325,33 +325,14 @@ class CustomerInvoiceDialog extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: kcVoltSpareDark,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.electric_bolt_rounded, color: kcVoltSpareEVGreen, size: 18),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    b.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  Text(
-                    b.legalName,
-                    style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
-                  ),
-                ],
+            Image.asset(
+              'assets/images/logo_full.png',
+              height: 28,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => Image.asset(
+                'assets/images/logo_icon.png',
+                height: 28,
+                fit: BoxFit.contain,
               ),
             ),
           ],

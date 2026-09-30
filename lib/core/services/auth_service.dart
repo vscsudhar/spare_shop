@@ -133,6 +133,58 @@ class AuthService {
         .post(ApiEndpoints.verifyOtp, data: {'identifier': email, 'otp': otp});
   }
 
+  Future<Map<String, dynamic>> forgotPasswordCheckEmail(String email) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.forgotPassword,
+      data: {'email': email.trim().toLowerCase()},
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    return {'success': true, 'data': data};
+  }
+
+  Future<Map<String, dynamic>> forgotPasswordVerifyOtp(
+      String email, String otp) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.verifyOtp,
+      data: {
+        'identifier': email.trim().toLowerCase(),
+        'email': email.trim().toLowerCase(),
+        'otp': otp.trim(),
+      },
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    return {'success': true, 'data': data};
+  }
+
+  Future<Map<String, dynamic>> forgotPasswordReset({
+    required String email,
+    required String password,
+    String? confirmPassword,
+    String? token,
+  }) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.resetPassword,
+      data: {
+        'email': email.trim().toLowerCase(),
+        'password': password,
+        'confirmPassword': confirmPassword ?? password,
+        if (token != null) 'token': token,
+        if (token != null) 'resetToken': token,
+      },
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    return {'success': true, 'data': data};
+  }
+
   Future<void> logout() async {
     try {
       final refreshToken = await _tokenService.getRefreshToken();

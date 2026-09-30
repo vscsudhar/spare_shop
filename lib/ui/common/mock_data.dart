@@ -143,6 +143,8 @@ const profileMenuItems = <ProfileMenuItemData>[
     title: 'Payment Methods',
     icon: Icons.credit_card_rounded,
   ),
+  ProfileMenuItemData(title: 'Terms & Conditions', icon: Icons.gavel_rounded),
+  ProfileMenuItemData(title: 'Privacy Policy', icon: Icons.privacy_tip_outlined),
   ProfileMenuItemData(title: 'Settings', icon: Icons.settings_outlined),
   ProfileMenuItemData(title: 'Logout', icon: Icons.logout_rounded),
 ];

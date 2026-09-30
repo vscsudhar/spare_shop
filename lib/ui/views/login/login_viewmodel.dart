@@ -83,6 +83,18 @@ class LoginViewModel extends BaseViewModel with NavigationMixin {
     await goToCreateAccount();
   }
 
+  Future<void> navigateToTermsConditions() async {
+    await goToTermsConditions();
+  }
+
+  Future<void> navigateToPrivacyPolicy() async {
+    await goToPrivacyPolicy();
+  }
+
+  Future<void> navigateToForgotPassword() async {
+    await goToForgotPassword();
+  }
+
   Future<void> continueAsGuest() async {
     setBusy(true);
     try {

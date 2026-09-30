@@ -15,19 +15,29 @@ class CreateAccountViewModel extends BaseViewModel with NavigationMixin {
 
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isTermsAccepted = true;
   String? _nameError;
   String? _emailError;
   String? _phoneError;
   String? _passwordError;
   String? _confirmPasswordError;
+  String? _termsError;
 
   bool get isPasswordVisible => _isPasswordVisible;
   bool get isConfirmPasswordVisible => _isConfirmPasswordVisible;
+  bool get isTermsAccepted => _isTermsAccepted;
   String? get nameError => _nameError;
   String? get emailError => _emailError;
   String? get phoneError => _phoneError;
   String? get passwordError => _passwordError;
   String? get confirmPasswordError => _confirmPasswordError;
+  String? get termsError => _termsError;
+
+  void toggleTermsAccepted(bool? value) {
+    _isTermsAccepted = value ?? false;
+    _termsError = null;
+    notifyListeners();
+  }
 
   void togglePasswordVisibility() {
     _isPasswordVisible = !_isPasswordVisible;
@@ -37,6 +47,14 @@ class CreateAccountViewModel extends BaseViewModel with NavigationMixin {
   void toggleConfirmPasswordVisibility() {
     _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
     rebuildUi();
+  }
+
+  Future<void> navigateToTermsConditions() async {
+    await goToTermsConditions();
+  }
+
+  Future<void> navigateToPrivacyPolicy() async {
+    await goToPrivacyPolicy();
   }
 
   Future<void> register() async {
@@ -101,6 +119,12 @@ class CreateAccountViewModel extends BaseViewModel with NavigationMixin {
             ? null
             : 'Passwords do not match';
 
+    if (!_isTermsAccepted) {
+      _termsError = 'Please agree to the Terms & Conditions and Privacy Policy';
+    } else {
+      _termsError = null;
+    }
+
     rebuildUi();
     return [
       _nameError,
@@ -108,6 +132,7 @@ class CreateAccountViewModel extends BaseViewModel with NavigationMixin {
       _phoneError,
       _passwordError,
       _confirmPasswordError,
+      _termsError,
     ].every((error) => error == null);
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
+import 'package:spare_shop/ui/widgets/common/legal_card.dart';
 import 'package:spare_shop/ui/widgets/common/shop_components.dart';
 import 'package:stacked/stacked.dart';
 
@@ -77,6 +78,28 @@ class CreateAccountView extends StackedView<CreateAccountViewModel> {
             ),
           ),
         ),
+        const SizedBox(height: 16),
+        CompactLegalConsentCard(
+          showCheckbox: true,
+          isChecked: viewModel.isTermsAccepted,
+          onCheckboxChanged: viewModel.toggleTermsAccepted,
+          onTermsTap: viewModel.navigateToTermsConditions,
+          onPrivacyTap: viewModel.navigateToPrivacyPolicy,
+        ),
+        if (viewModel.termsError != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text(
+              viewModel.termsError!,
+              style: const TextStyle(
+                color: kcErrorColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 20),
         AppPrimaryButton(
           label: 'REGISTER',

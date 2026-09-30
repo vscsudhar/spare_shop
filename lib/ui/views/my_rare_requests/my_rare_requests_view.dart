@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
 import 'package:spare_shop/ui/common/voltspare_models.dart';
 import 'package:spare_shop/ui/widgets/common/voltspare_widgets.dart';
@@ -28,18 +27,14 @@ class MyRareRequestsView extends StackedView<MyRareRequestsViewModel> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-        } else {
-          await SystemNavigator.pop();
-        }
+        viewModel.replaceWithHome();
       },
       child: Scaffold(
         backgroundColor: kcVoltSpareOffWhite,
         appBar: VoltSpareAppBar(
           title: 'My Rare Spares Requests',
           showBackButton: true,
-          onBackPressed: viewModel.goBack,
+          onBackPressed: viewModel.replaceWithHome,
         ),
         body: SafeArea(
           child: Center(

@@ -16,13 +16,23 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
     RareProductRequestViewModel viewModel,
     Widget? child,
   ) {
-    return Scaffold(
-      backgroundColor: kcVoltSpareOffWhite,
-      appBar: VoltSpareAppBar(
-        title: 'Request Rare Spare Part',
-        showBackButton: true,
-        onBackPressed: viewModel.goBack,
-      ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          viewModel.replaceWithHome();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: kcVoltSpareOffWhite,
+        appBar: VoltSpareAppBar(
+          title: 'Request Rare Spare Part',
+          showBackButton: true,
+          onBackPressed: viewModel.goBack,
+        ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -346,8 +356,9 @@ class RareProductRequestView extends StackedView<RareProductRequestViewModel> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _sectionHeader(String title) {
     return Padding(

@@ -263,8 +263,8 @@ class InvoiceModel {
     required this.items,
     required this.summary,
     this.terms = const [
-      'Goods once sold are covered under VoltSpare standard warranty and RMA terms.',
-      'All disputes are subject to local jurisdiction only.',
+      'Products are covered under applicable manufacturer/VoltSpare warranty and RMA policy.',
+      'Subject to competent jurisdiction in India, under applicable consumer protection laws.',
       'This is a computer-generated tax invoice and requires no physical signature under IT Act 2000.',
     ],
   });
@@ -290,8 +290,8 @@ class InvoiceModel {
     final List<String> termsList = rawTerms != null
         ? rawTerms.map((t) => t.toString()).toList()
         : const [
-            'Goods once sold are covered under VoltSpare standard warranty and RMA terms.',
-            'All disputes are subject to local jurisdiction only.',
+            'Products are covered under applicable manufacturer/VoltSpare warranty and RMA policy.',
+            'Subject to competent jurisdiction in India, under applicable consumer protection laws.',
             'This is a computer-generated tax invoice and requires no physical signature under IT Act 2000.',
           ];
 
@@ -646,6 +646,9 @@ class InvoiceService {
   <div class="invoice-container">
     <div class="header-bar">
       <div class="brand-section">
+        <div style="margin-bottom: 8px;">
+          <img src="assets/images/logo_full.png" alt="VoltSpare" style="height: 36px; max-width: 180px; object-fit: contain;" onerror="this.style.display='none'">
+        </div>
         <h1>${business.name}</h1>
         <div class="subtitle">${business.legalName}</div>
         <div class="brand-details">

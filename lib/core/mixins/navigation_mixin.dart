@@ -22,6 +22,14 @@ mixin NavigationMixin {
     return navigationService.navigateTo(Routes.createAccountView);
   }
 
+  Future<dynamic>? goToForgotPassword() {
+    return navigationService.navigateTo(Routes.forgotPasswordView);
+  }
+
+  Future<dynamic>? replaceWithForgotPassword() {
+    return navigationService.replaceWith(Routes.forgotPasswordView);
+  }
+
   Future<dynamic>? goToHome() {
     return navigationService.navigateTo(Routes.homeView);
   }
@@ -222,6 +230,14 @@ mixin NavigationMixin {
       Routes.ticketChatView,
       arguments: TicketChatViewArguments(ticket: ticket),
     );
+  }
+
+  Future<dynamic>? goToTermsConditions() {
+    return navigationService.navigateTo(Routes.termsConditionsView);
+  }
+
+  Future<dynamic>? goToPrivacyPolicy() {
+    return navigationService.navigateTo(Routes.privacyPolicyView);
   }
 
   /// Check if user is in guest mode and show auth dialog if needed.

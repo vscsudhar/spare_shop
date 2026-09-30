@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
+import 'package:spare_shop/ui/widgets/common/legal_card.dart';
 import 'package:spare_shop/ui/widgets/common/shop_components.dart';
 import 'package:stacked/stacked.dart';
 
@@ -18,9 +18,9 @@ class ProfileView extends StackedView<ProfileViewModel> {
   ) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        await SystemNavigator.pop();
+        viewModel.replaceWithHome();
       },
       child: ShopResponsiveScaffold(
       currentTab: viewModel.currentTab,
@@ -73,6 +73,11 @@ class ProfileView extends StackedView<ProfileViewModel> {
                           separatorBuilder: (_, __) => const Divider(height: 1),
                           itemCount: viewModel.menuItems.length,
                         ),
+                        const SizedBox(height: 20),
+                        CompactLegalConsentCard(
+                          onTermsTap: viewModel.openTermsConditions,
+                          onPrivacyTap: viewModel.openPrivacyPolicy,
+                        ),
                         _buildRecentOrdersSection(context, viewModel),
                       ],
                     ),
@@ -111,6 +116,11 @@ class ProfileView extends StackedView<ProfileViewModel> {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemCount: viewModel.menuItems.length,
                 ),
+              ),
+              const SizedBox(height: 16),
+              CompactLegalConsentCard(
+                onTermsTap: viewModel.openTermsConditions,
+                onPrivacyTap: viewModel.openPrivacyPolicy,
               ),
               _buildRecentOrdersSection(context, viewModel),
             ],

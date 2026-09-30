@@ -81,7 +81,7 @@ class PaymentViewModel extends FutureViewModel<void> with NavigationMixin {
       );
       await _cartService.clearCart();
       setBusy(false);
-      goToOrderSuccess();
+      clearStackAndShowHome();
     } catch (_) {
       setBusy(false);
     }

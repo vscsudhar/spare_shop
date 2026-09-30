@@ -20,6 +20,7 @@ import '../core/services/api_client.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/cart_service.dart';
 import '../core/services/delivery_charge_service.dart';
+import '../core/services/invoice_service.dart';
 import '../core/services/network_info_service.dart';
 import '../core/services/order_service.dart';
 import '../core/services/product_service.dart';
@@ -32,7 +33,6 @@ import '../core/services/token_service.dart';
 import '../core/services/upload_service.dart';
 import '../core/services/vehicle_service.dart';
 import '../core/services/wishlist_service.dart';
-import '../core/services/invoice_service.dart';
 
 final locator = StackedLocator.instance;
 

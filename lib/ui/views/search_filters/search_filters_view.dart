@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:stacked/stacked.dart';
 
 import 'search_filters_viewmodel.dart';
@@ -37,7 +36,7 @@ class SearchFiltersView extends StackedView<SearchFiltersViewModel> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        await SystemNavigator.pop();
+        viewModel.replaceWithHome();
       },
       child: ResponsiveBuilder(
       builder: (context, sizingInformation) {

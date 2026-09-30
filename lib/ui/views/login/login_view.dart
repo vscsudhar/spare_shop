@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spare_shop/ui/common/app_colors.dart';
+import 'package:spare_shop/ui/widgets/common/legal_card.dart';
 import 'package:spare_shop/ui/widgets/common/shop_components.dart';
 import 'package:stacked/stacked.dart';
 
@@ -48,12 +49,18 @@ class LoginView extends StackedView<LoginViewModel> {
         const SizedBox(height: 10),
         Align(
           alignment: Alignment.centerRight,
-          child: Text(
-            'Forgot Password?',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kcPrimaryColor,
-                  fontWeight: FontWeight.w700,
-                ),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: viewModel.navigateToForgotPassword,
+              child: Text(
+                'Forgot Password?',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: kcPrimaryColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -61,6 +68,11 @@ class LoginView extends StackedView<LoginViewModel> {
           label: 'LOGIN',
           isLoading: viewModel.isBusy,
           onPressed: viewModel.login,
+        ),
+        const SizedBox(height: 14),
+        CompactLegalConsentCard(
+          onTermsTap: viewModel.navigateToTermsConditions,
+          onPrivacyTap: viewModel.navigateToPrivacyPolicy,
         ),
         const SizedBox(height: 16),
         Center(

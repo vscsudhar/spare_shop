@@ -8,6 +8,7 @@ import 'package:spare_shop/core/services/product_service.dart';
 import 'package:spare_shop/core/services/wishlist_service.dart';
 import 'package:spare_shop/core/services/cart_service.dart';
 import 'package:spare_shop/core/services/delivery_charge_service.dart';
+import 'package:spare_shop/core/services/order_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -31,7 +32,15 @@ void registerServices() {
   getAndRegisterWishlistService();
   getAndRegisterCartService();
   getAndRegisterDeliveryChargeService();
+  getAndRegisterOrderService();
   // @stacked-mock-register
+}
+
+OrderService getAndRegisterOrderService() {
+  _removeRegistrationIfExists<OrderService>();
+  final service = OrderService(apiClient: locator<ApiClient>());
+  locator.registerSingleton<OrderService>(service);
+  return service;
 }
 
 WishlistService getAndRegisterWishlistService() {

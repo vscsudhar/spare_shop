@@ -15,48 +15,29 @@ class StartupView extends StackedView<StartupViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-      backgroundColor: const Color(0xFF12251D), // Dark Graphite/Green
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const SizedBox(height: 40),
-              // Logo and branding
+              // Logo and branding (Centered, fitted, never cropped)
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 90,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      color: kcVoltSpareEVGreen.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: kcVoltSpareEVGreen, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.electric_bolt_rounded,
-                      color: kcVoltSpareEVGreen,
-                      size: 50,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'VoltSpare',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'EV & two-wheeler spare parts',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    child: Image.asset(
+                      'assets/images/logo_full.png',
+                      width: 260,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => Image.asset(
+                        'assets/images/logo_icon.png',
+                        height: 96,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ],
@@ -70,19 +51,19 @@ class StartupView extends StackedView<StartupViewModel> {
                     Text(
                       'Right part. First time.',
                       style: TextStyle(
-                        color: kcVoltSpareEVGreen,
-                        fontSize: 18,
+                        color: kcPrimaryColorDark,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.2,
                       ),
                     ),
-                    SizedBox(height: 32),
+                    SizedBox(height: 28),
                     SizedBox(
                       width: 28,
                       height: 28,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.8,
-                        color: kcVoltSpareEVGreen,
+                        color: kcPrimaryColor,
                       ),
                     ),
                   ],

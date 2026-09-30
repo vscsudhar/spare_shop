@@ -55,6 +55,9 @@ import 'package:spare_shop/core/services/vehicle_service.dart';
 import 'package:spare_shop/core/services/delivery_charge_service.dart';
 import 'package:spare_shop/core/services/suggestion_service.dart';
 import 'package:spare_shop/core/services/invoice_service.dart';
+import 'package:spare_shop/ui/views/terms_conditions/terms_conditions_view.dart';
+import 'package:spare_shop/ui/views/privacy_policy/privacy_policy_view.dart';
+import 'package:spare_shop/ui/views/forgot_password/forgot_password_view.dart';
 // @stacked-import
 
 @StackedApp(
@@ -62,6 +65,7 @@ import 'package:spare_shop/core/services/invoice_service.dart';
     MaterialRoute(page: StartupView, initial: true, path: '/'),
     MaterialRoute(page: LoginView, path: '/login'),
     MaterialRoute(page: CreateAccountView, path: '/create-account'),
+    MaterialRoute(page: ForgotPasswordView, path: '/forgot-password'),
     MaterialRoute(page: HomeView, path: '/home'),
     MaterialRoute(page: ProductDetailsView, path: '/product-details'),
     MaterialRoute(page: CartView, path: '/cart'),
@@ -91,6 +95,8 @@ import 'package:spare_shop/core/services/invoice_service.dart';
     MaterialRoute(page: SupportTicketsView),
     MaterialRoute(page: CreateTicketView),
     MaterialRoute(page: TicketChatView),
+    MaterialRoute(page: TermsConditionsView, path: '/terms-conditions'),
+    MaterialRoute(page: PrivacyPolicyView, path: '/privacy-policy'),
 // @stacked-route
   ],
   dependencies: [
