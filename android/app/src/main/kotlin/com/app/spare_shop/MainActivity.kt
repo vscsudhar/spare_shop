@@ -1,4 +1,4 @@
-package com.example.spare_shop
+package com.app.spare_shop
 
 import android.content.Intent
 import android.media.MediaScannerConnection
@@ -136,4 +136,3 @@ class MainActivity : FlutterActivity() {
         }
     }
 }
-

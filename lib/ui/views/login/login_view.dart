@@ -18,9 +18,6 @@ class LoginView extends StackedView<LoginViewModel> {
     return AuthResponsiveScaffold(
       title: 'Welcome Back',
       subtitle: 'Sign in to continue shopping',
-      footerPrompt: 'Don\'t have an account?',
-      footerActionLabel: 'Sign up',
-      onFooterAction: viewModel.navigateToCreateAccount,
       formChildren: [
         AppTextField(
           controller: viewModel.emailController,
@@ -69,7 +66,31 @@ class LoginView extends StackedView<LoginViewModel> {
           isLoading: viewModel.isBusy,
           onPressed: viewModel.login,
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Don\'t have an account?',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(width: 8),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: InkWell(
+                onTap: viewModel.navigateToCreateAccount,
+                child: Text(
+                  'Sign up',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: kcPrimaryColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         CompactLegalConsentCard(
           onTermsTap: viewModel.navigateToTermsConditions,
           onPrivacyTap: viewModel.navigateToPrivacyPolicy,

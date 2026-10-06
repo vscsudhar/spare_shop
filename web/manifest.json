@@ -3,7 +3,7 @@
     "short_name": "VoltSpare",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#12251D",
+    "background_color": "#FFFFFF",
     "theme_color": "#00E676",
     "description": "VoltSpare - Online Two-Wheeler Spare Parts | EV & Petrol",
     "orientation": "portrait-primary",

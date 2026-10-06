@@ -493,17 +493,17 @@ class AuthResponsiveScaffold extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.formChildren,
-    required this.footerPrompt,
-    required this.footerActionLabel,
-    required this.onFooterAction,
+    this.footerPrompt,
+    this.footerActionLabel,
+    this.onFooterAction,
   });
 
   final String title;
   final String subtitle;
   final List<Widget> formChildren;
-  final String footerPrompt;
-  final String footerActionLabel;
-  final VoidCallback onFooterAction;
+  final String? footerPrompt;
+  final String? footerActionLabel;
+  final VoidCallback? onFooterAction;
 
   @override
   Widget build(BuildContext context) {
@@ -1452,18 +1452,18 @@ class _AuthFormPanel extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.formChildren,
-    required this.footerPrompt,
-    required this.footerActionLabel,
-    required this.onFooterAction,
+    this.footerPrompt,
+    this.footerActionLabel,
+    this.onFooterAction,
     required this.showIllustrationAbove,
   });
 
   final String title;
   final String subtitle;
   final List<Widget> formChildren;
-  final String footerPrompt;
-  final String footerActionLabel;
-  final VoidCallback onFooterAction;
+  final String? footerPrompt;
+  final String? footerActionLabel;
+  final VoidCallback? onFooterAction;
   final bool showIllustrationAbove;
 
   @override
@@ -1502,30 +1502,32 @@ class _AuthFormPanel extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           ...formChildren,
-          const SizedBox(height: 28),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                footerPrompt,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(width: 8),
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: InkWell(
-                  onTap: onFooterAction,
-                  child: Text(
-                    footerActionLabel,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: kcPrimaryColor,
-                          fontWeight: FontWeight.w700,
-                        ),
+          if (footerPrompt != null && footerPrompt!.isNotEmpty) ...[
+            const SizedBox(height: 28),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  footerPrompt!,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(width: 8),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: InkWell(
+                    onTap: onFooterAction,
+                    child: Text(
+                      footerActionLabel ?? '',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: kcPrimaryColor,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );

@@ -12,11 +12,6 @@ class LoginViewModel extends BaseViewModel with NavigationMixin {
   final _authService = locator<AuthService>();
   final _tokenService = locator<TokenService>();
 
-  LoginViewModel() {
-    emailController.text = 'customer.dash@test.com';
-    passwordController.text = 'P@ssword123!';
-  }
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
