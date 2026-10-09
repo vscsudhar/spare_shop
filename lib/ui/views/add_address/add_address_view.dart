@@ -225,7 +225,8 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                             color: kcVoltSpareEVGreen.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: kcVoltSpareEVGreen.withValues(alpha: 0.3)),
+                                color:
+                                    kcVoltSpareEVGreen.withValues(alpha: 0.3)),
                           ),
                           child: const Row(
                             children: [
@@ -267,7 +268,8 @@ class AddAddressView extends StackedView<AddAddressViewModel> {
                         viewModel.updateLocation(lat, lng);
                       },
                       onAreaSelected: (taluk, district, state, [postalCode]) {
-                        viewModel.onAreaSelected(taluk, district, state, postalCode);
+                        viewModel.onAreaSelected(
+                            taluk, district, state, postalCode);
                       },
                     ),
                   ),
@@ -381,7 +383,8 @@ class InteractiveMapPicker extends StatefulWidget {
   final double initialLat;
   final double initialLng;
   final Function(double lat, double lng) onLocationChanged;
-  final Function(String taluk, String district, String state, [String? postalCode])? onAreaSelected;
+  final Function(String taluk, String district, String state,
+      [String? postalCode])? onAreaSelected;
 
   const InteractiveMapPicker({
     Key? key,
@@ -663,7 +666,8 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
     _mapController.move(LatLng(loc.latitude, loc.longitude), 16.0);
     widget.onLocationChanged(loc.latitude, loc.longitude);
     if (widget.onAreaSelected != null) {
-      widget.onAreaSelected!(loc.taluk, loc.district, loc.state, loc.postalCode);
+      widget.onAreaSelected!(
+          loc.taluk, loc.district, loc.state, loc.postalCode);
     }
   }
 
@@ -811,7 +815,8 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                       color: kcVoltSpareTextPrimary,
                       fontWeight: FontWeight.w600),
                   decoration: InputDecoration(
-                    hintText: 'Search location (e.g. Madukkarai, Coimbatore...)',
+                    hintText:
+                        'Search location (e.g. Madukkarai, Coimbatore...)',
                     hintStyle: const TextStyle(
                         color: kcLightGrey,
                         fontSize: 12,
@@ -921,42 +926,42 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
                   border: Border.all(color: kcVoltSpareBorder),
                 ),
                 child: ListView.separated(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                itemCount: _searchResults.length,
-                separatorBuilder: (_, __) =>
-                    const Divider(height: 1, color: kcVoltSpareBorder),
-                itemBuilder: (context, index) {
-                  final loc = _searchResults[index];
-                  return ListTile(
-                    dense: true,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                    leading: const Icon(Icons.location_on_rounded,
-                        color: kcVoltSpareEVGreen, size: 20),
-                    title: Text(
-                      loc.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: kcVoltSpareTextPrimary),
-                    ),
-                    subtitle: Text(
-                      '${loc.taluk}, ${loc.district}, ${loc.state}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 10.5, color: kcVoltSpareTextSecondary),
-                    ),
-                    onTap: () => _selectSearchResult(loc),
-                  );
-                },
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  itemCount: _searchResults.length,
+                  separatorBuilder: (_, __) =>
+                      const Divider(height: 1, color: kcVoltSpareBorder),
+                  itemBuilder: (context, index) {
+                    final loc = _searchResults[index];
+                    return ListTile(
+                      dense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 4),
+                      leading: const Icon(Icons.location_on_rounded,
+                          color: kcVoltSpareEVGreen, size: 20),
+                      title: Text(
+                        loc.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: kcVoltSpareTextPrimary),
+                      ),
+                      subtitle: Text(
+                        '${loc.taluk}, ${loc.district}, ${loc.state}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 10.5, color: kcVoltSpareTextSecondary),
+                      ),
+                      onTap: () => _selectSearchResult(loc),
+                    );
+                  },
+                ),
               ),
             ),
           ),
-        ),
 
         // Zoom Controls overlay in Bottom Left
         Positioned(
@@ -1025,7 +1030,8 @@ class _InteractiveMapPickerState extends State<InteractiveMapPicker>
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: kcVoltSpareBorder.withValues(alpha: 0.6)),
+              border:
+                  Border.all(color: kcVoltSpareBorder.withValues(alpha: 0.6)),
             ),
             child: const Text(
               '© OpenStreetMap contributors',

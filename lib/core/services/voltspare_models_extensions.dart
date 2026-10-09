@@ -129,9 +129,12 @@ extension ProductModelExtension on ProductModel {
         json['is_favorite'] == true ||
         json['like'] == true ||
         json['liked'] == true ||
-        (json['isLike'] != null && (json['isLike'] == 1 || json['isLike'] == 'true')) ||
-        (json['islike'] != null && (json['islike'] == 1 || json['islike'] == 'true')) ||
-        (json['isWishlist'] != null && (json['isWishlist'] == 1 || json['isWishlist'] == 'true'));
+        (json['isLike'] != null &&
+            (json['isLike'] == 1 || json['isLike'] == 'true')) ||
+        (json['islike'] != null &&
+            (json['islike'] == 1 || json['islike'] == 'true')) ||
+        (json['isWishlist'] != null &&
+            (json['isWishlist'] == 1 || json['isWishlist'] == 'true'));
 
     final stockManagedRaw = json['stockManaged'];
     final bool stockManaged;
@@ -216,7 +219,8 @@ extension CartItemModelExtension on CartItemModel {
 
 extension AddressModelExtension on AddressModel {
   static AddressModel fromJson(Map<String, dynamic> json) {
-    final line1 = (json['addressLine1'] ?? json['addressLine'] ?? '').toString();
+    final line1 =
+        (json['addressLine1'] ?? json['addressLine'] ?? '').toString();
     final line2 = (json['addressLine2'] ?? '').toString();
     final city = (json['city'] ?? '').toString();
     var state = (json['state'] ?? '').toString();
@@ -258,7 +262,8 @@ extension AddressModelExtension on AddressModel {
       id: (json['_id'] ?? json['id'] ?? '').toString(),
       name: json['name'] ?? json['recipientName'] ?? 'Home',
       phone: json['phone'] ?? '',
-      addressLine: parts.isEmpty ? (json['addressLine'] ?? '') : parts.join(', '),
+      addressLine:
+          parts.isEmpty ? (json['addressLine'] ?? '') : parts.join(', '),
       addressLine1: line1,
       addressLine2: line2,
       city: city,
@@ -281,27 +286,29 @@ extension AddressModelExtension on AddressModel {
   Map<String, dynamic> toJson() {
     final line1 = (addressLine1 != null && addressLine1!.isNotEmpty)
         ? addressLine1!
-        : (addressLine.isNotEmpty ? addressLine.split(',').first.trim() : 'Address');
+        : (addressLine.isNotEmpty
+            ? addressLine.split(',').first.trim()
+            : 'Address');
     final line2 = addressLine2 ?? '';
-    
+
     var cityName = (city != null && city!.isNotEmpty)
         ? city!
-        : (addressLine.split(',').length > 2 ? addressLine.split(',')[2].trim() : 'Coimbatore');
+        : (addressLine.split(',').length > 2
+            ? addressLine.split(',')[2].trim()
+            : 'Coimbatore');
     if (cityName.contains('(Lat:')) {
       cityName = cityName.split('(Lat:')[0].trim();
     }
 
-    var stateName = (state != null && state!.isNotEmpty)
-        ? state!
-        : 'Tamil Nadu';
+    var stateName =
+        (state != null && state!.isNotEmpty) ? state! : 'Tamil Nadu';
     if (stateName.contains('(Lat:')) {
       stateName = stateName.split('(Lat:')[0].trim();
     }
     if (stateName.isEmpty) stateName = 'Tamil Nadu';
 
-    var pCode = (postalCode != null && postalCode!.isNotEmpty)
-        ? postalCode!
-        : '641001';
+    var pCode =
+        (postalCode != null && postalCode!.isNotEmpty) ? postalCode! : '641001';
     if (pCode.contains('Lng:') || pCode.contains('Lat:')) {
       pCode = '641001';
     }
@@ -370,16 +377,18 @@ extension OrderModelExtension on OrderModel {
       return CartItemModel(
         id: (item['_id'] ?? item['id'] ?? '').toString(),
         product: ProductModelExtension.fromJson(productMap),
-        quantity: item['quantity'] is num ? (item['quantity'] as num).toInt() : 1,
+        quantity:
+            item['quantity'] is num ? (item['quantity'] as num).toInt() : 1,
       );
     }).toList();
 
     final addressMap = json['shippingAddress'] as Map<String, dynamic>? ?? {};
     final id = (json['_id'] ?? json['id'] ?? '').toString();
     final orderNumber = (json['orderNumber'] ??
-        (id.isNotEmpty
-            ? 'ORD-${id.substring(id.length > 6 ? id.length - 6 : 0).toUpperCase()}'
-            : 'ORD-UNKNOWN')).toString();
+            (id.isNotEmpty
+                ? 'ORD-${id.substring(id.length > 6 ? id.length - 6 : 0).toUpperCase()}'
+                : 'ORD-UNKNOWN'))
+        .toString();
 
     double parsePaise(dynamic val) {
       if (val is num) {
@@ -404,7 +413,8 @@ extension OrderModelExtension on OrderModel {
 
     final rawHistory = json['statusHistory'] as List<dynamic>? ?? [];
     final List<Map<String, dynamic>> statusHistory = rawHistory
-        .map((h) => h is Map ? Map<String, dynamic>.from(h) : <String, dynamic>{})
+        .map((h) =>
+            h is Map ? Map<String, dynamic>.from(h) : <String, dynamic>{})
         .toList();
 
     final deliveryAssignment = json['deliveryAssignment'] is Map
@@ -513,13 +523,17 @@ extension RareProductRequestModelExtension on RareProductRequestModel {
 
     final imageList = json['images'] as List<dynamic>? ?? [];
 
-    final String customerName = (json['customerName'] != null && json['customerName'].toString().trim().isNotEmpty)
+    final String customerName = (json['customerName'] != null &&
+            json['customerName'].toString().trim().isNotEmpty)
         ? json['customerName'].toString()
-        : (json['user'] is Map ? (json['user']['name'] ?? 'Customer') : 'Customer');
+        : (json['user'] is Map
+            ? (json['user']['name'] ?? 'Customer')
+            : 'Customer');
 
-    final String phone = (json['phone'] != null && json['phone'].toString().trim().isNotEmpty)
-        ? json['phone'].toString()
-        : (json['user'] is Map ? (json['user']['phone'] ?? '') : '');
+    final String phone =
+        (json['phone'] != null && json['phone'].toString().trim().isNotEmpty)
+            ? json['phone'].toString()
+            : (json['user'] is Map ? (json['user']['phone'] ?? '') : '');
 
     return RareProductRequestModel(
       id: json['_id'] ?? json['id'] ?? '',

@@ -77,8 +77,8 @@ class ProductService {
       result = result.where((p) {
         final catName = mockCategories
             .firstWhere((c) => c.id == p.categoryId,
-                orElse: () => const CategoryModel(
-                    id: '', name: '', icon: Icons.category))
+                orElse: () =>
+                    const CategoryModel(id: '', name: '', icon: Icons.category))
             .name
             .toLowerCase();
 

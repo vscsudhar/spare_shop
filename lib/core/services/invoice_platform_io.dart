@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
@@ -50,9 +49,7 @@ Future<String?> downloadInvoiceDocument(String fileName,
       }
 
       // Priority 3: App Documents Directory
-      if (targetDir == null) {
-        targetDir = await getApplicationDocumentsDirectory();
-      }
+      targetDir ??= await getApplicationDocumentsDirectory();
     } else {
       targetDir = await getApplicationDocumentsDirectory();
     }
@@ -99,7 +96,8 @@ Future<bool> openInvoiceDocument(String filePath) async {
           .invokeMethod<bool>('openFile', {'filePath': filePath});
       if (success == true) return true;
     } catch (e) {
-      debugPrint('Native openFile channel failed ($e), trying OpenFilex fallback...');
+      debugPrint(
+          'Native openFile channel failed ($e), trying OpenFilex fallback...');
     }
   }
 

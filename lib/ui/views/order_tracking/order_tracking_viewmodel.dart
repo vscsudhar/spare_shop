@@ -69,8 +69,18 @@ class OrderTrackingViewModel extends BaseViewModel with NavigationMixin {
   String get formattedOrderDate {
     final d = order.date;
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     final month = months[d.month - 1];
     final hour = d.hour % 12 == 0 ? 12 : d.hour % 12;
@@ -102,8 +112,18 @@ class OrderTrackingViewModel extends BaseViewModel with NavigationMixin {
     final estDate = order.date.add(const Duration(days: 2));
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return 'Estimated Delivery: ${weekdays[estDate.weekday - 1]}, ${estDate.day} ${months[estDate.month - 1]} by 6:00 PM';
   }
@@ -147,9 +167,10 @@ class OrderTrackingViewModel extends BaseViewModel with NavigationMixin {
       ),
       OrderTrackingStepModel(
         title: 'Packed & Hub Assigned',
-        description: order.locationName != null && order.locationName!.isNotEmpty
-            ? 'Processed at ${order.locationName} Hub for dispatch.'
-            : 'Packed and verified by VoltSpare fulfillment center.',
+        description:
+            order.locationName != null && order.locationName!.isNotEmpty
+                ? 'Processed at ${order.locationName} Hub for dispatch.'
+                : 'Packed and verified by VoltSpare fulfillment center.',
         timeString: isProcessing ? 'Completed' : 'In Progress',
         isCompleted: isProcessing,
         isCurrent: order.status == OrderStatus.processing,

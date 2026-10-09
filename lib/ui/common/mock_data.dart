@@ -136,6 +136,8 @@ const mockUserProfile = UserProfileData(
 
 const profileMenuItems = <ProfileMenuItemData>[
   ProfileMenuItemData(title: 'My Addresses', icon: Icons.location_on_outlined),
+  ProfileMenuItemData(
+      title: 'Change Password', icon: Icons.lock_outline_rounded),
   ProfileMenuItemData(title: 'Order History', icon: Icons.receipt_long_rounded),
   ProfileMenuItemData(
       title: 'My Rare Requests', icon: Icons.build_circle_outlined),
@@ -144,7 +146,8 @@ const profileMenuItems = <ProfileMenuItemData>[
     icon: Icons.credit_card_rounded,
   ),
   ProfileMenuItemData(title: 'Terms & Conditions', icon: Icons.gavel_rounded),
-  ProfileMenuItemData(title: 'Privacy Policy', icon: Icons.privacy_tip_outlined),
+  ProfileMenuItemData(
+      title: 'Privacy Policy', icon: Icons.privacy_tip_outlined),
   ProfileMenuItemData(title: 'Settings', icon: Icons.settings_outlined),
   ProfileMenuItemData(title: 'Logout', icon: Icons.logout_rounded),
 ];

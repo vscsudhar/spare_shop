@@ -47,7 +47,8 @@ class SignInOtpView extends StackedView<SignInOtpViewModel> {
                         'assets/images/logo_full.png',
                         height: 48,
                         fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => Image.asset(
+                        errorBuilder: (context, error, stackTrace) =>
+                            Image.asset(
                           'assets/images/logo_icon.png',
                           height: 48,
                           fit: BoxFit.contain,

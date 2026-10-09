@@ -68,8 +68,9 @@ class TicketChatViewModel extends BaseViewModel with NavigationMixin {
           try {
             final map = Map<String, dynamic>.from(data as Map);
             final newMsg = TicketMessageModel.fromJson(map);
-            final existingIndex = _messages.indexWhere(
-                (m) => m.id == newMsg.id || (m.id.startsWith('temp_') && m.message == newMsg.message));
+            final existingIndex = _messages.indexWhere((m) =>
+                m.id == newMsg.id ||
+                (m.id.startsWith('temp_') && m.message == newMsg.message));
             if (existingIndex != -1) {
               _messages[existingIndex] = newMsg;
             } else {
@@ -170,7 +171,8 @@ class TicketChatViewModel extends BaseViewModel with NavigationMixin {
         photos: photosToSend,
       );
 
-      final index = _messages.indexWhere((m) => m.id == tempId || m.id == msg.id);
+      final index =
+          _messages.indexWhere((m) => m.id == tempId || m.id == msg.id);
       if (index != -1) {
         _messages[index] = msg;
       } else if (!_messages.any((m) => m.id == msg.id)) {

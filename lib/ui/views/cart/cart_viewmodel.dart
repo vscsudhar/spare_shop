@@ -125,6 +125,10 @@ class CartViewModel extends FutureViewModel<void> with NavigationMixin {
     navigateToTab(index, currentIndex: currentTabIndex);
   }
 
+  void browseProducts() {
+    replaceWithHome();
+  }
+
   @override
   void goBack() {
     navigationService.back();

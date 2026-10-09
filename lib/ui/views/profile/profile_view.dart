@@ -23,111 +23,116 @@ class ProfileView extends StackedView<ProfileViewModel> {
         viewModel.replaceWithHome();
       },
       child: ShopResponsiveScaffold(
-      currentTab: viewModel.currentTab,
-      onTabSelected: viewModel.onTabSelected,
-      bodyBuilder: (context, sizingInformation) {
-        if (sizingInformation.isDesktop) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 320,
-                child: Column(
-                  children: [
-                    _ProfileHeroCard(viewModel: viewModel),
-                    const SizedBox(height: 16),
-                    _WishlistProfileCard(viewModel: viewModel),
-                  ],
+        currentTab: viewModel.currentTab,
+        onTabSelected: viewModel.onTabSelected,
+        bodyBuilder: (context, sizingInformation) {
+          if (sizingInformation.isDesktop) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 320,
+                  child: Column(
+                    children: [
+                      _ProfileHeroCard(viewModel: viewModel),
+                      const SizedBox(height: 16),
+                      _WishlistProfileCard(viewModel: viewModel),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: SurfaceCard(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Account Overview',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Manage orders, saved items, addresses, and account settings from one place.',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 24),
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            final item = viewModel.menuItems[index];
-                            return ProfileMenuTile(
-                              title: item.title,
-                              icon: item.icon,
-                              onTap: () =>
-                                  viewModel.handleMenuTap(item.title, context),
-                            );
-                          },
-                          separatorBuilder: (_, __) => const Divider(height: 1),
-                          itemCount: viewModel.menuItems.length,
-                        ),
-                        const SizedBox(height: 20),
-                        CompactLegalConsentCard(
-                          onTermsTap: viewModel.openTermsConditions,
-                          onPrivacyTap: viewModel.openPrivacyPolicy,
-                        ),
-                        _buildRecentOrdersSection(context, viewModel),
-                      ],
+                const SizedBox(width: 24),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: SurfaceCard(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Account Overview',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Manage orders, saved items, addresses, and account settings from one place.',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 24),
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              final item = viewModel.menuItems[index];
+                              return ProfileMenuTile(
+                                title: item.title,
+                                icon: item.icon,
+                                onTap: () => viewModel.handleMenuTap(
+                                    item.title, context),
+                              );
+                            },
+                            separatorBuilder: (_, __) =>
+                                const Divider(height: 1),
+                            itemCount: viewModel.menuItems.length,
+                          ),
+                          const SizedBox(height: 20),
+                          CompactLegalConsentCard(
+                            onTermsTap: viewModel.openTermsConditions,
+                            onPrivacyTap: viewModel.openPrivacyPolicy,
+                          ),
+                          const SizedBox(height: 24),
+                          _ChangePasswordCard(viewModel: viewModel),
+                          _buildRecentOrdersSection(context, viewModel),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          );
-        }
+              ],
+            );
+          }
 
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              _ProfileHeroCard(viewModel: viewModel),
-              const SizedBox(height: 16),
-              _WishlistProfileCard(viewModel: viewModel),
-              const SizedBox(height: 14),
-              _SupportTicketsProfileCard(viewModel: viewModel),
-              const SizedBox(height: 16),
-              SurfaceCard(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                borderRadius: 28,
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    final item = viewModel.menuItems[index];
-                    return ProfileMenuTile(
-                      title: item.title,
-                      icon: item.icon,
-                      onTap: () =>
-                          viewModel.handleMenuTap(item.title, context),
-                    );
-                  },
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemCount: viewModel.menuItems.length,
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                _ProfileHeroCard(viewModel: viewModel),
+                const SizedBox(height: 16),
+                _WishlistProfileCard(viewModel: viewModel),
+                const SizedBox(height: 14),
+                _SupportTicketsProfileCard(viewModel: viewModel),
+                const SizedBox(height: 16),
+                SurfaceCard(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                  borderRadius: 28,
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      final item = viewModel.menuItems[index];
+                      return ProfileMenuTile(
+                        title: item.title,
+                        icon: item.icon,
+                        onTap: () =>
+                            viewModel.handleMenuTap(item.title, context),
+                      );
+                    },
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemCount: viewModel.menuItems.length,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              CompactLegalConsentCard(
-                onTermsTap: viewModel.openTermsConditions,
-                onPrivacyTap: viewModel.openPrivacyPolicy,
-              ),
-              _buildRecentOrdersSection(context, viewModel),
-            ],
-          ),
-        );
-      },
-    ),
+                const SizedBox(height: 16),
+                CompactLegalConsentCard(
+                  onTermsTap: viewModel.openTermsConditions,
+                  onPrivacyTap: viewModel.openPrivacyPolicy,
+                ),
+                const SizedBox(height: 16),
+                _ChangePasswordCard(viewModel: viewModel),
+                _buildRecentOrdersSection(context, viewModel),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -479,3 +484,132 @@ class _SupportTicketsProfileCard extends StatelessWidget {
     );
   }
 }
+
+class _ChangePasswordCard extends StatelessWidget {
+  const _ChangePasswordCard({required this.viewModel});
+
+  final ProfileViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: kcVoltSpareEVGreen.withValues(alpha: 0.2),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: kcVoltSpareEVGreen.withValues(alpha: 0.06),
+            blurRadius: 18,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [kcVoltSpareEVGreen, Color(0xFF00B0FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: kcVoltSpareEVGreen.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.lock_reset_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Change Password',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: kcVoltSpareDark,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Update your account password securely',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: kcVoltSpareTextSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          AppTextField(
+            controller: viewModel.newPasswordController,
+            hintText: 'New Password (min. 6 characters)',
+            prefixIcon: Icons.lock_outline_rounded,
+            obscureText: !viewModel.isPasswordVisible,
+            errorText: viewModel.passwordError,
+            suffixIcon: IconButton(
+              onPressed: viewModel.togglePasswordVisibility,
+              icon: Icon(
+                viewModel.isPasswordVisible
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: kcLightGrey,
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          AppTextField(
+            controller: viewModel.confirmPasswordController,
+            hintText: 'Confirm New Password',
+            prefixIcon: Icons.lock_reset_rounded,
+            obscureText: !viewModel.isConfirmPasswordVisible,
+            errorText: viewModel.confirmPasswordError,
+            suffixIcon: IconButton(
+              onPressed: viewModel.toggleConfirmPasswordVisibility,
+              icon: Icon(
+                viewModel.isConfirmPasswordVisible
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: kcLightGrey,
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          AppPrimaryButton(
+            label: 'CHANGE PASSWORD',
+            isLoading: viewModel.isChangingPassword,
+            onPressed: () => viewModel.submitChangePassword(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

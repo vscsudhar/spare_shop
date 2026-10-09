@@ -57,14 +57,16 @@ class CartView extends StackedView<CartViewModel> {
                                   // Right Side: Summary
                                   SizedBox(
                                     width: 380,
-                                    child: _buildSummaryCard(context, viewModel),
+                                    child:
+                                        _buildSummaryCard(context, viewModel),
                                   ),
                                 ],
                               )
                             : Column(
                                 children: [
                                   // Cart Items list
-                                  Expanded(child: _buildCartItemsList(viewModel)),
+                                  Expanded(
+                                      child: _buildCartItemsList(viewModel)),
                                   const SizedBox(height: 16),
                                   // Bottom Summary
                                   _buildSummaryCard(context, viewModel),
@@ -116,7 +118,7 @@ class CartView extends StackedView<CartViewModel> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: viewModel.goBack,
+              onPressed: viewModel.browseProducts,
               style: ElevatedButton.styleFrom(
                 backgroundColor: kcVoltSpareDark,
                 foregroundColor: Colors.white,
@@ -293,8 +295,7 @@ class CartView extends StackedView<CartViewModel> {
     );
   }
 
-  Widget _buildSummaryCard(
-      BuildContext context, CartViewModel viewModel) {
+  Widget _buildSummaryCard(BuildContext context, CartViewModel viewModel) {
     return Card(
       color: kcVoltSpareWhite,
       elevation: 0,
@@ -319,15 +320,18 @@ class CartView extends StackedView<CartViewModel> {
             const SizedBox(height: 16),
             if (viewModel.amountNeededForFreeDelivery > 0) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: kcVoltSpareEVGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: kcVoltSpareEVGreen.withValues(alpha: 0.25)),
+                  border: Border.all(
+                      color: kcVoltSpareEVGreen.withValues(alpha: 0.25)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.local_shipping_outlined, color: kcVoltSpareEVGreen, size: 16),
+                    const Icon(Icons.local_shipping_outlined,
+                        color: kcVoltSpareEVGreen, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

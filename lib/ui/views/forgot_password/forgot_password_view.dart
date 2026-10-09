@@ -24,7 +24,8 @@ class ForgotPasswordView extends StackedView<ForgotPasswordViewModel> {
         break;
       case ForgotPasswordStep.otp:
         title = 'Verify Email OTP';
-        subtitle = 'Enter the 4-digit code sent to ${viewModel.emailController.text}';
+        subtitle =
+            'Enter the 4-digit code sent to ${viewModel.emailController.text}';
         break;
       case ForgotPasswordStep.newPassword:
         title = 'Reset Password';
@@ -107,7 +108,8 @@ class ForgotPasswordView extends StackedView<ForgotPasswordViewModel> {
               isLoading: viewModel.isBusy,
               onPressed: () => viewModel.verifyOtp(context),
             ),
-          ] else if (viewModel.currentStep == ForgotPasswordStep.newPassword) ...[
+          ] else if (viewModel.currentStep ==
+              ForgotPasswordStep.newPassword) ...[
             // Step 3: New Password & Confirm Password
             AppTextField(
               controller: viewModel.passwordController,

@@ -76,7 +76,8 @@ class ForgotPasswordViewModel extends BaseViewModel with NavigationMixin {
   /// Step 1: Check if email exists & send OTP
   Future<void> checkEmailAndSendOtp(BuildContext context) async {
     final email = emailController.text.trim();
-    if (email.isEmpty || !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+    if (email.isEmpty ||
+        !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       _emailError = 'Please enter a valid email address';
       notifyListeners();
       return;
@@ -86,8 +87,11 @@ class ForgotPasswordViewModel extends BaseViewModel with NavigationMixin {
     setBusy(true);
     try {
       final res = await _authService.forgotPasswordCheckEmail(email);
-      final data = res['data'] is Map<String, dynamic> ? res['data'] as Map<String, dynamic> : null;
-      _resetToken = data?['resetToken']?.toString() ?? data?['token']?.toString();
+      final data = res['data'] is Map<String, dynamic>
+          ? res['data'] as Map<String, dynamic>
+          : null;
+      _resetToken =
+          data?['resetToken']?.toString() ?? data?['token']?.toString();
 
       _currentStep = ForgotPasswordStep.otp;
       startResendTimer();
@@ -105,13 +109,18 @@ class ForgotPasswordViewModel extends BaseViewModel with NavigationMixin {
     } on DioException catch (e) {
       setBusy(false);
       final statusCode = e.response?.statusCode;
-      final msg = e.response?.data?['message']?.toString() ?? 'User not found with this email.';
+      final msg = e.response?.data?['message']?.toString() ??
+          'User not found with this email.';
 
-      if (statusCode == 404 || msg.toLowerCase().contains('not found') || msg.toLowerCase().contains('register')) {
+      if (statusCode == 404 ||
+          msg.toLowerCase().contains('not found') ||
+          msg.toLowerCase().contains('register')) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(msg.isNotEmpty ? msg : 'No account found with this email. Please register.'),
+              content: Text(msg.isNotEmpty
+                  ? msg
+                  : 'No account found with this email. Please register.'),
               backgroundColor: Colors.redAccent,
               action: SnackBarAction(
                 label: 'REGISTER',
@@ -157,7 +166,9 @@ class ForgotPasswordViewModel extends BaseViewModel with NavigationMixin {
         emailController.text.trim(),
         otp,
       );
-      final data = res['data'] is Map<String, dynamic> ? res['data'] as Map<String, dynamic> : null;
+      final data = res['data'] is Map<String, dynamic>
+          ? res['data'] as Map<String, dynamic>
+          : null;
       if (data?['resetToken'] != null) {
         _resetToken = data!['resetToken'].toString();
       }
@@ -176,7 +187,8 @@ class ForgotPasswordViewModel extends BaseViewModel with NavigationMixin {
       }
     } on DioException catch (e) {
       setBusy(false);
-      final msg = e.response?.data?['message']?.toString() ?? 'Invalid or expired OTP.';
+      final msg =
+          e.response?.data?['message']?.toString() ?? 'Invalid or expired OTP.';
       _otpError = msg;
       notifyListeners();
       if (context.mounted) {
@@ -256,7 +268,8 @@ class ForgotPasswordViewModel extends BaseViewModel with NavigationMixin {
       replaceWithLogin();
     } on DioException catch (e) {
       setBusy(false);
-      final msg = e.response?.data?['message']?.toString() ?? 'Failed to reset password.';
+      final msg = e.response?.data?['message']?.toString() ??
+          'Failed to reset password.';
       _confirmPasswordError = msg;
       notifyListeners();
       if (context.mounted) {

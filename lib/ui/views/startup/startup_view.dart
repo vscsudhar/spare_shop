@@ -27,7 +27,8 @@ class StartupView extends StackedView<StartupViewModel> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     constraints: const BoxConstraints(maxWidth: 300),
                     child: Image.asset(
                       'assets/images/logo_full.png',

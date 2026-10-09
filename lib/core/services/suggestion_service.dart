@@ -16,8 +16,10 @@ class SuggestionService {
     final response = await _apiClient.post(
       ApiEndpoints.suggestions,
       data: {
-        'name': (name != null && name.trim().isNotEmpty) ? name.trim() : 'Customer',
-        'phone': (phone != null && phone.trim().isNotEmpty) ? phone.trim() : 'N/A',
+        'name':
+            (name != null && name.trim().isNotEmpty) ? name.trim() : 'Customer',
+        'phone':
+            (phone != null && phone.trim().isNotEmpty) ? phone.trim() : 'N/A',
         'suggestion': suggestion.trim(),
       },
     );

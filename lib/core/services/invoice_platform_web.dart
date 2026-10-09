@@ -1,9 +1,9 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 
-Future<void> printInvoiceDocument(String htmlContent, String invoiceNumber, [Uint8List? pdfBytes]) async {
+Future<void> printInvoiceDocument(String htmlContent, String invoiceNumber,
+    [Uint8List? pdfBytes]) async {
   try {
     final blob = html.Blob([htmlContent], 'text/html;charset=utf-8');
     final blobUrl = html.Url.createObjectUrlFromBlob(blob);
@@ -39,7 +39,8 @@ Future<void> printInvoiceDocument(String htmlContent, String invoiceNumber, [Uin
   }
 }
 
-Future<String?> downloadInvoiceDocument(String fileName, {Uint8List? pdfBytes, String? htmlContent}) async {
+Future<String?> downloadInvoiceDocument(String fileName,
+    {Uint8List? pdfBytes, String? htmlContent}) async {
   try {
     final dynamic blob = pdfBytes != null
         ? html.Blob([pdfBytes], 'application/pdf')
@@ -57,9 +58,11 @@ Future<String?> downloadInvoiceDocument(String fileName, {Uint8List? pdfBytes, S
   }
 }
 
-Future<bool> shareInvoiceDocument(String invoiceNumber, String summaryText, {String? filePath, Uint8List? pdfBytes, String? htmlContent}) async {
+Future<bool> shareInvoiceDocument(String invoiceNumber, String summaryText,
+    {String? filePath, Uint8List? pdfBytes, String? htmlContent}) async {
   final name = pdfBytes != null ? '$invoiceNumber.pdf' : '$invoiceNumber.html';
-  await downloadInvoiceDocument(name, pdfBytes: pdfBytes, htmlContent: htmlContent);
+  await downloadInvoiceDocument(name,
+      pdfBytes: pdfBytes, htmlContent: htmlContent);
   return true;
 }
 

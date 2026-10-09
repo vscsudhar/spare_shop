@@ -16,7 +16,9 @@ void main() {
     });
     tearDown(() => locator.reset());
 
-    test('Initializes with default Coimbatore coordinates when adding new address', () {
+    test(
+        'Initializes with default Coimbatore coordinates when adding new address',
+        () {
       final model = AddAddressViewModel();
       expect(model.latitude, 11.0123);
       expect(model.longitude, 76.9567);
@@ -25,7 +27,9 @@ void main() {
       expect(model.districtController.text, 'Coimbatore');
     });
 
-    test('Initializes with existing coordinates and fields when editing address', () {
+    test(
+        'Initializes with existing coordinates and fields when editing address',
+        () {
       const existingAddress = AddressModel(
         id: 'addr_123',
         name: 'Office',
@@ -68,7 +72,9 @@ void main() {
       expect(model.stateController.text, 'Tamil Nadu');
     });
 
-    test('AddressModel serialization includes coordinates and location hub fields', () {
+    test(
+        'AddressModel serialization includes coordinates and location hub fields',
+        () {
       const address = AddressModel(
         id: 'addr_999',
         name: 'Home',

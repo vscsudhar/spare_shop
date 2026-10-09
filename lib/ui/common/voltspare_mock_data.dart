@@ -4,9 +4,7 @@ import 'voltspare_models.dart';
 // Categories
 const List<CategoryModel> mockCategories = [
   CategoryModel(
-      id: 'cat_cables',
-      name: 'Cables & Wiring',
-      icon: Icons.cable_rounded),
+      id: 'cat_cables', name: 'Cables & Wiring', icon: Icons.cable_rounded),
   CategoryModel(
       id: 'cat_battery',
       name: 'EV Battery & Power',

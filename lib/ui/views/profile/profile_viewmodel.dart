@@ -15,6 +15,7 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:spare_shop/app/app.router.dart';
 import 'package:spare_shop/core/services/token_service.dart';
+import 'package:spare_shop/ui/widgets/common/shop_components.dart';
 
 class ProfileViewModel extends BaseViewModel with NavigationMixin {
   final _dialogService = locator<DialogService>();
@@ -22,6 +23,24 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
   final _tokenService = locator<TokenService>();
   final _orderService = locator<OrderService>();
   final _wishlistService = locator<WishlistService>();
+
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  bool _isPasswordVisible = false;
+  bool get isPasswordVisible => _isPasswordVisible;
+
+  bool _isConfirmPasswordVisible = false;
+  bool get isConfirmPasswordVisible => _isConfirmPasswordVisible;
+
+  String? _passwordError;
+  String? get passwordError => _passwordError;
+
+  String? _confirmPasswordError;
+  String? get confirmPasswordError => _confirmPasswordError;
+
+  bool _isChangingPassword = false;
+  bool get isChangingPassword => _isChangingPassword;
 
   UserProfileData _user = mockUserProfile;
   UserProfileData get user => _user;
@@ -142,10 +161,111 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
     rebuildUi();
   }
 
+  void togglePasswordVisibility() {
+    _isPasswordVisible = !_isPasswordVisible;
+    notifyListeners();
+  }
+
+  void toggleConfirmPasswordVisibility() {
+    _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+    notifyListeners();
+  }
+
+  Future<void> submitChangePassword(BuildContext context) async {
+    final password = newPasswordController.text;
+    final confirm = confirmPasswordController.text;
+
+    bool hasError = false;
+    if (password.isEmpty) {
+      _passwordError = 'Please enter a new password';
+      hasError = true;
+    } else if (password.length < 6) {
+      _passwordError = 'Password must be at least 6 characters long';
+      hasError = true;
+    } else {
+      _passwordError = null;
+    }
+
+    if (confirm.isEmpty) {
+      _confirmPasswordError = 'Please confirm your new password';
+      hasError = true;
+    } else if (confirm != password) {
+      _confirmPasswordError = 'Passwords do not match';
+      hasError = true;
+    } else {
+      _confirmPasswordError = null;
+    }
+
+    notifyListeners();
+    if (hasError) return;
+
+    _isChangingPassword = true;
+    notifyListeners();
+
+    try {
+      await _authService.changePassword(
+        password: password,
+        confirmPassword: confirm,
+      );
+
+      _isChangingPassword = false;
+      newPasswordController.clear();
+      confirmPasswordController.clear();
+      _passwordError = null;
+      _confirmPasswordError = null;
+      notifyListeners();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                SizedBox(width: 10),
+                Text(
+                  'Password changed successfully!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Color(0xFF00C853),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      await Future.delayed(const Duration(milliseconds: 600));
+      replaceWithHome();
+    } catch (e) {
+      _isChangingPassword = false;
+      _confirmPasswordError = 'Failed to change password. Please try again.';
+      notifyListeners();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString().replaceAll('ApiException:', '').trim().isNotEmpty
+                  ? e.toString().replaceAll('ApiException:', '').trim()
+                  : 'Failed to change password.',
+            ),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     _wishlistService.wishlistedProductIdsNotifier
         .removeListener(_onWishlistChanged);
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -170,6 +290,11 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
     }
 
     switch (title) {
+      case 'Change Password':
+        if (context != null && context.mounted) {
+          openChangePasswordModal(context);
+        }
+        break;
       case 'Order History':
       case 'My Orders':
         await goToOrders();
@@ -375,6 +500,238 @@ class ProfileViewModel extends BaseViewModel with NavigationMixin {
               ],
             );
           },
+        );
+      },
+    );
+  }
+
+  void openChangePasswordModal(BuildContext context) async {
+    final isAuth =
+        await ensureAuthenticated(context, featureName: 'Change Password');
+    if (!isAuth || !context.mounted) return;
+
+    newPasswordController.clear();
+    confirmPasswordController.clear();
+    _passwordError = null;
+    _confirmPasswordError = null;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [kcVoltSpareEVGreen, Color(0xFF00B0FF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.lock_reset_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Change Password',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: kcVoltSpareDark,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Create a new secure password for your account',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: kcVoltSpareTextSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  StatefulBuilder(
+                    builder: (context, setModalState) {
+                      return Column(
+                        children: [
+                          TextField(
+                            controller: newPasswordController,
+                            obscureText: !_isPasswordVisible,
+                            decoration: InputDecoration(
+                              hintText: 'New Password (min. 6 characters)',
+                              prefixIcon: const Icon(Icons.lock_outline_rounded,
+                                  color: kcLightGrey, size: 20),
+                              errorText: _passwordError,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  togglePasswordVisibility();
+                                  setModalState(() {});
+                                },
+                                icon: Icon(
+                                  _isPasswordVisible
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: kcLightGrey,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          TextField(
+                            controller: confirmPasswordController,
+                            obscureText: !_isConfirmPasswordVisible,
+                            decoration: InputDecoration(
+                              hintText: 'Confirm New Password',
+                              prefixIcon: const Icon(Icons.lock_reset_rounded,
+                                  color: kcLightGrey, size: 20),
+                              errorText: _confirmPasswordError,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  toggleConfirmPasswordVisibility();
+                                  setModalState(() {});
+                                },
+                                icon: Icon(
+                                  _isConfirmPasswordVisible
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: kcLightGrey,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          AppPrimaryButton(
+                            label: 'CHANGE PASSWORD',
+                            isLoading: _isChangingPassword,
+                            onPressed: () async {
+                              final pass = newPasswordController.text;
+                              final conf = confirmPasswordController.text;
+                              bool err = false;
+                              if (pass.isEmpty) {
+                                _passwordError = 'Please enter a new password';
+                                err = true;
+                              } else if (pass.length < 6) {
+                                _passwordError =
+                                    'Password must be at least 6 characters long';
+                                err = true;
+                              } else {
+                                _passwordError = null;
+                              }
+
+                              if (conf.isEmpty) {
+                                _confirmPasswordError =
+                                    'Please confirm your new password';
+                                err = true;
+                              } else if (conf != pass) {
+                                _confirmPasswordError =
+                                    'Passwords do not match';
+                                err = true;
+                              } else {
+                                _confirmPasswordError = null;
+                              }
+
+                              setModalState(() {});
+                              if (err) return;
+
+                              setModalState(() => _isChangingPassword = true);
+                              try {
+                                await _authService.changePassword(
+                                  password: pass,
+                                  confirmPassword: conf,
+                                );
+                                setModalState(
+                                    () => _isChangingPassword = false);
+                                if (context.mounted) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Row(
+                                        children: [
+                                          Icon(Icons.check_circle_rounded,
+                                              color: Colors.white, size: 20),
+                                          SizedBox(width: 10),
+                                          Text(
+                                            'Password changed successfully!',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor: Color(0xFF00C853),
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                                await Future.delayed(
+                                    const Duration(milliseconds: 600));
+                                replaceWithHome();
+                              } catch (e) {
+                                setModalState(() {
+                                  _isChangingPassword = false;
+                                  _confirmPasswordError =
+                                      'Failed to change password. Please try again.';
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

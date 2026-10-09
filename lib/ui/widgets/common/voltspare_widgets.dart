@@ -801,8 +801,8 @@ class ProductCard extends StatelessWidget {
             .round()
         : null;
     final bool isStockManaged = product.stockManaged;
-    final bool isOutOfStock =
-        isStockManaged && (product.stockCount == null || product.stockCount! <= 0);
+    final bool isOutOfStock = isStockManaged &&
+        (product.stockCount == null || product.stockCount! <= 0);
     final bool isOnDemand = !isStockManaged;
 
     final String availabilityLabel = isOutOfStock

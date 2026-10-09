@@ -21,7 +21,9 @@ class SupportTicketService {
   Future<List<SupportTicketModel>> getMyTickets({String? status}) async {
     try {
       final queryParams = <String, dynamic>{};
-      if (status != null && status.isNotEmpty && status.toLowerCase() != 'all') {
+      if (status != null &&
+          status.isNotEmpty &&
+          status.toLowerCase() != 'all') {
         queryParams['status'] = status.toLowerCase();
       }
 
@@ -32,7 +34,8 @@ class SupportTicketService {
 
       final List<dynamic> list = response.data['data'] ?? [];
       final tickets = list
-          .map((json) => SupportTicketModel.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              SupportTicketModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
       ticketsNotifier.value = tickets;
@@ -136,7 +139,8 @@ class SupportTicketService {
   }
 
   /// Update ticket status (e.g. 'resolved', 'open', 'closed')
-  Future<SupportTicketModel> updateStatus(String ticketId, String status) async {
+  Future<SupportTicketModel> updateStatus(
+      String ticketId, String status) async {
     final response = await _apiClient.patch(
       ApiEndpoints.supportTicketStatus(ticketId),
       data: {'status': status},

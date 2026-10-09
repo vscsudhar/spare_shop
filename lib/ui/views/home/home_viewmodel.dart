@@ -52,9 +52,7 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
       list = list.where((p) => p.categoryId == _selectedCategoryId).toList();
     }
     if (selectedVehicle == null) return list;
-    return list
-        .where(isProductCompatibleWithSelectedVehicleBrand)
-        .toList();
+    return list.where(isProductCompatibleWithSelectedVehicleBrand).toList();
   }
 
   List<ProductModel> _allProducts = [];
@@ -64,9 +62,8 @@ class HomeViewModel extends FutureViewModel<void> with NavigationMixin {
       list = list.where((p) => p.categoryId == _selectedCategoryId).toList();
     }
     if (selectedVehicle == null) return list;
-    final filtered = list
-        .where(isProductCompatibleWithSelectedVehicleBrand)
-        .toList();
+    final filtered =
+        list.where(isProductCompatibleWithSelectedVehicleBrand).toList();
     return filtered.isNotEmpty ? filtered : list;
   }
 

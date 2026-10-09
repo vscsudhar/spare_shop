@@ -143,7 +143,9 @@ class LegalCardInsideCard extends StatelessWidget {
             physics: isFullPage
                 ? const NeverScrollableScrollPhysics()
                 : const ClampingScrollPhysics(),
-            itemCount: isFullPage ? sections.length : (sections.length > 3 ? 3 : sections.length),
+            itemCount: isFullPage
+                ? sections.length
+                : (sections.length > 3 ? 3 : sections.length),
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final section = sections[index];
@@ -154,7 +156,9 @@ class LegalCardInsideCard extends StatelessWidget {
             },
           ),
 
-          if (!isFullPage && sections.length > 3 && onFullViewPressed != null) ...[
+          if (!isFullPage &&
+              sections.length > 3 &&
+              onFullViewPressed != null) ...[
             const SizedBox(height: 14),
             InkWell(
               onTap: onFullViewPressed,

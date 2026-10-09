@@ -50,15 +50,20 @@ class InvoiceItemModel {
       return 0.0;
     }
 
-    final qty = (json['quantity'] is num) ? (json['quantity'] as num).toInt() : (int.tryParse(json['quantity']?.toString() ?? '1') ?? 1);
+    final qty = (json['quantity'] is num)
+        ? (json['quantity'] as num).toInt()
+        : (int.tryParse(json['quantity']?.toString() ?? '1') ?? 1);
     final unitPrice = parseNum(json['unitPrice']);
     final total = parseNum(json['total']);
     final taxRate = parseNum(json['taxPercentage'] ?? json['gstRate'] ?? 18);
-    final taxableValue = parseNum(json['taxableValue'] ?? json['amount'] ?? (total > 0 ? total / (1 + taxRate / 100) : unitPrice * qty));
+    final taxableValue = parseNum(json['taxableValue'] ??
+        json['amount'] ??
+        (total > 0 ? total / (1 + taxRate / 100) : unitPrice * qty));
 
     return InvoiceItemModel(
       sNo: index + 1,
-      name: (json['productName'] ?? json['name'] ?? 'Auto Spare Part').toString(),
+      name:
+          (json['productName'] ?? json['name'] ?? 'Auto Spare Part').toString(),
       sku: (json['sku'] ?? 'SKU-UNKNOWN').toString(),
       hsnCode: (json['hsnCode'] ?? '8708').toString(),
       quantity: qty,
@@ -113,9 +118,13 @@ class InvoiceBusinessInfo {
     if (json == null) return const InvoiceBusinessInfo();
     return InvoiceBusinessInfo(
       name: (json['name'] ?? 'VoltSpare Automotive').toString(),
-      legalName: (json['legalName'] ?? 'VoltSpare Automotive Technologies Pvt. Ltd.').toString(),
-      addressLine1: (json['addressLine1'] ?? '12, MG Road, Landmark Block').toString(),
-      addressLine2: (json['addressLine2'] ?? 'Indiranagar Commercial Zone').toString(),
+      legalName:
+          (json['legalName'] ?? 'VoltSpare Automotive Technologies Pvt. Ltd.')
+              .toString(),
+      addressLine1:
+          (json['addressLine1'] ?? '12, MG Road, Landmark Block').toString(),
+      addressLine2:
+          (json['addressLine2'] ?? 'Indiranagar Commercial Zone').toString(),
       city: (json['city'] ?? 'Bangalore').toString(),
       state: (json['state'] ?? 'Karnataka').toString(),
       stateCode: (json['stateCode'] ?? '29').toString(),
@@ -160,7 +169,10 @@ class InvoiceCustomerInfo {
     return InvoiceCustomerInfo(
       name: (json['name'] ?? 'Valued Customer').toString(),
       phone: (json['phone'] ?? '').toString(),
-      address: (json['address'] ?? json['addressLine1'] ?? 'Standard Delivery Address').toString(),
+      address: (json['address'] ??
+              json['addressLine1'] ??
+              'Standard Delivery Address')
+          .toString(),
       city: (json['city'] ?? '').toString(),
       state: (json['state'] ?? 'Tamil Nadu').toString(),
       stateCode: (json['stateCode'] ?? '33').toString(),
@@ -206,8 +218,10 @@ class InvoiceSummary {
 
     final subtotal = parseNum(json['subtotal'] ?? json['subTotal']);
     final grandTotal = parseNum(json['grandTotal'] ?? json['total']);
-    final totalTax = parseNum(json['taxAmount'] ?? json['totalTax'] ?? json['tax']);
-    final deliveryCharges = parseNum(json['deliveryCharge'] ?? json['deliveryFee']);
+    final totalTax =
+        parseNum(json['taxAmount'] ?? json['totalTax'] ?? json['tax']);
+    final deliveryCharges =
+        parseNum(json['deliveryCharge'] ?? json['deliveryFee']);
     final totalDiscount = parseNum(json['discount'] ?? json['discountAmount']);
 
     final taxableAmount =
@@ -274,7 +288,8 @@ class InvoiceModel {
     final itemsList = rawItems
         .asMap()
         .entries
-        .map((entry) => InvoiceItemModel.fromJson(entry.value as Map<String, dynamic>, entry.key))
+        .map((entry) => InvoiceItemModel.fromJson(
+            entry.value as Map<String, dynamic>, entry.key))
         .toList();
 
     DateTime parseDate(dynamic d) {
@@ -314,8 +329,10 @@ class InvoiceModel {
       orderStatus: (json['orderStatus'] ?? 'processing').toString(),
       channel: (json['channel'] ?? 'app').toString(),
       fulfillmentHub: json['fulfillmentHub']?.toString(),
-      business: InvoiceBusinessInfo.fromJson(json['business'] as Map<String, dynamic>?),
-      customer: InvoiceCustomerInfo.fromJson(json['customer'] as Map<String, dynamic>?),
+      business: InvoiceBusinessInfo.fromJson(
+          json['business'] as Map<String, dynamic>?),
+      customer: InvoiceCustomerInfo.fromJson(
+          json['customer'] as Map<String, dynamic>?),
       items: itemsList,
       summary: InvoiceSummary.fromJson(json),
       terms: termsList,
@@ -338,7 +355,8 @@ class InvoiceService {
       return InvoiceModel.fromJson(Map<String, dynamic>.from(data));
     } catch (_) {
       // If GET fails or invoice not initialized, trigger POST endpoint
-      final postResponse = await _apiClient.post(ApiEndpoints.orderInvoice(orderId));
+      final postResponse =
+          await _apiClient.post(ApiEndpoints.orderInvoice(orderId));
       final postData = postResponse.data['data'] ?? {};
       return InvoiceModel.fromJson(Map<String, dynamic>.from(postData));
     }

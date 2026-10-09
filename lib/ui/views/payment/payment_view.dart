@@ -57,7 +57,8 @@ class PaymentView extends StackedView<PaymentViewModel> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareBorder,
+                        color:
+                            isSelected ? kcVoltSpareEVGreen : kcVoltSpareBorder,
                         width: isSelected ? 1.5 : 1.0,
                       ),
                     ),
@@ -76,12 +77,14 @@ class PaymentView extends StackedView<PaymentViewModel> {
                         ),
                       ),
                       secondary: Icon(icon,
-                          color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareDark),
+                          color: isSelected
+                              ? kcVoltSpareEVGreen
+                              : kcVoltSpareDark),
                       value: option,
                       groupValue: viewModel.selectedOption,
                       activeColor: kcVoltSpareEVGreen,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
                       onChanged: (val) {
                         if (val != null) viewModel.selectOption(val);
                       },

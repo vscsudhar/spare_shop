@@ -16,7 +16,10 @@ class SupportTicketsViewModel extends BaseViewModel with NavigationMixin {
 
   List<SupportTicketModel> get filteredTickets {
     if (_selectedFilter == 'All') return _tickets;
-    return _tickets.where((t) => t.status.name.toLowerCase() == _selectedFilter.toLowerCase()).toList();
+    return _tickets
+        .where(
+            (t) => t.status.name.toLowerCase() == _selectedFilter.toLowerCase())
+        .toList();
   }
 
   void _onTicketsChanged() {

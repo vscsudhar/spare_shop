@@ -52,7 +52,8 @@ class TermsConditionsView extends StackedView<TermsConditionsViewModel> {
           ),
           actions: [
             TextButton.icon(
-              onPressed: () => viewModel.setTab(isTerms ? LegalTab.privacy : LegalTab.terms),
+              onPressed: () =>
+                  viewModel.setTab(isTerms ? LegalTab.privacy : LegalTab.terms),
               icon: Icon(
                 isTerms ? Icons.privacy_tip_outlined : Icons.gavel_rounded,
                 size: 16,
@@ -73,7 +74,8 @@ class TermsConditionsView extends StackedView<TermsConditionsViewModel> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -93,7 +95,8 @@ class TermsConditionsView extends StackedView<TermsConditionsViewModel> {
                             child: GestureDetector(
                               onTap: () => viewModel.setTab(LegalTab.terms),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
                                   color: isTerms
                                       ? kcVoltSpareDark
@@ -131,7 +134,8 @@ class TermsConditionsView extends StackedView<TermsConditionsViewModel> {
                             child: GestureDetector(
                               onTap: () => viewModel.setTab(LegalTab.privacy),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
                                   color: !isTerms
                                       ? kcVoltSpareDark
@@ -198,13 +202,18 @@ class TermsConditionsView extends StackedView<TermsConditionsViewModel> {
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: isTerms
-                                      ? kcVoltSpareEVGreen.withValues(alpha: 0.2)
+                                      ? kcVoltSpareEVGreen.withValues(
+                                          alpha: 0.2)
                                       : Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(
-                                  isTerms ? Icons.gavel_rounded : Icons.privacy_tip_outlined,
-                                  color: isTerms ? kcVoltSpareEVGreen : Colors.white,
+                                  isTerms
+                                      ? Icons.gavel_rounded
+                                      : Icons.privacy_tip_outlined,
+                                  color: isTerms
+                                      ? kcVoltSpareEVGreen
+                                      : Colors.white,
                                   size: 24,
                                 ),
                               ),
@@ -256,11 +265,13 @@ class TermsConditionsView extends StackedView<TermsConditionsViewModel> {
                             children: [
                               _HeaderTag(
                                 icon: Icons.calendar_today_rounded,
-                                label: 'Effective: ${LegalConfig.effectiveDate}',
+                                label:
+                                    'Effective: ${LegalConfig.effectiveDate}',
                               ),
                               _HeaderTag(
                                 icon: Icons.update_rounded,
-                                label: 'Updated: ${LegalConfig.lastUpdatedDate}',
+                                label:
+                                    'Updated: ${LegalConfig.lastUpdatedDate}',
                               ),
                               _HeaderTag(
                                 icon: Icons.flag_rounded,
@@ -287,12 +298,15 @@ class TermsConditionsView extends StackedView<TermsConditionsViewModel> {
                           hintText: isTerms
                               ? 'Search terms (e.g. returns, warranty, delivery, hub radius)...'
                               : 'Search privacy practices (e.g. cookies, payments, rights, grievance)...',
-                          hintStyle: const TextStyle(fontSize: 13, color: kcLightGrey),
+                          hintStyle:
+                              const TextStyle(fontSize: 13, color: kcLightGrey),
                           border: InputBorder.none,
-                          icon: const Icon(Icons.search_rounded, color: kcMediumGrey),
+                          icon: const Icon(Icons.search_rounded,
+                              color: kcMediumGrey),
                           suffixIcon: viewModel.searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear_rounded, size: 18),
+                                  icon:
+                                      const Icon(Icons.clear_rounded, size: 18),
                                   onPressed: viewModel.clearSearch,
                                 )
                               : null,
@@ -309,77 +323,80 @@ class TermsConditionsView extends StackedView<TermsConditionsViewModel> {
                       subtitle: isTerms
                           ? 'All ${viewModel.sections.length} operative provisions for customers and buyers'
                           : 'All ${viewModel.sections.length} data governance and protection principles',
-                      icon: isTerms ? Icons.description_outlined : Icons.shield_outlined,
-                      accentColor: isTerms ? kcPrimaryColor : kcVoltSpareEVGreen,
+                      icon: isTerms
+                          ? Icons.description_outlined
+                          : Icons.shield_outlined,
+                      accentColor:
+                          isTerms ? kcPrimaryColor : kcVoltSpareEVGreen,
                       sections: viewModel.sections,
                       isFullPage: true,
                     ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Quick Footer Contact / Grievance Card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: kcBorderColor),
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.headset_mic_rounded,
-                                size: 20, color: kcVoltSpareDark),
-                            SizedBox(width: 10),
-                            Text(
-                              'Questions or Grievances?',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: kcVoltSpareDark,
+                    // Quick Footer Contact / Grievance Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: kcBorderColor),
+                      ),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.headset_mic_rounded,
+                                  size: 20, color: kcVoltSpareDark),
+                              SizedBox(width: 10),
+                              Text(
+                                'Questions or Grievances?',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: kcVoltSpareDark,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Our support team and statutory grievance redressal cell are available to assist you.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: kcVoltSpareTextSecondary,
+                            ],
                           ),
-                        ),
-                        SizedBox(height: 12),
-                        Wrap(
-                          spacing: 16,
-                          runSpacing: 8,
-                          children: [
-                            _ContactChip(
-                              icon: Icons.email_outlined,
-                              label: LegalConfig.supportEmail,
+                          SizedBox(height: 8),
+                          Text(
+                            'Our support team and statutory grievance redressal cell are available to assist you.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: kcVoltSpareTextSecondary,
                             ),
-                            _ContactChip(
-                              icon: Icons.security_rounded,
-                              label: LegalConfig.grievanceEmail,
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          SizedBox(height: 12),
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 8,
+                            children: [
+                              _ContactChip(
+                                icon: Icons.email_outlined,
+                                label: LegalConfig.supportEmail,
+                              ),
+                              _ContactChip(
+                                icon: Icons.security_rounded,
+                                label: LegalConfig.grievanceEmail,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 30),
-                ],
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   TermsConditionsViewModel viewModelBuilder(BuildContext context) =>

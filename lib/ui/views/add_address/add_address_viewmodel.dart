@@ -46,8 +46,7 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
       _locationName = addressToEdit!.locationName;
       _distanceFromLocationKm = addressToEdit!.distanceFromLocationKm;
 
-      if (addressToEdit!.latitude != null &&
-          addressToEdit!.longitude != null) {
+      if (addressToEdit!.latitude != null && addressToEdit!.longitude != null) {
         _latitude = addressToEdit!.latitude!;
         _longitude = addressToEdit!.longitude!;
         _isMapMoved = true;
@@ -63,7 +62,8 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
       } else {
         // Legacy fallback from addressLine
         final addressLine = addressToEdit!.addressLine;
-        final coordRegex = RegExp(r'\(Lat:\s*([0-9.-]+),\s*Lng:\s*([0-9.-]+)\)');
+        final coordRegex =
+            RegExp(r'\(Lat:\s*([0-9.-]+),\s*Lng:\s*([0-9.-]+)\)');
         final match = coordRegex.firstMatch(addressLine);
         if (match != null) {
           _latitude = double.tryParse(match.group(1) ?? '') ?? _latitude;
@@ -104,11 +104,14 @@ class AddAddressViewModel extends BaseViewModel with NavigationMixin {
     notifyListeners();
   }
 
-  void onAreaSelected(String taluk, String district, String state, [String? postalCode]) {
+  void onAreaSelected(String taluk, String district, String state,
+      [String? postalCode]) {
     talukController.text = taluk;
     districtController.text = district;
     stateController.text = state;
-    if (postalCode != null && postalCode.isNotEmpty && !postalCode.contains('Lng:')) {
+    if (postalCode != null &&
+        postalCode.isNotEmpty &&
+        !postalCode.contains('Lng:')) {
       postalCodeController.text = postalCode;
     }
     notifyListeners();

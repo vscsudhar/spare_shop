@@ -75,8 +75,7 @@ class SupportTicketsView extends StackedView<SupportTicketsViewModel> {
                               child: ChoiceChip(
                                 label: Text(filter),
                                 selected: isSelected,
-                                onSelected: (_) =>
-                                    viewModel.setFilter(filter),
+                                onSelected: (_) => viewModel.setFilter(filter),
                                 selectedColor: kcVoltSpareDark,
                                 backgroundColor: kcVoltSpareOffWhite,
                                 labelStyle: TextStyle(

@@ -59,7 +59,8 @@ class OrderTrackingView extends StackedView<OrderTrackingViewModel> {
             child: Container(
               width: double.infinity,
               constraints: const BoxConstraints(maxWidth: 600),
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -162,7 +163,8 @@ class OrderTrackingView extends StackedView<OrderTrackingViewModel> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: badgeBgColor,
                   borderRadius: BorderRadius.circular(10),
@@ -364,7 +366,8 @@ class OrderTrackingView extends StackedView<OrderTrackingViewModel> {
               decoration: BoxDecoration(
                 color: kcVoltSpareOffWhite,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: kcVoltSpareBorder.withValues(alpha: 0.6)),
+                border:
+                    Border.all(color: kcVoltSpareBorder.withValues(alpha: 0.6)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

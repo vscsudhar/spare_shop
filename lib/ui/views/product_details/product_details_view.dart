@@ -433,9 +433,8 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: isOutOfStock
-                            ? Colors.red
-                            : kcVoltSpareTextPrimary,
+                        color:
+                            isOutOfStock ? Colors.red : kcVoltSpareTextPrimary,
                       ),
                     ),
                     if (estimate.cutoffNote != null) ...[
@@ -650,10 +649,9 @@ class ProductDetailsView extends StackedView<ProductDetailsViewModel> {
                 return ProductCard(
                   product: suggestion,
                   showFavorite: true,
-                  onFavoriteToggle: () => viewModel
-                      .toggleWishlistForProduct(suggestion, context),
-                  isLoadingFavorite:
-                      viewModel.isProductLoading(suggestion.id),
+                  onFavoriteToggle: () =>
+                      viewModel.toggleWishlistForProduct(suggestion, context),
+                  isLoadingFavorite: viewModel.isProductLoading(suggestion.id),
                   onTap: () => viewModel.selectProduct(suggestion),
                   onAddToCart: () =>
                       viewModel.addToCartForProduct(suggestion, context),

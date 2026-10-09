@@ -38,6 +38,131 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
     notifyListeners();
   }
 
+  bool _isChangePasswordExpanded = false;
+  bool get isChangePasswordExpanded => _isChangePasswordExpanded;
+
+  void toggleChangePasswordExpanded() {
+    _isChangePasswordExpanded = !_isChangePasswordExpanded;
+    notifyListeners();
+  }
+
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  bool _isPasswordVisible = false;
+  bool get isPasswordVisible => _isPasswordVisible;
+
+  bool _isConfirmPasswordVisible = false;
+  bool get isConfirmPasswordVisible => _isConfirmPasswordVisible;
+
+  String? _passwordError;
+  String? get passwordError => _passwordError;
+
+  String? _confirmPasswordError;
+  String? get confirmPasswordError => _confirmPasswordError;
+
+  bool _isChangingPassword = false;
+  bool get isChangingPassword => _isChangingPassword;
+
+  void togglePasswordVisibility() {
+    _isPasswordVisible = !_isPasswordVisible;
+    notifyListeners();
+  }
+
+  void toggleConfirmPasswordVisibility() {
+    _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+    notifyListeners();
+  }
+
+  Future<void> submitChangePassword(BuildContext context) async {
+    final password = newPasswordController.text;
+    final confirm = confirmPasswordController.text;
+
+    bool hasError = false;
+    if (password.isEmpty) {
+      _passwordError = 'Please enter a new password';
+      hasError = true;
+    } else if (password.length < 6) {
+      _passwordError = 'Password must be at least 6 characters long';
+      hasError = true;
+    } else {
+      _passwordError = null;
+    }
+
+    if (confirm.isEmpty) {
+      _confirmPasswordError = 'Please confirm your new password';
+      hasError = true;
+    } else if (confirm != password) {
+      _confirmPasswordError = 'Passwords do not match';
+      hasError = true;
+    } else {
+      _confirmPasswordError = null;
+    }
+
+    notifyListeners();
+    if (hasError) return;
+
+    _isChangingPassword = true;
+    notifyListeners();
+
+    try {
+      await _authService.changePassword(
+        password: password,
+        confirmPassword: confirm,
+      );
+
+      _isChangingPassword = false;
+      newPasswordController.clear();
+      confirmPasswordController.clear();
+      _passwordError = null;
+      _confirmPasswordError = null;
+      notifyListeners();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                SizedBox(width: 10),
+                Text(
+                  'Password changed successfully!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Color(0xFF00C853),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      await Future.delayed(const Duration(milliseconds: 600));
+      replaceWithHome();
+    } catch (e) {
+      _isChangingPassword = false;
+      _confirmPasswordError = 'Failed to change password. Please try again.';
+      notifyListeners();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString().replaceAll('ApiException:', '').trim().isNotEmpty
+                  ? e.toString().replaceAll('ApiException:', '').trim()
+                  : 'Failed to change password.',
+            ),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> openOrdersHistory([BuildContext? context]) async {
     if (context != null) {
       final isAuth =
@@ -60,8 +185,10 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
     }
 
     try {
-      String submitName = (name != null && name.trim().isNotEmpty) ? name : _userName;
-      String submitPhone = (phone != null && phone.trim().isNotEmpty) ? phone : _userPhone;
+      String submitName =
+          (name != null && name.trim().isNotEmpty) ? name : _userName;
+      String submitPhone =
+          (phone != null && phone.trim().isNotEmpty) ? phone : _userPhone;
       if (submitPhone.isEmpty) {
         submitPhone = (await _tokenService.getUserPhone()) ?? '';
       }
@@ -111,8 +238,10 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
   }
 
   Future<void> init() async {
-    _wishlistService.wishlistedProductIdsNotifier.removeListener(_onWishlistChanged);
-    _wishlistService.wishlistedProductIdsNotifier.addListener(_onWishlistChanged);
+    _wishlistService.wishlistedProductIdsNotifier
+        .removeListener(_onWishlistChanged);
+    _wishlistService.wishlistedProductIdsNotifier
+        .addListener(_onWishlistChanged);
 
     final name = await _tokenService.getUserName();
     final email = await _tokenService.getUserEmail();
@@ -137,10 +266,12 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
         if (profile['name'] != null && profile['name'].toString().isNotEmpty) {
           _userName = profile['name'].toString();
         }
-        if (profile['email'] != null && profile['email'].toString().isNotEmpty) {
+        if (profile['email'] != null &&
+            profile['email'].toString().isNotEmpty) {
           _userEmail = profile['email'].toString();
         }
-        if (profile['phone'] != null && profile['phone'].toString().isNotEmpty) {
+        if (profile['phone'] != null &&
+            profile['phone'].toString().isNotEmpty) {
           _userPhone = profile['phone'].toString();
         }
         if (profile['profileImage'] != null &&
@@ -234,7 +365,10 @@ class AccountVehiclesViewModel extends BaseViewModel with NavigationMixin {
 
   @override
   void dispose() {
-    _wishlistService.wishlistedProductIdsNotifier.removeListener(_onWishlistChanged);
+    _wishlistService.wishlistedProductIdsNotifier
+        .removeListener(_onWishlistChanged);
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
   }
 

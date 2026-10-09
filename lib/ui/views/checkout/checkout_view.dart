@@ -64,7 +64,8 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSelected ? kcVoltSpareEVGreen : kcVoltSpareBorder,
+                        color:
+                            isSelected ? kcVoltSpareEVGreen : kcVoltSpareBorder,
                         width: isSelected ? 1.5 : 1.0,
                       ),
                     ),
@@ -87,8 +88,8 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                       value: address,
                       groupValue: viewModel.selectedAddress,
                       activeColor: kcVoltSpareEVGreen,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       onChanged: (val) {
                         if (val != null) viewModel.selectAddress(val);
                       },
@@ -163,9 +164,10 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                                     estimate.title,
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: estimate.type == DeliveryType.twoDays
-                                          ? Colors.blue.shade700
-                                          : kcVoltSpareEVGreen,
+                                      color:
+                                          estimate.type == DeliveryType.twoDays
+                                              ? Colors.blue.shade700
+                                              : kcVoltSpareEVGreen,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     maxLines: 1,
@@ -252,10 +254,10 @@ class CheckoutView extends StackedView<CheckoutViewModel> {
                   'Delivery Estimate',
                   DeliveryEstimator.getCartDeliverySummary(viewModel.items)
                       .summaryLabel,
-                  isGreen: DeliveryEstimator.getCartDeliverySummary(
-                              viewModel.items)
-                          .slowestDeliveryType ==
-                      DeliveryType.sameDay,
+                  isGreen:
+                      DeliveryEstimator.getCartDeliverySummary(viewModel.items)
+                              .slowestDeliveryType ==
+                          DeliveryType.sameDay,
                 ),
                 if (DeliveryEstimator.getCartDeliverySummary(viewModel.items)
                         .secondaryNote !=

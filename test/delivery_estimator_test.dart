@@ -31,7 +31,9 @@ void main() {
       );
     }
 
-    test('TEST 1: stockManaged=true, stockQuantity=10, time=10:00 AM -> In Stock, Same Day Delivery', () {
+    test(
+        'TEST 1: stockManaged=true, stockQuantity=10, time=10:00 AM -> In Stock, Same Day Delivery',
+        () {
       final product = createProduct(
         id: 'p1',
         name: 'Brake Shoe',
@@ -52,7 +54,9 @@ void main() {
       expect(estimate.isAvailable, true);
     });
 
-    test('TEST 2: stockManaged=true, stockQuantity=1, time=2:59 PM -> Same Day Delivery', () {
+    test(
+        'TEST 2: stockManaged=true, stockQuantity=1, time=2:59 PM -> Same Day Delivery',
+        () {
       final product = createProduct(
         id: 'p2',
         name: 'Brake Shoe',
@@ -71,7 +75,9 @@ void main() {
       expect(estimate.isAvailable, true);
     });
 
-    test('TEST 3: stockManaged=true, stockQuantity=5, time=3:00 PM -> Same Day Delivery', () {
+    test(
+        'TEST 3: stockManaged=true, stockQuantity=5, time=3:00 PM -> Same Day Delivery',
+        () {
       final product = createProduct(
         id: 'p3',
         name: 'Brake Shoe',
@@ -90,7 +96,9 @@ void main() {
       expect(estimate.isAvailable, true);
     });
 
-    test('TEST 4: stockManaged=true, stockQuantity=5, time=3:01 PM -> Next Day Delivery', () {
+    test(
+        'TEST 4: stockManaged=true, stockQuantity=5, time=3:01 PM -> Next Day Delivery',
+        () {
       final product = createProduct(
         id: 'p4',
         name: 'Brake Shoe',
@@ -111,7 +119,9 @@ void main() {
       expect(estimate.isAvailable, true);
     });
 
-    test('TEST 5: stockManaged=true, stockQuantity=5, time=8:00 PM -> Next Day Delivery', () {
+    test(
+        'TEST 5: stockManaged=true, stockQuantity=5, time=8:00 PM -> Next Day Delivery',
+        () {
       final product = createProduct(
         id: 'p5',
         name: 'Brake Shoe',
@@ -130,7 +140,9 @@ void main() {
       expect(estimate.isAvailable, true);
     });
 
-    test('TEST 6: stockManaged=false, stockQuantity=null, time=10:00 AM -> Available on Order, Delivery in 2 Days', () {
+    test(
+        'TEST 6: stockManaged=false, stockQuantity=null, time=10:00 AM -> Available on Order, Delivery in 2 Days',
+        () {
       final product = createProduct(
         id: 'p6',
         name: 'Ola Body Panel',
@@ -150,7 +162,9 @@ void main() {
       expect(estimate.isAvailable, true);
     });
 
-    test('TEST 7: stockManaged=false, stockQuantity=null, time=5:00 PM -> Available on Order, Delivery in 2 Days', () {
+    test(
+        'TEST 7: stockManaged=false, stockQuantity=null, time=5:00 PM -> Available on Order, Delivery in 2 Days',
+        () {
       final product = createProduct(
         id: 'p7',
         name: 'Ola Body Panel',
@@ -190,7 +204,9 @@ void main() {
       expect(estimate.isAvailable, false);
     });
 
-    test('TEST 9: Mixed Cart before 3 PM -> Product A: Same Day, Product B: 2 Days, Cart: Within 2 Days', () {
+    test(
+        'TEST 9: Mixed Cart before 3 PM -> Product A: Same Day, Product B: 2 Days, Cart: Within 2 Days',
+        () {
       final productA = createProduct(
         id: 'prod_a',
         name: 'Product A (Stock)',
@@ -222,13 +238,15 @@ void main() {
       final summary = DeliveryEstimator.getCartDeliverySummary(cartItems,
           businessTime: time, isAlreadyBusinessTime: true);
 
-      expect(summary.summaryLabel,
-          'Estimated complete delivery: Within 2 Days');
+      expect(
+          summary.summaryLabel, 'Estimated complete delivery: Within 2 Days');
       expect(summary.isMixed, true);
       expect(summary.secondaryNote, 'Some items will be delivered separately');
     });
 
-    test('TEST 10: Mixed Cart after 3 PM -> Product A: Next Day, Product B: 2 Days, Cart: Within 2 Days', () {
+    test(
+        'TEST 10: Mixed Cart after 3 PM -> Product A: Next Day, Product B: 2 Days, Cart: Within 2 Days',
+        () {
       final productA = createProduct(
         id: 'prod_a',
         name: 'Product A (Stock)',
@@ -260,8 +278,8 @@ void main() {
       final summary = DeliveryEstimator.getCartDeliverySummary(cartItems,
           businessTime: time, isAlreadyBusinessTime: true);
 
-      expect(summary.summaryLabel,
-          'Estimated complete delivery: Within 2 Days');
+      expect(
+          summary.summaryLabel, 'Estimated complete delivery: Within 2 Days');
       expect(summary.isMixed, true);
     });
 

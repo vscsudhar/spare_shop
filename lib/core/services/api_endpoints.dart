@@ -102,7 +102,8 @@ class ApiEndpoints {
   static const String supportTickets = '/support-tickets';
   static const String mySupportTickets = '/support-tickets/my';
   static String supportTicketById(String id) => '/support-tickets/$id';
-  static String supportTicketMessages(String id) => '/support-tickets/$id/messages';
+  static String supportTicketMessages(String id) =>
+      '/support-tickets/$id/messages';
   static String supportTicketStatus(String id) => '/support-tickets/$id/status';
   static const String adminSupportTickets = '/support-tickets/admin/all';
 

@@ -222,7 +222,8 @@ class SupportTicketModel {
         if (p is Map<String, dynamic>) {
           photoList.add(TicketAttachmentModel.fromJson(p));
         } else if (p is String) {
-          photoList.add(TicketAttachmentModel(url: p, uploadedAt: DateTime.now()));
+          photoList
+              .add(TicketAttachmentModel(url: p, uploadedAt: DateTime.now()));
         }
       }
     }

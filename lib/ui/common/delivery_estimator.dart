@@ -11,9 +11,12 @@ enum DeliveryType {
 /// Dynamic delivery estimate object
 class DeliveryEstimate {
   final DeliveryType type;
-  final String title; // "Same Day Delivery", "Next Day Delivery", "Delivery in 2 Days", "Out of Stock"
-  final String availabilityStatus; // "In Stock", "Available on Order", "Out of Stock"
-  final String? cutoffNote; // "Order before 3:00 PM", "Same-day cutoff was 3:00 PM", null
+  final String
+      title; // "Same Day Delivery", "Next Day Delivery", "Delivery in 2 Days", "Out of Stock"
+  final String
+      availabilityStatus; // "In Stock", "Available on Order", "Out of Stock"
+  final String?
+      cutoffNote; // "Order before 3:00 PM", "Same-day cutoff was 3:00 PM", null
   final bool isAvailable;
   final DateTime? estimatedDeliveryDate;
 
@@ -166,7 +169,8 @@ class DeliveryEstimator {
       final isMixed = hasSameDay || hasNextDay;
       return CartDeliverySummary(
         summaryLabel: 'Estimated complete delivery: Within 2 Days',
-        secondaryNote: isMixed ? 'Some items will be delivered separately' : null,
+        secondaryNote:
+            isMixed ? 'Some items will be delivered separately' : null,
         isMixed: isMixed,
         slowestDeliveryType: DeliveryType.twoDays,
       );
@@ -176,7 +180,8 @@ class DeliveryEstimator {
       final isMixed = hasSameDay;
       return CartDeliverySummary(
         summaryLabel: 'Next Day Delivery',
-        secondaryNote: isMixed ? 'Some items are eligible for same-day delivery' : null,
+        secondaryNote:
+            isMixed ? 'Some items are eligible for same-day delivery' : null,
         isMixed: isMixed,
         slowestDeliveryType: DeliveryType.nextDay,
       );

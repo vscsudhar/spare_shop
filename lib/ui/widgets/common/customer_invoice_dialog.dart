@@ -34,7 +34,8 @@ class CustomerInvoiceDialog extends StatelessWidget {
       child: Container(
         width: isMobile ? double.infinity : 860,
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * (isMobile ? 0.96 : 0.92),
+          maxHeight:
+              MediaQuery.of(context).size.height * (isMobile ? 0.96 : 0.92),
         ),
         decoration: BoxDecoration(
           color: kcVoltSpareDark,
@@ -114,7 +115,8 @@ class CustomerInvoiceDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildTopActionBar(BuildContext context, InvoiceService service, bool isMobile) {
+  Widget _buildTopActionBar(
+      BuildContext context, InvoiceService service, bool isMobile) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isMobile ? 12 : 18,
@@ -132,12 +134,14 @@ class CustomerInvoiceDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 color: kcVoltSpareEVGreen.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: kcVoltSpareEVGreen.withValues(alpha: 0.5)),
+                border: Border.all(
+                    color: kcVoltSpareEVGreen.withValues(alpha: 0.5)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.receipt_long_rounded, color: kcVoltSpareEVGreen, size: 15),
+                  const Icon(Icons.receipt_long_rounded,
+                      color: kcVoltSpareEVGreen, size: 15),
                   const SizedBox(width: 5),
                   Flexible(
                     child: Text(
@@ -156,12 +160,14 @@ class CustomerInvoiceDialog extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Copy Invoice ID',
-            icon: const Icon(Icons.copy_rounded, color: Colors.white70, size: 16),
+            icon:
+                const Icon(Icons.copy_rounded, color: Colors.white70, size: 16),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: invoice.invoiceNumber));
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Copied ${invoice.invoiceNumber} to clipboard!'),
+                  content:
+                      Text('Copied ${invoice.invoiceNumber} to clipboard!'),
                   backgroundColor: kcVoltSpareEVGreen,
                   behavior: SnackBarBehavior.floating,
                   duration: const Duration(seconds: 2),
@@ -259,8 +265,7 @@ class CustomerInvoiceDialog extends StatelessWidget {
                         } catch (_) {
                           messenger.showSnackBar(
                             const SnackBar(
-                              content:
-                                  Text('Invoice file could not be found.'),
+                              content: Text('Invoice file could not be found.'),
                               backgroundColor: Colors.redAccent,
                               behavior: SnackBarBehavior.floating,
                             ),
@@ -293,8 +298,10 @@ class CustomerInvoiceDialog extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kcVoltSpareEVGreen,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 icon: const Icon(Icons.print_rounded, size: 15),
                 label: const Text(
@@ -307,7 +314,8 @@ class CustomerInvoiceDialog extends StatelessWidget {
 
           IconButton(
             tooltip: 'Close',
-            icon: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+            icon:
+                const Icon(Icons.close_rounded, color: Colors.white, size: 20),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -351,9 +359,12 @@ class CustomerInvoiceDialog extends StatelessWidget {
           text: TextSpan(
             style: const TextStyle(fontSize: 11, color: Color(0xFF334155)),
             children: [
-              const TextSpan(text: 'GSTIN: ', style: TextStyle(fontWeight: FontWeight.bold)),
+              const TextSpan(
+                  text: 'GSTIN: ',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               TextSpan(text: '${b.gstin} | '),
-              const TextSpan(text: 'PAN: ', style: TextStyle(fontWeight: FontWeight.bold)),
+              const TextSpan(
+                  text: 'PAN: ', style: TextStyle(fontWeight: FontWeight.bold)),
               TextSpan(text: b.pan),
             ],
           ),
@@ -366,7 +377,8 @@ class CustomerInvoiceDialog extends StatelessWidget {
     );
 
     final metaInfoWidget = Column(
-      crossAxisAlignment: isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      crossAxisAlignment:
+          isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -476,12 +488,16 @@ class CustomerInvoiceDialog extends StatelessWidget {
           const Divider(height: 10, color: Color(0xFFCBD5E1)),
           Text(
             c.name,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F172A)),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: Color(0xFF0F172A)),
           ),
           const SizedBox(height: 2),
           Text(
             c.address,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF334155), height: 1.3),
+            style: const TextStyle(
+                fontSize: 11, color: Color(0xFF334155), height: 1.3),
           ),
           Text(
             '${c.city.isNotEmpty ? "${c.city}, " : ""}${c.state} (Code: ${c.stateCode})',
@@ -489,8 +505,10 @@ class CustomerInvoiceDialog extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           if (c.phone.isNotEmpty)
-            Text('Contact: ${c.phone}', style: const TextStyle(fontSize: 11, color: Color(0xFF475569))),
-          Text('GSTIN: ${c.gstin}', style: const TextStyle(fontSize: 11, color: Color(0xFF475569))),
+            Text('Contact: ${c.phone}',
+                style: const TextStyle(fontSize: 11, color: Color(0xFF475569))),
+          Text('GSTIN: ${c.gstin}',
+              style: const TextStyle(fontSize: 11, color: Color(0xFF475569))),
         ],
       ),
     );
@@ -515,8 +533,10 @@ class CustomerInvoiceDialog extends StatelessWidget {
             ),
           ),
           const Divider(height: 10, color: Color(0xFFCBD5E1)),
-          _detailLine('Fulfillment Hub', invoice.fulfillmentHub ?? 'Central Dispatch Hub'),
-          _detailLine('Sales Channel', invoice.channel == 'pos' ? 'Store POS' : 'VoltSpare App'),
+          _detailLine('Fulfillment Hub',
+              invoice.fulfillmentHub ?? 'Central Dispatch Hub'),
+          _detailLine('Sales Channel',
+              invoice.channel == 'pos' ? 'Store POS' : 'VoltSpare App'),
           _detailLine('Order Status', invoice.orderStatus.toUpperCase()),
           _detailLine('Payment Status', invoice.paymentStatus.toUpperCase()),
           _detailLine('Reverse Charge', 'No (Forward Charge)'),
@@ -549,11 +569,15 @@ class CustomerInvoiceDialog extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
         children: [
-          Text('$label: ', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+          Text('$label: ',
+              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
           Expanded(
             child: Text(
               val,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
+              style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0F172A)),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -591,7 +615,8 @@ class CustomerInvoiceDialog extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: invoice.items.length,
-              separatorBuilder: (_, __) => const Divider(height: 14, color: Color(0xFFCBD5E1)),
+              separatorBuilder: (_, __) =>
+                  const Divider(height: 14, color: Color(0xFFCBD5E1)),
               itemBuilder: (ctx, i) {
                 final it = invoice.items[i];
                 return Column(
@@ -610,7 +635,10 @@ class CustomerInvoiceDialog extends StatelessWidget {
                           ),
                           child: Text(
                             '${it.sNo}',
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF334155)),
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF334155)),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -620,24 +648,32 @@ class CustomerInvoiceDialog extends StatelessWidget {
                             children: [
                               Text(
                                 it.name,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F172A)),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: Color(0xFF0F172A)),
                               ),
                               Text(
                                 'SKU: ${it.sku} | HSN: ${it.hsnCode}',
-                                style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+                                style: const TextStyle(
+                                    fontSize: 10, color: Color(0xFF64748B)),
                               ),
                             ],
                           ),
                         ),
                         Text(
                           '₹${it.total.toStringAsFixed(2)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A)),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: Color(0xFF0F172A)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(6),
@@ -646,15 +682,22 @@ class CustomerInvoiceDialog extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Qty: ${it.quantity} × ₹${it.unitPrice.toStringAsFixed(2)}',
-                              style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
-                          Text('Taxable: ₹${it.taxableValue.toStringAsFixed(2)}',
-                              style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                          Text(
+                              'Qty: ${it.quantity} × ₹${it.unitPrice.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                  fontSize: 10, color: Color(0xFF475569))),
+                          Text(
+                              'Taxable: ₹${it.taxableValue.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                  fontSize: 10, color: Color(0xFF475569))),
                           Text(
                             isIntraState
                                 ? 'GST (${it.gstRate.toInt()}%): ₹${(it.cgstAmount + it.sgstAmount).toStringAsFixed(2)}'
                                 : 'IGST (${it.gstRate.toInt()}%): ₹${it.igstAmount.toStringAsFixed(2)}',
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: kcVoltSpareEVGreen),
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: kcVoltSpareEVGreen),
                           ),
                         ],
                       ),
@@ -712,30 +755,46 @@ class CustomerInvoiceDialog extends StatelessWidget {
               children: [
                 _td('${item.sNo}', align: TextAlign.center),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         item.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF0F172A)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            color: Color(0xFF0F172A)),
                       ),
-                      Text('SKU: ${item.sku}', style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+                      Text('SKU: ${item.sku}',
+                          style: const TextStyle(
+                              fontSize: 10, color: Color(0xFF64748B))),
                     ],
                   ),
                 ),
                 _td(item.hsnCode, align: TextAlign.center),
                 _td('${item.quantity}', align: TextAlign.center),
                 _td(item.unitPrice.toStringAsFixed(2), align: TextAlign.right),
-                _td(item.taxableValue.toStringAsFixed(2), align: TextAlign.right),
-                _td(item.cgstAmount > 0 ? item.cgstAmount.toStringAsFixed(2) : '-', align: TextAlign.right),
+                _td(item.taxableValue.toStringAsFixed(2),
+                    align: TextAlign.right),
+                _td(
+                    item.cgstAmount > 0
+                        ? item.cgstAmount.toStringAsFixed(2)
+                        : '-',
+                    align: TextAlign.right),
                 _td(
                   isIntraState
-                      ? (item.sgstAmount > 0 ? item.sgstAmount.toStringAsFixed(2) : '-')
-                      : (item.igstAmount > 0 ? item.igstAmount.toStringAsFixed(2) : '-'),
+                      ? (item.sgstAmount > 0
+                          ? item.sgstAmount.toStringAsFixed(2)
+                          : '-')
+                      : (item.igstAmount > 0
+                          ? item.igstAmount.toStringAsFixed(2)
+                          : '-'),
                   align: TextAlign.right,
                 ),
-                _td(item.total.toStringAsFixed(2), align: TextAlign.right, isBold: true),
+                _td(item.total.toStringAsFixed(2),
+                    align: TextAlign.right, isBold: true),
               ],
             );
           }),
@@ -750,12 +809,16 @@ class CustomerInvoiceDialog extends StatelessWidget {
       child: Text(
         label,
         textAlign: align,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Color(0xFF334155)),
+        style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 10,
+            color: Color(0xFF334155)),
       ),
     );
   }
 
-  Widget _td(String label, {TextAlign align = TextAlign.left, bool isBold = false}) {
+  Widget _td(String label,
+      {TextAlign align = TextAlign.left, bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       child: Text(
@@ -782,19 +845,28 @@ class CustomerInvoiceDialog extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(6),
-            border: const Border(left: BorderSide(color: kcVoltSpareEVGreen, width: 4)),
+            border: const Border(
+                left: BorderSide(color: kcVoltSpareEVGreen, width: 4)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'AMOUNT IN WORDS',
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF64748B)),
               ),
               const SizedBox(height: 3),
               Text(
-                s.amountInWords.isNotEmpty ? s.amountInWords : 'Indian Rupees Only',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF0F172A)),
+                s.amountInWords.isNotEmpty
+                    ? s.amountInWords
+                    : 'Indian Rupees Only',
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                    color: Color(0xFF0F172A)),
               ),
             ],
           ),
@@ -815,7 +887,10 @@ class CustomerInvoiceDialog extends StatelessWidget {
               Expanded(
                 child: Text(
                   'GST Paid Tax Invoice verified under CGST / SGST / IGST Act 2017.',
-                  style: TextStyle(fontSize: 10, color: Color(0xFF065F46), fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      fontSize: 10,
+                      color: Color(0xFF065F46),
+                      fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -833,28 +908,44 @@ class CustomerInvoiceDialog extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _summaryRow('Taxable Base Value:', '₹${s.taxableAmount.toStringAsFixed(2)}'),
+          _summaryRow(
+              'Taxable Base Value:', '₹${s.taxableAmount.toStringAsFixed(2)}'),
           if (s.isIntraState) ...[
-            _summaryRow('Central GST (CGST):', '₹${s.totalCgst.toStringAsFixed(2)}'),
-            _summaryRow('State GST (SGST):', '₹${s.totalSgst.toStringAsFixed(2)}'),
+            _summaryRow(
+                'Central GST (CGST):', '₹${s.totalCgst.toStringAsFixed(2)}'),
+            _summaryRow(
+                'State GST (SGST):', '₹${s.totalSgst.toStringAsFixed(2)}'),
           ] else ...[
-            _summaryRow('Integrated GST (IGST):', '₹${s.totalIgst.toStringAsFixed(2)}'),
+            _summaryRow(
+                'Integrated GST (IGST):', '₹${s.totalIgst.toStringAsFixed(2)}'),
           ],
-          _summaryRow('Delivery / Shipping:', s.deliveryCharges > 0 ? '₹${s.deliveryCharges.toStringAsFixed(2)}' : 'FREE',
+          _summaryRow(
+              'Delivery / Shipping:',
+              s.deliveryCharges > 0
+                  ? '₹${s.deliveryCharges.toStringAsFixed(2)}'
+                  : 'FREE',
               isGreen: s.deliveryCharges == 0),
           if (s.totalDiscount > 0)
-            _summaryRow('Discount Applied:', '-₹${s.totalDiscount.toStringAsFixed(2)}', isDiscount: true),
+            _summaryRow(
+                'Discount Applied:', '-₹${s.totalDiscount.toStringAsFixed(2)}',
+                isDiscount: true),
           const Divider(height: 14, color: Color(0xFF0F172A), thickness: 1.5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Grand Total:',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0F172A)),
               ),
               Text(
                 '₹${s.grandTotal.toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF0F172A)),
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0F172A)),
               ),
             ],
           ),
@@ -882,13 +973,15 @@ class CustomerInvoiceDialog extends StatelessWidget {
     );
   }
 
-  Widget _summaryRow(String label, String value, {bool isDiscount = false, bool isGreen = false}) {
+  Widget _summaryRow(String label, String value,
+      {bool isDiscount = false, bool isGreen = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+          Text(label,
+              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
           Text(
             value,
             style: TextStyle(
@@ -910,7 +1003,10 @@ class CustomerInvoiceDialog extends StatelessWidget {
       children: [
         const Text(
           'TERMS & CONDITIONS',
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+          style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 4),
         ...invoice.terms.map((t) => Padding(
@@ -918,9 +1014,12 @@ class CustomerInvoiceDialog extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('• ', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
+                  const Text('• ',
+                      style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
                   Expanded(
-                    child: Text(t, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+                    child: Text(t,
+                        style: const TextStyle(
+                            fontSize: 10, color: Color(0xFF64748B))),
                   ),
                 ],
               ),
@@ -933,7 +1032,10 @@ class CustomerInvoiceDialog extends StatelessWidget {
             children: [
               Text(
                 'For ${invoice.business.name}',
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A)),
               ),
               const SizedBox(height: 18),
               const Text(

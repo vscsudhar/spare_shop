@@ -11,10 +11,12 @@ class DeliveryChargeService {
   DeliveryChargeService({ApiClient? apiClient})
       : _apiClient = apiClient ?? locator<ApiClient>();
 
-  List<DeliveryChargeModel> get cachedTiers =>
-      _cachedTiers.isNotEmpty ? _cachedTiers : DeliveryChargeModel.defaultTiers();
+  List<DeliveryChargeModel> get cachedTiers => _cachedTiers.isNotEmpty
+      ? _cachedTiers
+      : DeliveryChargeModel.defaultTiers();
 
-  Future<List<DeliveryChargeModel>> getDeliveryCharges({String? locationId}) async {
+  Future<List<DeliveryChargeModel>> getDeliveryCharges(
+      {String? locationId}) async {
     try {
       final queryParams = <String, dynamic>{};
       if (locationId != null && locationId.isNotEmpty && locationId != 'all') {
@@ -29,7 +31,8 @@ class DeliveryChargeService {
       final List<dynamic>? list = response.data['data'];
       if (list != null && list.isNotEmpty) {
         _cachedTiers = list
-            .map((item) => DeliveryChargeModel.fromJson(item as Map<String, dynamic>))
+            .map((item) =>
+                DeliveryChargeModel.fromJson(item as Map<String, dynamic>))
             .toList();
         return _cachedTiers;
       }
@@ -44,9 +47,8 @@ class DeliveryChargeService {
   }
 
   double calculateFee(double subTotal, [List<DeliveryChargeModel>? tiers]) {
-    final activeTiers = (tiers != null && tiers.isNotEmpty)
-        ? tiers
-        : cachedTiers;
+    final activeTiers =
+        (tiers != null && tiers.isNotEmpty) ? tiers : cachedTiers;
 
     if (subTotal <= 0) return 0.0;
 
@@ -71,9 +73,8 @@ class DeliveryChargeService {
   }
 
   double? getFreeDeliveryThreshold([List<DeliveryChargeModel>? tiers]) {
-    final activeTiers = (tiers != null && tiers.isNotEmpty)
-        ? tiers
-        : cachedTiers;
+    final activeTiers =
+        (tiers != null && tiers.isNotEmpty) ? tiers : cachedTiers;
 
     for (final tier in activeTiers) {
       if (tier.isActive && tier.isFreeDelivery) {

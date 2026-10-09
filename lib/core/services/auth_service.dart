@@ -185,6 +185,46 @@ class AuthService {
     return {'success': true, 'data': data};
   }
 
+  Future<Map<String, dynamic>> changePassword({
+    required String password,
+    String? confirmPassword,
+    String? oldPassword,
+  }) async {
+    final email = await _tokenService.getUserEmail();
+
+    if (oldPassword != null && oldPassword.isNotEmpty) {
+      try {
+        final response = await _apiClient.patch(
+          ApiEndpoints.changePassword,
+          data: {
+            'oldPassword': oldPassword,
+            'newPassword': password,
+          },
+        );
+        final data = response.data;
+        if (data is Map<String, dynamic>) {
+          return data;
+        }
+        return {'success': true, 'data': data};
+      } catch (_) {}
+    }
+
+    final response = await _apiClient.post(
+      ApiEndpoints.resetPassword,
+      data: {
+        if (email != null && email.isNotEmpty) 'email': email.trim().toLowerCase(),
+        'password': password,
+        'newPassword': password,
+        'confirmPassword': confirmPassword ?? password,
+      },
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    return {'success': true, 'data': data};
+  }
+
   Future<void> logout() async {
     try {
       final refreshToken = await _tokenService.getRefreshToken();

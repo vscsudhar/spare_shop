@@ -275,8 +275,9 @@ class TicketChatView extends StackedView<TicketChatViewModel> {
                                   )
                                 : const Icon(Icons.send_rounded,
                                     color: Colors.white, size: 18),
-                            onPressed:
-                                viewModel.isSending ? null : viewModel.sendMessage,
+                            onPressed: viewModel.isSending
+                                ? null
+                                : viewModel.sendMessage,
                           ),
                         ),
                       ],
@@ -305,8 +306,7 @@ class TicketChatView extends StackedView<TicketChatViewModel> {
             const CircleAvatar(
               radius: 16,
               backgroundColor: kcVoltSpareDark,
-              child: Icon(Icons.support_agent,
-                  color: Colors.white, size: 18),
+              child: Icon(Icons.support_agent, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 8),
           ],
@@ -321,9 +321,8 @@ class TicketChatView extends StackedView<TicketChatViewModel> {
                   bottomLeft: Radius.circular(isCustomer ? 18 : 4),
                   bottomRight: Radius.circular(isCustomer ? 4 : 18),
                 ),
-                border: isCustomer
-                    ? null
-                    : Border.all(color: kcVoltSpareBorder),
+                border:
+                    isCustomer ? null : Border.all(color: kcVoltSpareBorder),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.02),
@@ -354,9 +353,8 @@ class TicketChatView extends StackedView<TicketChatViewModel> {
                     Text(
                       message.message,
                       style: TextStyle(
-                        color: isCustomer
-                            ? Colors.white
-                            : kcVoltSpareTextPrimary,
+                        color:
+                            isCustomer ? Colors.white : kcVoltSpareTextPrimary,
                         fontSize: 14,
                         height: 1.35,
                       ),

@@ -59,12 +59,13 @@ class _ProductFormDialogState extends State<ProductFormDialog> {
     _nameController = TextEditingController(text: p?.name ?? '');
     _priceController = TextEditingController(
         text: p != null ? p.price.toStringAsFixed(0) : '');
-    _mrpController = TextEditingController(
-        text: mrp != null ? mrp.toStringAsFixed(0) : '');
+    _mrpController =
+        TextEditingController(text: mrp != null ? mrp.toStringAsFixed(0) : '');
     _stockController = TextEditingController(
-        text: (p != null && p.stockCount != null) ? p.stockCount.toString() : '10');
-    _descriptionController =
-        TextEditingController(text: p?.description ?? '');
+        text: (p != null && p.stockCount != null)
+            ? p.stockCount.toString()
+            : '10');
+    _descriptionController = TextEditingController(text: p?.description ?? '');
     _maintainStock = p?.stockManaged ?? true;
   }
 

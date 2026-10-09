@@ -39,92 +39,94 @@ class SearchFiltersView extends StackedView<SearchFiltersViewModel> {
         viewModel.replaceWithHome();
       },
       child: ResponsiveBuilder(
-      builder: (context, sizingInformation) {
-        final isDesktop = sizingInformation.isDesktop;
+        builder: (context, sizingInformation) {
+          final isDesktop = sizingInformation.isDesktop;
 
-        return Scaffold(
-          backgroundColor: kcVoltSpareOffWhite,
-          appBar: VoltSpareAppBar(
-            title: 'Search & Filters',
-            showBackButton: false,
-            actions: [
-              TextButton(
-                onPressed: viewModel.clearFilters,
-                child: const Text(
-                  'Clear All',
-                  style: TextStyle(
-                    color: kcVoltSpareEVGreen,
-                    fontWeight: FontWeight.bold,
+          return Scaffold(
+            backgroundColor: kcVoltSpareOffWhite,
+            appBar: VoltSpareAppBar(
+              title: 'Search & Filters',
+              showBackButton: false,
+              actions: [
+                TextButton(
+                  onPressed: viewModel.clearFilters,
+                  child: const Text(
+                    'Clear All',
+                    style: TextStyle(
+                      color: kcVoltSpareEVGreen,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          body: SafeArea(
-            child: MaxContentWidth(
-              maxWidth: 1200,
-              child: isDesktop
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Left Sidebar for Filters on Desktop
-                        SizedBox(
-                          width: 300,
-                          child: Card(
-                            color: kcVoltSpareWhite,
-                            margin: const EdgeInsets.all(16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 0,
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: _buildFiltersColumn(context, viewModel),
-                            ),
-                          ),
-                        ),
-                        // Right side Grid for Results
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildSearchHeader(viewModel),
-                                const SizedBox(height: 20),
-                                Expanded(
-                                    child: _buildResultsGrid(viewModel, true)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 12),
-                          _buildSearchHeader(viewModel),
-                          const SizedBox(height: 12),
-                          // Horizontal Category Chips on Mobile
-                          _buildHorizontalMobileFilters(viewModel),
-                          const SizedBox(height: 16),
-                          Expanded(child: _buildResultsGrid(viewModel, false)),
-                        ],
-                      ),
-                    ),
+              ],
             ),
-          ),
-          bottomNavigationBar: isDesktop || sizingInformation.isTablet
-              ? null
-              : VoltSpareBottomNavigation(
-                  selectedIndex: viewModel.currentTabIndex,
-                  onTap: viewModel.onTabSelected,
-                ),
-        );
-      },
-    ),
+            body: SafeArea(
+              child: MaxContentWidth(
+                maxWidth: 1200,
+                child: isDesktop
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Left Sidebar for Filters on Desktop
+                          SizedBox(
+                            width: 300,
+                            child: Card(
+                              color: kcVoltSpareWhite,
+                              margin: const EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              elevation: 0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: _buildFiltersColumn(context, viewModel),
+                              ),
+                            ),
+                          ),
+                          // Right side Grid for Results
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSearchHeader(viewModel),
+                                  const SizedBox(height: 20),
+                                  Expanded(
+                                      child:
+                                          _buildResultsGrid(viewModel, true)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 12),
+                            _buildSearchHeader(viewModel),
+                            const SizedBox(height: 12),
+                            // Horizontal Category Chips on Mobile
+                            _buildHorizontalMobileFilters(viewModel),
+                            const SizedBox(height: 16),
+                            Expanded(
+                                child: _buildResultsGrid(viewModel, false)),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+            bottomNavigationBar: isDesktop || sizingInformation.isTablet
+                ? null
+                : VoltSpareBottomNavigation(
+                    selectedIndex: viewModel.currentTabIndex,
+                    onTap: viewModel.onTabSelected,
+                  ),
+          );
+        },
+      ),
     );
   }
 

@@ -128,7 +128,8 @@ class ProductModel {
       rating: rating ?? this.rating,
       description: description ?? this.description,
       categoryId: categoryId ?? this.categoryId,
-      isWishlist: isWishlist ?? isLike ?? isLiked ?? isFavorite ?? this.isWishlist,
+      isWishlist:
+          isWishlist ?? isLike ?? isLiked ?? isFavorite ?? this.isWishlist,
       isFeatured: isFeatured ?? this.isFeatured,
       compatibleVehicleIds: compatibleVehicleIds ?? this.compatibleVehicleIds,
       fitmentBadge: fitmentBadge ?? this.fitmentBadge,

@@ -53,7 +53,8 @@ class PrivacyPolicyView extends StackedView<PrivacyPolicyViewModel> {
           ),
           actions: [
             TextButton.icon(
-              onPressed: () => viewModel.setTab(isPrivacy ? LegalTab.terms : LegalTab.privacy),
+              onPressed: () => viewModel
+                  .setTab(isPrivacy ? LegalTab.terms : LegalTab.privacy),
               icon: Icon(
                 isPrivacy ? Icons.gavel_rounded : Icons.privacy_tip_outlined,
                 size: 16,
@@ -74,7 +75,8 @@ class PrivacyPolicyView extends StackedView<PrivacyPolicyViewModel> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -94,7 +96,8 @@ class PrivacyPolicyView extends StackedView<PrivacyPolicyViewModel> {
                             child: GestureDetector(
                               onTap: () => viewModel.setTab(LegalTab.terms),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
                                   color: !isPrivacy
                                       ? kcVoltSpareDark
@@ -132,7 +135,8 @@ class PrivacyPolicyView extends StackedView<PrivacyPolicyViewModel> {
                             child: GestureDetector(
                               onTap: () => viewModel.setTab(LegalTab.privacy),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
                                   color: isPrivacy
                                       ? kcVoltSpareDark
@@ -200,12 +204,17 @@ class PrivacyPolicyView extends StackedView<PrivacyPolicyViewModel> {
                                 decoration: BoxDecoration(
                                   color: isPrivacy
                                       ? Colors.white.withValues(alpha: 0.2)
-                                      : kcVoltSpareEVGreen.withValues(alpha: 0.2),
+                                      : kcVoltSpareEVGreen.withValues(
+                                          alpha: 0.2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(
-                                  isPrivacy ? Icons.privacy_tip_outlined : Icons.gavel_rounded,
-                                  color: isPrivacy ? Colors.white : kcVoltSpareEVGreen,
+                                  isPrivacy
+                                      ? Icons.privacy_tip_outlined
+                                      : Icons.gavel_rounded,
+                                  color: isPrivacy
+                                      ? Colors.white
+                                      : kcVoltSpareEVGreen,
                                   size: 24,
                                 ),
                               ),
@@ -257,11 +266,13 @@ class PrivacyPolicyView extends StackedView<PrivacyPolicyViewModel> {
                             children: [
                               _HeaderTag(
                                 icon: Icons.calendar_today_rounded,
-                                label: 'Effective: ${LegalConfig.effectiveDate}',
+                                label:
+                                    'Effective: ${LegalConfig.effectiveDate}',
                               ),
                               _HeaderTag(
                                 icon: Icons.update_rounded,
-                                label: 'Updated: ${LegalConfig.lastUpdatedDate}',
+                                label:
+                                    'Updated: ${LegalConfig.lastUpdatedDate}',
                               ),
                               _HeaderTag(
                                 icon: Icons.verified_user_rounded,
@@ -288,12 +299,15 @@ class PrivacyPolicyView extends StackedView<PrivacyPolicyViewModel> {
                           hintText: isPrivacy
                               ? 'Search privacy topics (e.g. location, payments, DPDP rights)...'
                               : 'Search terms (e.g. returns, warranty, delivery, hub radius)...',
-                          hintStyle: const TextStyle(fontSize: 13, color: kcLightGrey),
+                          hintStyle:
+                              const TextStyle(fontSize: 13, color: kcLightGrey),
                           border: InputBorder.none,
-                          icon: const Icon(Icons.search_rounded, color: kcMediumGrey),
+                          icon: const Icon(Icons.search_rounded,
+                              color: kcMediumGrey),
                           suffixIcon: viewModel.searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear_rounded, size: 18),
+                                  icon:
+                                      const Icon(Icons.clear_rounded, size: 18),
                                   onPressed: viewModel.clearSearch,
                                 )
                               : null,
@@ -310,77 +324,80 @@ class PrivacyPolicyView extends StackedView<PrivacyPolicyViewModel> {
                       subtitle: isPrivacy
                           ? 'All ${viewModel.sections.length} privacy safeguards and data handling standards'
                           : 'All ${viewModel.sections.length} operative provisions for customers and buyers',
-                      icon: isPrivacy ? Icons.shield_outlined : Icons.description_outlined,
-                      accentColor: isPrivacy ? const Color(0xFF0F766E) : kcPrimaryColor,
+                      icon: isPrivacy
+                          ? Icons.shield_outlined
+                          : Icons.description_outlined,
+                      accentColor:
+                          isPrivacy ? const Color(0xFF0F766E) : kcPrimaryColor,
                       sections: viewModel.sections,
                       isFullPage: true,
                     ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Grievance Officer Details Card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: kcBorderColor),
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.admin_panel_settings_outlined,
-                                size: 20, color: kcVoltSpareDark),
-                            SizedBox(width: 10),
-                            Text(
-                              'Data Protection & Privacy Officer',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: kcVoltSpareDark,
+                    // Grievance Officer Details Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: kcBorderColor),
+                      ),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.admin_panel_settings_outlined,
+                                  size: 20, color: kcVoltSpareDark),
+                              SizedBox(width: 10),
+                              Text(
+                                'Data Protection & Privacy Officer',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: kcVoltSpareDark,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'In accordance with Indian data protection laws, inquiries or consent withdrawal requests may be sent to our designated officer:',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: kcVoltSpareTextSecondary,
+                            ],
                           ),
-                        ),
-                        SizedBox(height: 12),
-                        Wrap(
-                          spacing: 16,
-                          runSpacing: 8,
-                          children: [
-                            _ContactChip(
-                              icon: Icons.person_outline_rounded,
-                              label: LegalConfig.grievanceOfficerName,
+                          SizedBox(height: 8),
+                          Text(
+                            'In accordance with Indian data protection laws, inquiries or consent withdrawal requests may be sent to our designated officer:',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: kcVoltSpareTextSecondary,
                             ),
-                            _ContactChip(
-                              icon: Icons.email_outlined,
-                              label: LegalConfig.grievanceEmail,
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          SizedBox(height: 12),
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 8,
+                            children: [
+                              _ContactChip(
+                                icon: Icons.person_outline_rounded,
+                                label: LegalConfig.grievanceOfficerName,
+                              ),
+                              _ContactChip(
+                                icon: Icons.email_outlined,
+                                label: LegalConfig.grievanceEmail,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 30),
-                ],
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   PrivacyPolicyViewModel viewModelBuilder(BuildContext context) =>

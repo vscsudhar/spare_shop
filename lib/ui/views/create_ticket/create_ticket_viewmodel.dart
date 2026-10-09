@@ -111,7 +111,8 @@ class CreateTicketViewModel extends BaseViewModel with NavigationMixin {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ticket #${created.ticketNumber} created successfully!'),
+            content:
+                Text('Ticket #${created.ticketNumber} created successfully!'),
             backgroundColor: const Color(0xFF00B156),
           ),
         );
